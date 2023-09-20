@@ -1,0 +1,304 @@
+---
+title: "test AI"
+output: html_document
+date: "2023-09-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r testing-worldclim}
+library(geodata)
+library(plyr)
+library(dplyr)
+
+library(raster)
+library(sf)
+library(ggplot2)
+```
+
+```{r dowload-worldclim, eval = F}
+worldclim_country("Côte d'Ivoire", var = "prec", res = 0.5, path = ".") # average monthly precipitation in Ivory Coast, reference period 1970-2000). Res: 1km
+worldclim_country("France", var = "prec", res = 0.5, path = ".") # average monthly precipitation in France, reference period 1970-2000). Res: 1km
+
+worldclim_country("Côte d'Ivoire", var = "tavg", res = 0.5, path = ".") # average monthly temperature in Ivory Coast, reference period 1970-2000)
+worldclim_country("Côte d'Ivoire", var = "tmin", res = 0.5, path = ".") # monthly minimum temperature in Ivory Coast, reference period 1970-2000)
+worldclim_country("Côte d'Ivoire", var = "tmax", res = 0.5, path = ".") # monthly minimum temperature in Ivory Coast, reference period 1970-2000)
+
+
+worldclim_country("Côte d'Ivoire", var = "srad", res = 0.5, path = ".") # average monthly solar radiation in Ivory Coast, reference period 1970-2000)
+worldclim_country("Côte d'Ivoire", var = "bio", res = 0.5, path = ".") # Bioclimatic variablesreference period 1970-2000)
+worldclim_country("Côte d'Ivoire", var = "elev", res = 0.5, path = ".") # elevation in Ivory Coast, reference period 1970-2000
+worldclim_country("Côte d'Ivoire", var = "wind", res = 0.5, path = ".") # elevation in Ivory Coast, reference period 1970-2000
+
+worldclim_global(var = "prec", res = 0.5, path = ".")
+```
+
+```{r test}
+map_prec <- raster::brick("wc2.1_country/CIV_wc2.1_30s_prec.tif") 
+plot(map_prec, col = rev(bpy.colors(255)), axes = F, main = "Mensual precipitation 1970-2000, Ivory Coast")
+
+map_prec_france <- raster::brick("wc2.1_country/FRA_wc2.1_30s_prec.tif") 
+plot(map_prec_france, col = rev(bpy.colors(255)), axes = F, main = "Mensual precipitation 1970-2000, France")
+
+#prec_jan
+prec_jan <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(prec_jan)+geom_tile(aes(x = x, y = y, fill = CIV_wc2.1_30s_prec_1))+
+  labs(fill = "Average precipitations in January, mm")+scale_fill_viridis_c(direction = -1)+theme_void()
+
+# prec april
+prec_apr <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = 4) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(prec_apr)+geom_tile(aes(x = x, y = y, fill = CIV_wc2.1_30s_prec_1))+
+  labs(fill = "Average precipitations in April, mm")+scale_fill_viridis_c(direction = -1)+theme_void()
+
+#temp
+map_temp <- raster::brick("wc2.1_country/CIV_wc2.1_30s_tavg.tif") 
+plot(map_temp, col = rev(heat.colors(255)), axes = F, main = "Mensual temperature 1970-2000, Ivory Coast")
+
+map_temp_sf <- map_temp %>% st_as_sf()
+```
+
+# Rainfall-based aridity CIV
+
+```{r annual-precipitation}
+raster.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) 
+
+annual.p <- raster.p %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+ggplot(annual.p)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "Annual cumulated\nprecipitations, mm")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+ggsave("annual.precipitations.civ.jpg", width = 3, height = 3)
+
+raster.p.mensual <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T)
+avg.annual.p <- raster.p.mensual %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(avg.annual.p)+geom_tile(aes(x = x, y = y, fill = layer))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "Average monthly\nprecipitations, mm")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("avg.annual.precipitations.civ.jpg", width = 3, height = 3)
+
+```
+
+# AI De Martonne
+
+```{r martonne}
+
+raster.t <- raster.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1)
+annual.t <- raster.t %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.t)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "Average annual temperature, degC")+scale_fill_viridis_c(direction = +1)+theme_void()+theme(legend.position = "bottom")
+ggsave("annual.temperature.civ.jpg")
+
+```
+
+```{r index-martonne}
+martonne.df <- merge(annual.p, annual.t, by = c("x","y"))
+names(martonne.df) <- c("x","y","pre","temp")
+martonne.df$Am <- with(martonne.df, (pre/10)/(temp+10)) #precipitations in cm
+
+ggplot(martonne.df)+geom_tile(aes(x = x, y = y, fill = Am))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "Aridity index De Martonne")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("Am.civ.jpg", width = 3, height = 3)
+
+
+```
+
+# Monthly Martonne
+
+```{r martonne-monthly}
+t <- raster("wc2.1_country/CIV_wc2.1_30s_tavg.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+p.jan <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+am.jan <- merge(t.jan, p.jan, by = c("x","y")) %>% setNames(c("x","y","temp","prec")) %>% mutate(am = (prec/10)/(temp+10))
+
+g <- ggplot(am.jan)+geom_tile(aes(x = x, y = y, fill = am))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "De Martonne, january")+scale_fill_viridis_c(direction = +1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave(g, "am.january.civ.jpg", width = 3, height = 3)
+
+for(i in 1:12){
+  
+t <- raster("wc2.1_country/CIV_wc2.1_30s_tavg.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+p <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+am <- merge(t, p, by = c("x","y")) %>% setNames(c("x","y","temp","prec")) %>% mutate(am = 12*(prec/10)/(temp+10))
+
+g <- ggplot(am)+geom_tile(aes(x = x, y = y, fill = cut(am, breaks = c(0,10,20))))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = i)+scale_fill_viridis_d(direction = +1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+ggsave(plot = g, filename = paste("cat.am",i,"civ.jpg", sep = "."), width = 3, height = 3)
+}
+
+for(i in 1:12){
+t <- raster("wc2.1_country/CIV_wc2.1_30s_tavg.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+p <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+am <- merge(t, p, by = c("x","y")) %>% setNames(c("x","y","temp","prec")) %>% mutate(am = 12*(prec/10)/(temp+10))
+
+g <- ggplot(am)+geom_tile(aes(x = x, y = y, fill = am))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = i)+scale_fill_viridis_c(direction = +1, lim = c(0,15))+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave(plot = g, filename = paste("am",i,"civ.jpg", sep = "."), width = 3, height = 3)
+}
+
+```
+
+# AI standard
+
+```{r AI-PMref}
+library(FAO56)
+
+raster.srad <- raster::stack("wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T)
+
+annual.srad <- raster.srad %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.srad)+geom_tile(aes(x = x, y = y, fill = layer*1e-3))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Average solar radiation, MJ/m2/day")+scale_fill_viridis_c()+theme_void()
+
+raster.elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif")
+
+annual.elev <- raster.elev %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.elev)+geom_tile(aes(x = x, y = y, fill = CIV_wc2.1_30s_elev))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Elevation, m")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void()+theme(legend.position = "bottom")
+
+raster.tmin <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 6) #tmin
+
+annual.tmin <- raster.tmin %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.tmin)+geom_tile(aes(x = x, y = y, fill =  wc2.1_30s_bio_1))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "Tmin")+scale_fill_viridis_c(direction = 1, option = "C")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("Tmin.civ.jpg", width = 3, height = 3)
+
+raster.tmax <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 5) #tmax
+
+annual.tmax <- raster.tmax %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.tmax)+geom_tile(aes(x = x, y = y, fill =  wc2.1_30s_bio_1))+
+  borders(regions = "Ivory Coast")+
+  labs(fill = "tmax")+scale_fill_viridis_c(direction = 1, option = "C")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("tmax.civ.jpg", width = 3, height = 3)
+
+raster.wind <- raster::stack("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T)
+
+annual.wind <- raster.wind %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.wind)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Wind speed, m/s")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void()+theme(legend.position = "bottom")
+
+# ET in mm/day
+PMref <- ETo_FPM(T_mean = annual.p$wc2.1_30s_bio_1,  #°C
+                 R_n = annual.srad$layer*1e-3, # from kJ/m2/day to MJ/m2/day
+                 elev = annual.elev$CIV_wc2.1_30s_elev, # m
+                 T_min = annual.tmin$wc2.1_30s_bio_1, #°C
+                 T_max = annual.tmax$wc2.1_30s_bio_1, #°C
+                 u_2 = annual.wind$layer) #m/s 
+
+
+AI.df <- annual.p %>% mutate(ET = PMref*365, AI = wc2.1_30s_bio_1/ET)
+#AI.df <- avg.annual.p %>% mutate(ET = PMref, AI = layer/ET)
+head(AI.df)
+AI.df$cat <- cut(AI.df$AI, breaks = c(0,0.03,0.2,0.5,0.75,1))
+AI.df$cat.AI <- revalue(AI.df$cat, c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,1]" = "Humid"))
+
+
+ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = PMref))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "PMref, mm/day")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("PMref.civ.jpg", width = 3, height = 3)
+
+ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = AI))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "AI")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("AIref.civ.jpg", width = 3, height = 3)
+
+ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "AI (FAO), annual mean", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+ggsave("cat.AIref.civ.jpg", width = 3, height = 3)
+```
+
+```{r mensual-AI}
+elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+newvalues <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid", "NA" = "")
+mycolors <- viridisLite::viridis(n = length(newvalues), direction = -1)
+names(mycolors) <- newvalues
+
+for(i in 1:12){
+precip <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+srad <- raster("wc2.1_country/CIV_wc2.1_30s_srad.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+tmin <- raster("wc2.1_country/CIV_wc2.1_30s_tmin.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()  # month tmin 
+
+tmax <- raster("wc2.1_country/CIV_wc2.1_30s_tmax.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+wind <- raster("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+PMref <- ETo_FPM(R_n = srad$CIV_wc2.1_30s_srad_1, #from kJ/m2/day to MJ/m2/day
+                 elev = elev$CIV_wc2.1_30s_elev, 
+                 T_min = tmin$CIV_wc2.1_30s_tmin_1, 
+                 T_max = tmax$CIV_wc2.1_30s_tmax_1, 
+                 u_2 = wind$CIV_wc2.1_30s_wind_1)
+
+AI.df <- precip %>% mutate(ET = PMref, AI = CIV_wc2.1_30s_prec_1*12/PMref)
+head(AI.df)
+AI.df$cat <- cut(AI.df$AI, breaks = c(0,0.03,0.2,0.5,0.65))
+AI.df$cat.AI <- revalue(AI.df$cat, newvalues)
+
+g <- ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = AI))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "", subtitle = i)+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 8)+theme(legend.position = "bottom")
+ggsave(plot = g, filename = paste("AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
+
+g <- ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(subtitle = i, fill = "")+scale_fill_manual(values = mycolors)+theme_void(base_size = 8)+theme(legend.position = "bottom")
+ggsave(plot = g, filename = paste("cat.AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
+}
+
+```
+
+# Emberger
+
+```{r emberger}
+#mean temperature of the warmest month
+t.max <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% max()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(t.max)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Average temperature of warmest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+#mean temperature of the warmest month
+t.min <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% min()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(t.min)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Average temperature of coldest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+
+#annual rainfall
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(monthly.p)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(monthly.p)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+
+Em <- (t.max$layer - t.min$layer)*(((monthly.p$layer)/(t.min$layer+t.max$layer))/2)
+
+Em.df <- annual.p %>% mutate(Em = Em)
+
+ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = Em))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Em")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+
+```
