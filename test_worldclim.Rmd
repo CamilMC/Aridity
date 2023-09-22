@@ -2,6 +2,7 @@
 title: "test AI"
 output: html_document
 date: "2023-09-13"
+bibliography: AI.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +17,11 @@ library(dplyr)
 library(raster)
 library(sf)
 library(ggplot2)
+
+
 ```
+
+# Download worldclim
 
 ```{r dowload-worldclim, eval = F}
 worldclim_country("Côte d'Ivoire", var = "prec", res = 0.5, path = ".") # average monthly precipitation in Ivory Coast, reference period 1970-2000). Res: 1km
@@ -35,29 +40,6 @@ worldclim_country("Côte d'Ivoire", var = "wind", res = 0.5, path = ".") # eleva
 worldclim_global(var = "prec", res = 0.5, path = ".")
 ```
 
-```{r test}
-map_prec <- raster::brick("wc2.1_country/CIV_wc2.1_30s_prec.tif") 
-plot(map_prec, col = rev(bpy.colors(255)), axes = F, main = "Mensual precipitation 1970-2000, Ivory Coast")
-
-map_prec_france <- raster::brick("wc2.1_country/FRA_wc2.1_30s_prec.tif") 
-plot(map_prec_france, col = rev(bpy.colors(255)), axes = F, main = "Mensual precipitation 1970-2000, France")
-
-#prec_jan
-prec_jan <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(prec_jan)+geom_tile(aes(x = x, y = y, fill = CIV_wc2.1_30s_prec_1))+
-  labs(fill = "Average precipitations in January, mm")+scale_fill_viridis_c(direction = -1)+theme_void()
-
-# prec april
-prec_apr <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = 4) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(prec_apr)+geom_tile(aes(x = x, y = y, fill = CIV_wc2.1_30s_prec_1))+
-  labs(fill = "Average precipitations in April, mm")+scale_fill_viridis_c(direction = -1)+theme_void()
-
-#temp
-map_temp <- raster::brick("wc2.1_country/CIV_wc2.1_30s_tavg.tif") 
-plot(map_temp, col = rev(heat.colors(255)), axes = F, main = "Mensual temperature 1970-2000, Ivory Coast")
-
-map_temp_sf <- map_temp %>% st_as_sf()
-```
 
 # Rainfall-based aridity CIV
 
@@ -70,85 +52,69 @@ ggplot(annual.p)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
   borders(regions = "Ivory Coast")+
   labs(fill = "Annual cumulated\nprecipitations, mm")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-ggsave("annual.precipitations.civ.jpg", width = 3, height = 3)
-
 raster.p.mensual <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T)
 avg.annual.p <- raster.p.mensual %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
 ggplot(avg.annual.p)+geom_tile(aes(x = x, y = y, fill = layer))+
   borders(regions = "Ivory Coast")+
   labs(fill = "Average monthly\nprecipitations, mm")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave("avg.annual.precipitations.civ.jpg", width = 3, height = 3)
+```
+# Lang Rain Factor
+
+Detailed in @Thornthwaite1948 and [here]<https://iast.univ-setif.dz/documents/Cours/Cours6BioclimatologieL2GAT21.pdf> 
+
+```{r lang}
+annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+lang.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) %>% mutate(lang = pre/temp)
+
+lang.df$cat <- cut(lang.df$lang, breaks = c(0,20,40,60,100,160,200))
+lang.df$cat.AI <- revalue(lang.df$cat, c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,200]"="Hyper humid"))
+
+ggplot(lang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
 
 ```
 
 # AI De Martonne
 
+Defined by @Martonne1926, used and detailed by @Baltas2007.
+
 ```{r martonne}
 
-raster.t <- raster.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1)
-annual.t <- raster.t %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
 ggplot(annual.t)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
   borders(regions = "Ivory Coast")+
-  labs(fill = "Average annual temperature, degC")+scale_fill_viridis_c(direction = +1)+theme_void()+theme(legend.position = "bottom")
-ggsave("annual.temperature.civ.jpg")
+  labs(fill = "Average annual temperature, °C")+scale_fill_viridis_c(direction = +1)+theme_void()+theme(legend.position = "bottom")
+
 
 ```
 
 ```{r index-martonne}
 martonne.df <- merge(annual.p, annual.t, by = c("x","y"))
 names(martonne.df) <- c("x","y","pre","temp")
-martonne.df$Am <- with(martonne.df, (pre/10)/(temp+10)) #precipitations in cm
+martonne.df$Am <- with(martonne.df, (pre)/(temp+10)) #precipitations in mm
 
 ggplot(martonne.df)+geom_tile(aes(x = x, y = y, fill = Am))+
   borders(regions = "Ivory Coast")+
   labs(fill = "Aridity index De Martonne")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave("Am.civ.jpg", width = 3, height = 3)
+#ggsave("Am.civ.jpg", width = 3, height = 3)
 
+martonne.df$cat <- cut(martonne.df$Am, c(0,10,20,24,28,35,55,100))
 
-```
+martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
 
-# Monthly Martonne
-
-```{r martonne-monthly}
-t <- raster("wc2.1_country/CIV_wc2.1_30s_tavg.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-p.jan <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-am.jan <- merge(t.jan, p.jan, by = c("x","y")) %>% setNames(c("x","y","temp","prec")) %>% mutate(am = (prec/10)/(temp+10))
-
-g <- ggplot(am.jan)+geom_tile(aes(x = x, y = y, fill = am))+
-  borders(regions = "Ivory Coast")+
-  labs(fill = "De Martonne, january")+scale_fill_viridis_c(direction = +1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave(g, "am.january.civ.jpg", width = 3, height = 3)
-
-for(i in 1:12){
-  
-t <- raster("wc2.1_country/CIV_wc2.1_30s_tavg.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-p <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-am <- merge(t, p, by = c("x","y")) %>% setNames(c("x","y","temp","prec")) %>% mutate(am = 12*(prec/10)/(temp+10))
-
-g <- ggplot(am)+geom_tile(aes(x = x, y = y, fill = cut(am, breaks = c(0,10,20))))+
-  borders(regions = "Ivory Coast")+
-  labs(fill = i)+scale_fill_viridis_d(direction = +1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-ggsave(plot = g, filename = paste("cat.am",i,"civ.jpg", sep = "."), width = 3, height = 3)
-}
-
-for(i in 1:12){
-t <- raster("wc2.1_country/CIV_wc2.1_30s_tavg.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-p <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-am <- merge(t, p, by = c("x","y")) %>% setNames(c("x","y","temp","prec")) %>% mutate(am = 12*(prec/10)/(temp+10))
-
-g <- ggplot(am)+geom_tile(aes(x = x, y = y, fill = am))+
-  borders(regions = "Ivory Coast")+
-  labs(fill = i)+scale_fill_viridis_c(direction = +1, lim = c(0,15))+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave(plot = g, filename = paste("am",i,"civ.jpg", sep = "."), width = 3, height = 3)
-}
+ggplot(martonne.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "De Martonne Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
 ```
 
 # AI standard
+
+Index established by UNESCO1979, used and detailed by @Tsakiris2005
 
 ```{r AI-PMref}
 library(FAO56)
@@ -209,18 +175,128 @@ AI.df$cat.AI <- revalue(AI.df$cat, c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Ar
 ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = PMref))+
     borders(regions = "Ivory Coast")+
   labs(fill = "PMref, mm/day")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave("PMref.civ.jpg", width = 3, height = 3)
+
 
 ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = AI))+
     borders(regions = "Ivory Coast")+
   labs(fill = "AI")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave("AIref.civ.jpg", width = 3, height = 3)
+
 
 ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(title = "AI (FAO), annual mean", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
-ggsave("cat.AIref.civ.jpg", width = 3, height = 3)
+  labs(title = "AI (Penmann-Monteith)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
 ```
+
+
+
+# Emberger
+
+Defined by Emberger in 1932, and explained in @Marres1972.
+
+Used by @Baldy1972 for Liban. 
+
+Used by @Shaban2019, who modified the original formula to use the average monthly rainfall instead of the cumulated annual rainfall AND END UP WITH THE WEIRDEST EQUATION
+
+Problème: je ne prends pas les bons max/min? Pas de consensus sur la formule dans la littérature. Les fonctions R prédéfinies utilisent 100P/(T2-t2) en K, alors que  Baldy utilise un facteur 1000 et Marres parle en °C. Shaban utilisent des °C. 
+STILL NOT SURE
+
+```{r emberger}
+#mean temperature of the warmest month
+t.max <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% max()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame() #cette formule est censée prendre la température maximum (qui est une moyenne mensuelle) parmi les 12 layers du raster
+ggplot(t.max)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Average temperature of warmest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+#mean temperature of the coolest month
+t.min <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% min()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(t.min)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Average temperature of coldest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+
+#annual rainfall
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(annual.p)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(monthly.p)+geom_tile(aes(x = x, y = y, fill = layer))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+
+Em <- (annual.p$wc2.1_30s_bio_1*100)/((t.max$layer+273)^2-(t.min$layer+273)^2) # Formulation from Marres1972. 
+
+Em.df <- annual.p %>% mutate(Em = Em)
+
+ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = Em))+
+    borders(regions = "Ivory Coast")+
+  labs(fill = "Em")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+Em.df$cat <- cut(Em.df$Em, breaks = c(0,10,45,70,110,150,760))
+Em.df$cat.AI <- revalue(Em.df$cat, c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
+
+ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+```
+
+
+# Ångström
+
+Je ne connais pas la catégorisation
+
+```{r angstrom}
+
+annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+ang.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) %>% mutate(ang = pre/(1.07^temp))
+
+
+ang.df$cat <- cut(ang.df$ang, breaks = c(0,20,40,60,100,160,700))
+ang.df$cat.AI <- revalue(ang.df$cat, c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
+#martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+
+
+
+ggplot(ang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+```
+
+
+# Thornthwaite
+
+1. Extraire la température mensuelle pur les 12 mois. 
+2. calculer tho pour chaque point. Résultat: PET par mois
+3. Additionner les PET pour obtenir annual PET. 
+
+
+```{r thornthwaite}
+library(bioclim)
+
+
+
+annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+
+tho.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) #%>% mutate(ET = thornthwaite(Tave = temp,lat = y), AI = pre/ET)
+thornthwaite(Tave = head(tho.df)$temp, lat = head(tho.df)$y)
+
+thornthwaite(rnorm(12, 18, 6), 35)
+```
+
+
+# References
+
+`r knitr::knit_exit()`
+
+# Extra
 
 ```{r mensual-AI}
 elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
@@ -261,44 +337,5 @@ g <- ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
   labs(subtitle = i, fill = "")+scale_fill_manual(values = mycolors)+theme_void(base_size = 8)+theme(legend.position = "bottom")
 ggsave(plot = g, filename = paste("cat.AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
 }
-
-```
-
-# Emberger
-
-```{r emberger}
-#mean temperature of the warmest month
-t.max <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% max()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(t.max)+geom_tile(aes(x = x, y = y, fill = layer))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Average temperature of warmest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-#mean temperature of the warmest month
-t.min <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% min()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(t.min)+geom_tile(aes(x = x, y = y, fill = layer))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Average temperature of coldest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-
-#annual rainfall
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(monthly.p)+geom_tile(aes(x = x, y = y, fill = layer))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(monthly.p)+geom_tile(aes(x = x, y = y, fill = layer))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-
-Em <- (t.max$layer - t.min$layer)*(((monthly.p$layer)/(t.min$layer+t.max$layer))/2)
-
-Em.df <- annual.p %>% mutate(Em = Em)
-
-ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = Em))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Em")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
 
 ```
