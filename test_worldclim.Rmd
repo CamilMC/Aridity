@@ -18,7 +18,7 @@ library(raster)
 library(sf)
 library(ggplot2)
 
-
+library(reshape2)
 ```
 
 # Download worldclim
@@ -388,7 +388,124 @@ tho.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","tem
 thornthwaite(Tave = head(tho.df)$temp, lat = head(tho.df)$y)
 
 thornthwaite(rnorm(12, 18, 6), 35)
+
+library(SPEI)
+monthly.t <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+names(monthly.t) <- c("t_01","t_02","t_03","t_04","t_05","t_06","t_07","t_08","t_09","t_10","t_11","t_12","long","lat")
+
+#for 1 location
+SPEI::thornthwaite(Tave = as.numeric(as.vector(monthly.t[1,c(1:12)])), lat = monthly.t[1,14]) %>% sum()
+
+
+#Loop is too long
+monthly.t$ETf <- NA
+for(n in 1:614511){
+  et <- SPEI::thornthwaite(Tave = as.numeric(as.vector(monthly.t[n,c(1:12)])), lat = monthly.t[n,14], verbose = F) 
+  eta <- sum(et)
+  monthly.t[n,"ETf"] <- eta
+}
+
+
+df <- monthly.t %>% mutate(nb = row_number()) %>% melt(id.vars = c("long","lat","nb")) %>% setNames(c("long","lat","nb","month","temp")) %>% arrange(nb)
+
+
+df2 <- monthly.t[,c(1:12)] %>% as.matrix %>% t() %>% as.data.frame %>% setNames(monthly.t$lat)
+lapply(df2, SPEI::thornthwaite, lat = as.numeric(colnames(df))
+
+SPEI::thornthwaite(df$temp[1:12],lat= df$lat[1], verbose = F)
+
+
 ```
+
+```{r thornthwaite-civ-by-hand}
+monthly.t <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+names(monthly.t) <- c("t_01","t_02","t_03","t_04","t_05","t_06","t_07","t_08","t_09","t_10","t_11","t_12","long","lat")
+
+monthly.t <- mutate(monthly.t, i_01 = (t_01/5)^1.514,
+                    i_02 = (t_02/5)^1.514,
+                    i_03 = (t_03/5)^1.514,
+                    i_04 = (t_04/5)^1.514,
+                    i_05 = (t_05/5)^1.514,
+                    i_06 = (t_06/5)^1.514,
+                    i_07 = (t_07/5)^1.514,
+                    i_08 = (t_08/5)^1.514,
+                    i_09 = (t_09/5)^1.514,
+                    i_10 = (t_10/5)^1.514,
+                    i_11 = (t_11/5)^1.514,
+                    i_12 = (t_12/5)^1.514,
+                    I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
+                    a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
+                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*t_02/I)^a,
+                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*t_03/I)^a,
+                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*t_04/I)^a,
+                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*t_05/I)^a,
+                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*t_06/I)^a,
+                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*t_07/I)^a,
+                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*t_08/I)^a,
+                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*t_09/I)^a,
+                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*t_10/I)^a,
+                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*t_11/I)^a,
+                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*t_12/I)^a,
+                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12) # en mm
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","long","lat"))
+
+tho <- merge(monthly.t, annual.p) %>% mutate(AI = pre/ET)
+
+tho$cat <- cut(tho$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) # cuts from Tsakiris2005
+tho$cat.AI <- revalue(tho$cat, c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid"))
+
+ggplot(tho)+geom_tile(aes(x = long, y = lat, fill = cat.AI))+
+  borders(regions = "Ivory Coast")+
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+```
+
+```{r thornthwaite-fra-by-hand}
+monthly.t <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+names(monthly.t) <- c("t_01","t_02","t_03","t_04","t_05","t_06","t_07","t_08","t_09","t_10","t_11","t_12","long","lat")
+
+monthly.t <- mutate(monthly.t, i_01 = (t_01/5)^1.514,
+                    i_02 = (t_02/5)^1.514,
+                    i_03 = (t_03/5)^1.514,
+                    i_04 = (t_04/5)^1.514,
+                    i_05 = (t_05/5)^1.514,
+                    i_06 = (t_06/5)^1.514,
+                    i_07 = (t_07/5)^1.514,
+                    i_08 = (t_08/5)^1.514,
+                    i_09 = (t_09/5)^1.514,
+                    i_10 = (t_10/5)^1.514,
+                    i_11 = (t_11/5)^1.514,
+                    i_12 = (t_12/5)^1.514,
+                    I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
+                    a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
+                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*t_02/I)^a,
+                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*t_03/I)^a,
+                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*t_04/I)^a,
+                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*t_05/I)^a,
+                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*t_06/I)^a,
+                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*t_07/I)^a,
+                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*t_08/I)^a,
+                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*t_09/I)^a,
+                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*t_10/I)^a,
+                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*t_11/I)^a,
+                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*t_12/I)^a,
+                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12) # en mm
+annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","long","lat"))
+
+tho <- merge(monthly.t, annual.p) %>% mutate(AI = pre/ET)
+
+tho$cat <- cut(tho$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) # cuts from Tsakiris2005
+tho$cat.AI <- revalue(tho$cat, c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid"))
+
+ggplot(tho)+geom_tile(aes(x = long, y = lat, fill = cat.AI))+
+  borders(regions = "France")+
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+```
+No adjustment for day length
+
 
 
 # References
