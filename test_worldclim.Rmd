@@ -12,7 +12,7 @@ bibliography: AI.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
 ```
 
 ```{r testing-worldclim}
@@ -25,6 +25,8 @@ library(sf)
 library(ggplot2)
 
 library(reshape2)
+
+library(lubridate)
 ```
 
 # Download worldclim
@@ -55,17 +57,17 @@ worldclim_country("France", var = "elev", res = 0.5, path = ".") # elevation in 
 worldclim_country("Côte d'Ivoire", var = "wind", res = 0.5, path = ".") # elevation in Ivory Coast, reference period 1970-2000
 worldclim_country("France", var = "wind", res = 0.5, path = ".") # elevation in France, reference period 1970-2000
 
-worldclim_global(var = "prec", res = 0.5, path = ".")
-worldclim_global(var = "tavg", res = 0.5, path = ".")
-worldclim_global(var = "tmin", res = 0.5, path = ".")
-worldclim_global(var = "tmax", res = 0.5, path = ".")
-worldclim_global(var = "srad", res = 0.5, path = ".")
-worldclim_global(var = "elev", res = 0.5, path = ".")
-worldclim_global(var = "wind", res = 0.5, path = ".")
-worldclim_global(var = "bio", res = 0.5, path = ".")
+worldclim_global(var = "prec", res = 10, path = ".")
+worldclim_global(var = "tavg", res = 10, path = ".")
+worldclim_global(var = "tmin", res = 10, path = ".")
+worldclim_global(var = "tmax", res = 10, path = ".")
+worldclim_global(var = "srad", res = 10, path = ".")
+worldclim_global(var = "elev", res = 10, path = ".")
+worldclim_global(var = "wind", res = 10, path = ".")
+worldclim_global(var = "bio", res = 10, path = ".")
 ```
 
-```{r merge-dfs}
+```{r merge-france, eval = F}
 monthly.tavg <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
   setNames( c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat"))
 
@@ -80,48 +82,139 @@ monthly.p <- raster::stack("wc2.1_country/FRA_wc2.1_30s_prec.tif") %>% as("Spati
 
 annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
 
-elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","x","y"))
+annual.t<- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("temp","lon","lat"))
 
-annual.wind <- raster::stack("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","x","y"))
+elev <- raster("wc2.1_country/FRA_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
 
-annual.srad <- raster::stack("wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","x","y")) #Rn en kJ/m2/day
+annual.wind <- raster::stack("wc2.1_country/FRA_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","lon","lat"))
 
-fra <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) 
+annual.srad <- raster::stack("wc2.1_country/FRA_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","lon","lat")) #Rn en kJ/m2/day
 
+fra <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% 
+  merge(monthly.p, by = c("lon","lat")) %>% merge(annual.p, by = c("lon","lat"))  %>% merge(annual.t, by = c("lon","lat")) %>% 
+  merge(annual.wind, by = c("lon","lat")) %>% merge(annual.srad, by = c("lon","lat")) %>%
+  merge(elev, by = c("lon","lat"))
+
+saveRDS(fra, "fra.rds")
 ``` 
+
+```{r merge-civ, eval = F}
+monthly.tavg <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
+  setNames( c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat"))
+
+monthly.tmax <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat"))
+
+monthly.tmin <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat"))
+
+monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
+
+annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
+
+annual.t<- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("temp","lon","lat"))
+
+elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
+
+annual.wind <- raster::stack("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","lon","lat"))
+
+annual.srad <- raster::stack("wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","lon","lat")) #Rn en kJ/m2/day
+ 
+civ <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% 
+  merge(monthly.p, by = c("lon","lat")) %>% merge(annual.p, by = c("lon","lat"))  %>% merge(annual.t, by = c("lon","lat")) %>% 
+  merge(annual.wind, by = c("lon","lat")) %>% merge(annual.srad, by = c("lon","lat")) %>%
+  merge(elev, by = c("lon","lat"))
+
+saveRDS(civ, "civ.rds")
+```
+
+```{r merge-world, eval = F}
+
+list.prec <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T) 
+monthly.prec <- raster::stack(list.prec) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
+
+list.tavg <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_tavg_", full.names = T) 
+monthly.tavg <- raster::stack(list.tavg) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
+  setNames(c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat"))
+
+list.tmax <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_tmax_", full.names = T) 
+monthly.tmax <- raster::stack(list.tmax) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat"))
+
+list.tmin <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_tmin_", full.names = T) 
+monthly.tmin <- raster::stack(list.tmin) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat"))
+
+list.pre <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T) 
+monthly.p <- raster::stack(list.pre) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
+
+annual.p <- raster("wc2.1_10m/wc2.1_10m_bio_12.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("pre","lon","lat"))
+
+annual.t<- raster("wc2.1_10m/wc2.1_10m_bio_1.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("temp","lon","lat"))
+
+elev <- raster("wc2.1_10m/wc2.1_10m_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
+
+list.wind <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_wind_", full.names = T) 
+monthly.wind <- raster::stack(list.wind) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("u_01","u_02","u_03","u_04","u_05","u_06","u_07","u_08","u_09","u_10","u_11","u_12","lon","lat"))
+
+list.srad <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_srad_", full.names = T) 
+monthly.srad <- raster::stack(list.srad) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+  setNames(c("srad_01","srad_02","srad_03","srad_04","srad_05","srad_06","srad_07","srad_08","srad_09","srad_10","srad_11","srad_12","lon","lat"))
+
+world.df <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% 
+  merge(monthly.p, by = c("lon","lat")) %>% merge(annual.p, by = c("lon","lat"))  %>% merge(annual.t, by = c("lon","lat")) %>% 
+  merge(monthly.wind, by = c("lon","lat")) %>% merge(monthly.srad, by = c("lon","lat")) %>%
+   merge(elev, by = c("lon","lat"))
+
+saveRDS(world.df, "world.df.rds")
+```
+
+
+```{r load-data}
+fra <- readRDS("fra.rds")
+civ <- readRDS("civ.rds")
+world.df <- readRDS("world.df.rds")
+```
 
 # Lang Rain Factor
 
 Detailed in @Thornthwaite1948 and [here]<https://iast.univ-setif.dz/documents/Cours/Cours6BioclimatologieL2GAT21.pdf> 
 
-```{r lang-civ, fig.dim = c(3,3)}
-annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+```{r lang-civ }
+lang.civ <- civ %>% mutate(RF = pre/temp)
 
-lang.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) %>% mutate(lang = pre/temp)
+lang.civ$cat.AI <- cut(lang.civ$RF, breaks = c(0,20,40,60,100,160,200)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,200]"="Hyper humid"))
 
-lang.df$cat <- cut(lang.df$lang, breaks = c(0,20,40,60,100,160,200))
-lang.df$cat.AI <- revalue(lang.df$cat, c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,200]"="Hyper humid"))
+ggplot(lang.civ)+geom_tile(aes(x = lon, y = lat, fill = RF))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-ggplot(lang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+ggplot(lang.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
   labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-
 ```
-```{r lang-france, fig.dim = c(3,4)}
-annual.t <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
 
-lang.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) %>% mutate(lang = pre/temp)
+```{r lang-france}
+lang.fra <- fra %>% mutate(RF = pre/temp)
 
-lang.df$cat <- cut(lang.df$lang, breaks = c(0,20,40,60,100,160,200))
-lang.df$cat.AI <- revalue(lang.df$cat, c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,200]"="Hyper humid"))
+lang.fra$cat.AI <- cut(lang.fra$RF, breaks = c(0,20,40,60,100,160,500,Inf)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,500]"="Hyper humid", "(500,Inf]" = "Annual temp near 0"))
 
-ggplot(lang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+ggplot(lang.fra)+geom_tile(aes(x = lon, y = lat, fill = RF))+
     borders(regions = "France")+
-  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_c(direction = -1, lim = c(-0, 200))+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
+ggplot(lang.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+    borders(regions = "France")+
+  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
 ```
 
@@ -129,41 +222,51 @@ ggplot(lang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
 
 Defined by @Martonne1926, used and detailed by @Baltas2007.
 
-```{r martonne-civ, fig.dim = c(3,3)}
+```{r martonne-civ }
+martonne.civ <- civ %>% mutate(Am = pre/(temp+10)) # pre en mm
+martonne.civ$cat.AI <- martonne.civ$Am %>% cut(c(0,10,20,24,28,35,55,100)) %>% revalue(c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
 
-annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
 
-martonne.df <- merge(annual.p, annual.t, by = c("x","y"))
-names(martonne.df) <- c("x","y","pre","temp")
-martonne.df$Am <- with(martonne.df, (pre)/(temp+10)) #precipitations in mm
-
-martonne.df$cat <- cut(martonne.df$Am, c(0,10,20,24,28,35,55,100))
-
-martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
-
-ggplot(martonne.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+ggplot(martonne.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(title = "De Martonne Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "De Martonne Aridity Index", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
+ggplot(martonne.civ)+geom_tile(aes(x = lon, y = lat, fill = Am))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "De Martonne Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
-```{r martonne-fra, fig.dim = c(3,3)}
 
-annual.t <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+```{r martonne-fra }
 
-martonne.df <- merge(annual.p, annual.t, by = c("x","y"))
-names(martonne.df) <- c("x","y","pre","temp")
-martonne.df$Am <- with(martonne.df, (pre)/(temp+10)) #precipitations in mm
+martonne.fra <- fra %>% mutate(Am = pre/(temp+10)) # pre en mm
+martonne.fra$cat.AI <- martonne.fra$Am %>% cut(c(0,10,20,24,28,35,55,100)) %>% revalue(c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
 
-martonne.df$cat <- cut(martonne.df$Am, c(0,10,20,24,28,35,55,100))
 
-martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
-
-ggplot(martonne.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+ggplot(martonne.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "France")+
-  labs(title = "De Martonne Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "De Martonne Aridity Index", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
+ggplot(martonne.fra)+geom_tile(aes(x = lon, y = lat, fill = Am))+
+    borders(regions = "France")+
+  labs(title = "De Martonne Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1, lim = c(0,100))+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
+```{r martonne-world }
+
+martonne.w <- world.df %>% mutate(Am = pre/(temp+10)) # pre en mm
+martonne.w$cat.AI <- martonne.w$Am %>% cut(c(0,10,20,24,28,35,55,100)) %>% revalue(c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+
+
+ggplot(martonne.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "De Martonne Aridity Index", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+
+ggplot(martonne.w)+geom_tile(aes(x = lon, y = lat, fill = Am))+
+  labs(title = "De Martonne Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1, lim = c(0,100))+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
 # Emberger
@@ -177,308 +280,198 @@ Used by @Shaban2019, who modified the original formula to use the average monthl
 Problème: je ne prends pas les bons max/min? Pas de consensus sur la formule dans la littérature. Les fonctions R prédéfinies utilisent 100P/(T2-t2) en K, alors que  Baldy utilise un facteur 1000 et Marres parle en °C. Shaban utilisent des °C. 
 STILL NOT SURE
 
-```{r emberger-civ, fig.dim = c(3,3)}
-#mean temperature of the warmest month
-t.max <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% max()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame() #cette formule est censée prendre la température maximum (qui est une moyenne mensuelle) parmi les 12 layers du raster
-ggplot(t.max)+geom_tile(aes(x = x, y = y, fill = layer))+
+T and t in K. 100P
+
+```{r emberger-civ }
+
+emberger.civ <- civ 
+emberger.civ$tmax <- apply(dplyr::select(civ, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, max, na.rm = T)
+emberger.civ$tmin <- apply(dplyr::select(civ, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
+emberger.civ$Em <- with(emberger.civ, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
+
+ggplot(emberger.civ)+geom_tile(aes(x = lon, y = lat, fill = Em))+
     borders(regions = "Ivory Coast")+
-  labs(fill = "Average temperature of warmest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
+  labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-#mean temperature of the coolest month
-t.min <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% min()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(t.min)+geom_tile(aes(x = x, y = y, fill = layer))+
+emberger.civ$cat.AI <- cut(emberger.civ$Em, breaks = c(0,10,45,70,110,150,760)) %>% revalue(c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
+
+ggplot(emberger.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(fill = "Average temperature of coldest month")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-
-#annual rainfall
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(annual.p)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(monthly.p)+geom_tile(aes(x = x, y = y, fill = layer))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Annual precipiation mm")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-
-Em <- (annual.p$wc2.1_30s_bio_1*100)/((t.max$layer+273)^2-(t.min$layer+273)^2) # Formulation from Marres1972. 
-
-Em.df <- annual.p %>% mutate(Em = Em)
-
-ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = Em))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "Em")+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
-Em.df$cat <- cut(Em.df$Em, breaks = c(0,10,45,70,110,150,760))
-Em.df$cat.AI <- revalue(Em.df$cat, c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
-
-ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
-    borders(regions = "Ivory Coast")+
-  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 ```
 
-```{r emberger-fra, fig.dim = c(3,3)}
-#mean temperature of the warmest month
-t.max <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% max()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame() #cette formule est censée prendre la température maximum (qui est une moyenne mensuelle) parmi les 12 layers du raster
+```{r emberger-fra }
 
-#mean temperature of the coolest month
-t.min <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% min()  %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+emberger.fra <- fra 
+emberger.fra$tmax <- apply(dplyr::select(fra, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, max, na.rm = T)
+emberger.fra$tmin <- apply(dplyr::select(fra, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
+emberger.fra$Em <- with(emberger.fra, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
 
-#annual rainfall
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ggplot(emberger.fra)+geom_tile(aes(x = lon, y = lat, fill = Em))+
+    borders(regions = "France")+
+  labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
+emberger.fra$cat.AI <- cut(emberger.fra$Em, breaks = c(0,10,45,70,110,150,760)) %>% revalue(c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
 
-Em <- (annual.p$wc2.1_30s_bio_1*100)/((t.max$layer)^2-(t.min$layer)^2) # Formulation from Marres1972. 
-
-Em.df <- annual.p %>% mutate(Em = Em)
-
-Em.df$cat <- cut(Em.df$Em, breaks = c(0,10,45,70,110,150,760))
-Em.df$cat.AI <- revalue(Em.df$cat, c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
-
-ggplot(Em.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+ggplot(emberger.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "France")+
   labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
+```{r emberger-w}
+
+emberger.w <- world.df
+
+emberger.w$tmax <-apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, max, na.rm = T)
+emberger.w$tmin <- apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
+emberger.w$Em <- with(emberger.w, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
+
+
+ggplot(emberger.w)+geom_tile(aes(x = lon, y = lat, fill = Em))+
+  labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+emberger.w$cat.AI <- cut(emberger.w$Em, breaks = c(-Inf, 0,10,45,70,110,150, +Inf)) %>% revalue(c("(-Inf,0]" = NA,"(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150, Inf]" = "Hyper-humid"))
+
+ggplot(emberger.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1,   na.value = "grey50", na.translate = T)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+
+```
+
+Encore une fois, ne fonctionne pas si la température annuelle moyenne (ou tmax-tmin) est < 0: l'indice devient négatif
 # Ångström
 
 Same categorization as Martonne?
 
-```{r angstrom-civ, fig.dim = c(3,3)}
+```{r angstrom-civ}
 
-annual.t <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ang.civ <- civ %>% mutate(AI = pre/(1.07^temp))
 
-ang.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) %>% mutate(ang = pre/(1.07^temp))
-
-
-ang.df$cat <- cut(ang.df$ang, breaks = c(0,20,40,60,100,160,700))
-ang.df$cat.AI <- revalue(ang.df$cat, c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
+ang.civ$cat.AI <- ang.civ$AI %>% cut(breaks = c(0,20,40,60,100,160,700)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
 #martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
 
-ggplot(ang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+ggplot(ang.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(ang.civ)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
+```{r angstrom-fra }
+
+ang.fra <- fra %>% mutate(AI = pre/(1.07^temp))
+
+ang.fra$cat.AI <- ang.fra$AI %>% cut(breaks = c(0,20,40,60,100,160,700, 2000)) %>% 
+  revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"= "Hyper humid", "(700,2e+03]" = "Even more humid"))
+#martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+
+ggplot(ang.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  borders(regions = "France")+
+  labs(title = "Ångström Aridity Index", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(ang.fra)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+  borders(regions = "France")+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-```{r angstrom-fra, fig.dim = c(3,3)}
+```{r angstrom-world }
 
-annual.t <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
+ang.w <- world.df %>% mutate(AI = pre/(1.07^temp))
 
-ang.df <- merge(annual.t, annual.p, by = c("x","y")) %>% setNames(c("x","y","temp", "pre")) %>% mutate(ang = pre/(1.07^temp))
-
-
-ang.df$cat <- cut(ang.df$ang, breaks = c(0,20,40,60,100,160,700))
-ang.df$cat.AI <- revalue(ang.df$cat, c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
+ang.w$cat.AI <- ang.w$AI %>% cut(breaks = c(0,20,40,60,100,160,700)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
 #martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
 
-ggplot(ang.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
-    borders(regions = "France")+
-  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+ggplot(ang.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = T, na.value = "grey50")+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(ang.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
 # AI UNESCO (PM, FAO)
 
 Index established by UNESCO1979, used and detailed by @Tsakiris2005
 
-```{r AI-PMref, fig.dim = c(3,3)}
-library(FAO56)
-
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.p)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-#   borders(regions = "Ivory Coast")+
-#   labs(title = "Precipitations", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.srad <- raster::stack("wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.srad)+geom_tile(aes(x = x, y = y, fill = layer))+
-#   borders(regions = "Ivory Coast")+
-#   labs(title = "Srad", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.elev)+geom_tile(aes(x = x, y = y, fill = CIV_wc2.1_30s_elev))+
-#   borders(regions = "Ivory Coast")+
-#   labs(title = "Elev", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.tmin <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 6) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.tmin)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-#   borders(regions = "Ivory Coast")+
-#   labs(title = "Tmin", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.tmax <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 5) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.tmax)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-#   borders(regions = "Ivory Coast")+
-#   labs(title = "Tmax", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.wind <- raster::stack("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.wind)+geom_tile(aes(x = x, y = y, fill = layer))+
-#   borders(regions = "Ivory Coast")+
-#   labs(title = "Wind", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-# ET in mm/day
-PMref <- ETo_FPM(R_n = annual.srad$layer*1e-3, # from kJ/m2/day to MJ/m2/day
-                 elev = annual.elev$CIV_wc2.1_30s_elev, # m
-                 T_min = annual.tmin$wc2.1_30s_bio_1, #°C
-                 T_max = annual.tmax$wc2.1_30s_bio_1, #°C
-                 u_2 = annual.wind$layer) #m/s 
-
-
-AI.df <- annual.p %>% mutate(ET = PMref*365, AI = wc2.1_30s_bio_1/ET)
-
-ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = ET))+
-  borders(regions = "Ivory Coast")+
-  labs(title = "Wind", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-#AI.df <- avg.annual.p %>% mutate(ET = PMref, AI = layer/ET)
-head(AI.df)
-AI.df$cat <- cut(AI.df$AI, breaks = c(0,0.03,0.2,0.5,0.75,1))
-AI.df$cat.AI <- revalue(AI.df$cat, c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,1]" = "Humid"))
-
-ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
-  borders(regions = "Ivory Coast")+
-  labs(title = "AI (Penmann-Monteith)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-```
-
-```{r AI-PMref-fra, fig.dim = c(3,3)}
-library(FAO56)
-
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.p)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-#   borders(regions = "France")+
-#   labs(title = "Precipitations", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.srad <- raster::stack("wc2.1_country/FRA_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.srad)+geom_tile(aes(x = x, y = y, fill = layer))+
-#   borders(regions = "France")+
-#   labs(title = "Srad", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.elev <- raster("wc2.1_country/FRA_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.elev)+geom_tile(aes(x = x, y = y, fill = FRA_wc2.1_30s_elev))+
-#   borders(regions = "France")+
-#   labs(title = "Elev", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.tmin <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 6) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.tmin)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-#   borders(regions = "France")+
-#   labs(title = "Tmin", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.tmax <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 5) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.tmax)+geom_tile(aes(x = x, y = y, fill = wc2.1_30s_bio_1))+
-#   borders(regions = "France")+
-#   labs(title = "Tmax", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-annual.wind <- raster::stack("wc2.1_country/FRA_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-# ggplot(annual.wind)+geom_tile(aes(x = x, y = y, fill = layer))+
-#   borders(regions = "France")+
-#   labs(title = "Wind", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-# ET in mm/day
-PMref <- ETo_FPM(R_n = annual.srad$layer*1e-3, # from kJ/m2/day to MJ/m2/day
-                 elev = annual.elev$FRA_wc2.1_30s_elev, # m
-                 T_min = annual.tmin$wc2.1_30s_bio_1, #°C
-                 T_max = annual.tmax$wc2.1_30s_bio_1, #°C
-                 u_2 = annual.wind$layer) #m/s 
-
-
-AI.df <- annual.p %>% mutate(ET = PMref*365, AI = wc2.1_30s_bio_1/ET)
-
-ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = ET))+
-  borders(regions = "France")+
-  labs(title = "ET", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-#AI.df <- avg.annual.p %>% mutate(ET = PMref, AI = layer/ET)
-head(AI.df)
-AI.df$cat <- cut(AI.df$AI, breaks = c(0,0.03,0.2,0.5,0.75,1))
-AI.df$cat.AI <- revalue(AI.df$cat, c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,1]" = "Humid"))
-
-ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
-  borders(regions = "France")+
-  labs(title = "AI (Penmann-Monteith)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
-```
-
 Formulas available at: https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
 
 
 ```{r PM-perso-civ} 
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>%
-  as.data.frame() %>% setNames(c("Precip","x","y"))
-annual.tmin <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 6) %>% as("SpatialPixelsDataFrame") %>%
-  as.data.frame() %>% setNames(c("tmin","x","y"))
-annual.tmax <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 5) %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("tmax","x","y"))
-annual.tmean <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("tmean","x","y"))
-elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("z","x","y"))
-annual.wind <- raster::stack("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% 
-  as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","x","y"))
-annual.srad <- raster::stack("wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>%
-  as.data.frame() %>% setNames(c("Rn","x","y")) #Rn en kJ/m2/day
+unesco.civ <- civ %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
 
-civ.df <- annual.tmin %>% merge(annual.tmax, by = c("x","y")) %>% merge(annual.tmean, by = c("x","y")) %>% 
-  merge(elev, by = c("x","y")) %>% 
-  merge(annual.wind, by = c("x","y")) %>%
-  merge(annual.srad, by = c("x","y")) %>%
-  merge(annual.p, by = c("x","y"))
+unesco.civ$tmax <- apply(dplyr::select(civ, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+unesco.civ$tmin <- apply(dplyr::select(civ, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
 
-civ.df$P <- with(civ.df, 101.3 * (293-0.0065*z)/293)^(5.26) #atm P based on Burman et al. 1987
-civ.df$es <- with(civ.df, ifelse(tmean > 0, 0.61078*exp(17.27*tmean/(tmean+237.3)),  0.61078*exp(21.875*tmean/(tmean+265.5)))) #Monteith-Unsworth pour >0, Murray pour T < 0
-civ.df$delta <- with(civ.df, 4098*es/(tmean+237.3)^2)
-civ.df$gamma <- with(civ.df, 0.00163*P/(2.501-52.6361e-3*tmean)) 
-civ.df$ea <- with(civ.df, with(civ.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) #when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
-civ.df$ET0 <-with(civ.df, (0.408*delta*Rn*1e-3+gamma*900/(tmean+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # G considered to be negligible. in mm/day
-civ.df$AI_FAO <- with(civ.df, Precip/(ET0*365))
+unesco.civ$es <- with(unesco.civ, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+unesco.civ$delta <- with(unesco.civ, 4098*es/(temp+237.3)^2) #slope vapor pressure
+unesco.civ$gamma <- with(unesco.civ, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+unesco.civ$ea <- with(unesco.civ, with(unesco.civ, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+unesco.civ$ET0 <-with(unesco.civ, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+unesco.civ$AI_FAO <- with(unesco.civ, pre/(ET0*365))
 
-civ.df$cat.AI_FAO <- civ.df$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,3)) %>% 
+unesco.civ$cat.AI_FAO <- unesco.civ$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,3)) %>% 
   revalue(c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,3]" = "Humid"))
 
-ggplot(civ.df)+geom_tile(aes(x = x, y = y, fill = cat.AI_FAO))+
+ggplot(unesco.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI_FAO))+
   borders(regions = "Ivory Coast")+
-  labs(title = "AI (Penmann-Monteith)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Unesco Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
 
 ```{r PM-perso-fra} 
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>%
-  as.data.frame() %>% setNames(c("Precip","x","y"))
-annual.tmin <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 6) %>% as("SpatialPixelsDataFrame") %>%
-  as.data.frame() %>% setNames(c("tmin","x","y"))
-annual.tmax <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 5) %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("tmax","x","y"))
-annual.tmean <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("tmean","x","y"))
-elev <- raster("wc2.1_country/FRA_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("z","x","y"))
-annual.wind <- raster::stack("wc2.1_country/FRA_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% 
-  as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","x","y"))
-annual.srad <- raster::stack("wc2.1_country/FRA_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% 
-  as.data.frame() %>% setNames(c("Rn","x","y")) #Rn en kJ/m2/day
+unesco.fra <- fra %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
 
-france.df <- annual.tmin %>% merge(annual.tmax, by = c("x","y")) %>% merge(annual.tmean, by = c("x","y")) %>% 
-  merge(elev, by = c("x","y")) %>% 
-  merge(annual.wind, by = c("x","y")) %>%
-  merge(annual.srad, by = c("x","y")) %>%
-  merge(annual.p, by = c("x","y"))
+unesco.fra$tmax <- apply(dplyr::select(fra, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+unesco.fra$tmin <- apply(dplyr::select(fra, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
 
-france.df$P <- with(france.df, 101.3 * (293-0.0065*z)/293)^(5.26) #atm P based on Burman et al. 1987
-france.df$es <- with(france.df, ifelse(tmean > 0, 0.61078*exp(17.27*tmean/(tmean+237.3)),  0.61078*exp(21.875*tmean/(tmean+265.5)))) #Monteith-Unsworth pour >0, Murray pour T < 0
-france.df$delta <- with(france.df, 4098*es/(tmean+237.3)^2)
-france.df$gamma <- with(france.df, 0.00163*P/(2.501-52.6361e-3*tmean)) 
-france.df$ea <- with(france.df, with(france.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) #when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
-france.df$ET0 <-with(france.df, (0.408*delta*Rn*1e-3+gamma*900/(tmean+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # G considered to be negligible. in mm/day
-france.df$AI_FAO <- with(france.df, Precip/(ET0*365))
+unesco.fra$es <- with(unesco.fra, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+unesco.fra$delta <- with(unesco.fra, 4098*es/(temp+237.3)^2) #slope vapor pressure
+unesco.fra$gamma <- with(unesco.fra, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+unesco.fra$ea <- with(unesco.fra, with(unesco.fra, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+unesco.fra$ET0 <-with(unesco.fra, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+unesco.fra$AI_FAO <- with(unesco.fra, pre/(ET0*365))
 
-france.df$cat.AI_FAO <- france.df$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,3)) %>% 
-  revalue(c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,3]" = "Humid"))
+unesco.fra$cat.AI_FAO <- unesco.fra$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,4)) %>% 
+  revalue(c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,4]" = "Humid"))
 
-ggplot(france.df)+geom_tile(aes(x = x, y = y, fill = cat.AI_FAO))+
+ggplot(unesco.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI_FAO))+
   borders(regions = "France")+
-  labs(title = "AI (Penmann-Monteith)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Unesco Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(unesco.fra)+geom_tile(aes(x = lon, y = lat, fill = AI_FAO))+
+    borders(regions = "France")+
+  labs(title = "Unesco Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+```
+```{r PM-perso-world} 
+unesco.w <- world.df %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
+
+unesco.w$tmax <- apply(dplyr::select(world.df, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+unesco.w$tmin <- apply(dplyr::select(world.df, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
+unesco.w$Rn <- apply(dplyr::select(world.df, c("srad_01", "srad_02", "srad_03", "srad_04", "srad_05", "srad_06", "srad_07", "srad_08", "srad_09", "srad_10", "srad_11", "srad_12")), 1, mean, na.rm = T)
+unesco.w$u2 <- apply(dplyr::select(world.df, c("u_01", "u_02", "u_03", "u_04", "u_05", "u_06", "u_07", "u_08", "u_09", "u_10", "u_11", "u_12")), 1, mean, na.rm = T)
+
+unesco.w$es <- with(unesco.w, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+unesco.w$delta <- with(unesco.w, 4098*es/(temp+237.3)^2) #slope vapor pressure
+unesco.w$gamma <- with(unesco.w, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+unesco.w$ea <- with(unesco.w, with(unesco.w, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+unesco.w$ET0 <-with(unesco.w, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+unesco.w$AI_FAO <- with(unesco.w, pre/(ET0*365))
+
+unesco.w$cat.AI_FAO <- unesco.w$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,14), include.lowest = T) %>% # otherwise regions in  which pre = 0 are excluded 
+  revalue(c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,14]" = "Humid"))
+
+ggplot(unesco.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI_FAO))+
+  labs(title = "Unesco Aridity Index)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(unesco.w)+geom_tile(aes(x = lon, y = lat, fill = AI_FAO))+
+  labs(title = "Unesco Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 ```
 
@@ -491,118 +484,144 @@ ggplot(france.df)+geom_tile(aes(x = x, y = y, fill = cat.AI_FAO))+
 Catégorisation @Tsakiris2005
 
 
-```{r thornthwaite-civ-by-hand, fig.dim = c(3,3)}
-monthly.t <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.t) <- c("t_01","t_02","t_03","t_04","t_05","t_06","t_07","t_08","t_09","t_10","t_11","t_12","long","lat")
-
-monthly.t <- mutate(monthly.t, i_01 = (t_01/5)^1.514,
-                    i_02 = (t_02/5)^1.514,
-                    i_03 = (t_03/5)^1.514,
-                    i_04 = (t_04/5)^1.514,
-                    i_05 = (t_05/5)^1.514,
-                    i_06 = (t_06/5)^1.514,
-                    i_07 = (t_07/5)^1.514,
-                    i_08 = (t_08/5)^1.514,
-                    i_09 = (t_09/5)^1.514,
-                    i_10 = (t_10/5)^1.514,
-                    i_11 = (t_11/5)^1.514,
-                    i_12 = (t_12/5)^1.514,
+```{r thornthwaite-civ-by-hand }
+thorn.civ <- mutate(civ, i_01 = (tmean_01/5)^1.514,
+                    i_02 = (tmean_02/5)^1.514,
+                    i_03 = (tmean_03/5)^1.514,
+                    i_04 = (tmean_04/5)^1.514,
+                    i_05 = (tmean_05/5)^1.514,
+                    i_06 = (tmean_06/5)^1.514,
+                    i_07 = (tmean_07/5)^1.514,
+                    i_08 = (tmean_08/5)^1.514,
+                    i_09 = (tmean_09/5)^1.514,
+                    i_10 = (tmean_10/5)^1.514,
+                    i_11 = (tmean_11/5)^1.514,
+                    i_12 = (tmean_12/5)^1.514,
                     I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
                     a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
-                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
-                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*t_02/I)^a,
-                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*t_03/I)^a,
-                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*t_04/I)^a,
-                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*t_05/I)^a,
-                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*t_06/I)^a,
-                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*t_07/I)^a,
-                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*t_08/I)^a,
-                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*t_09/I)^a,
-                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*t_10/I)^a,
-                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*t_11/I)^a,
-                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*t_12/I)^a,
-                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12) # en mm
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","long","lat"))
+                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*tmean_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*tmean_02/I)^a,
+                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*tmean_03/I)^a,
+                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*tmean_04/I)^a,
+                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*tmean_05/I)^a,
+                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*tmean_06/I)^a,
+                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*tmean_07/I)^a,
+                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*tmean_08/I)^a,
+                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*tmean_09/I)^a,
+                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*tmean_10/I)^a,
+                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tmean_11/I)^a,
+                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tmean_12/I)^a,
+                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
+                    AI = pre/ET)
 
-tho <- merge(monthly.t, annual.p) %>% mutate(AI = pre/ET)
+thorn.civ$cat.AI <- cut(thorn.civ$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
 
-tho$cat <- cut(tho$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) # cuts from Tsakiris2005
-tho$cat.AI <- revalue(tho$cat, c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid"))
-
-ggplot(tho)+geom_tile(aes(x = long, y = lat, fill = cat.AI))+
+ggplot(thorn.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
   borders(regions = "Ivory Coast")+
-  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(thorn.civ)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "UNEP Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 ```
 
-```{r thornthwaite-fra-by-hand, fig.dim = c(3,3)}
-monthly.t <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.t) <- c("t_01","t_02","t_03","t_04","t_05","t_06","t_07","t_08","t_09","t_10","t_11","t_12","long","lat")
-
-monthly.t <- mutate(monthly.t, i_01 = (t_01/5)^1.514,
-                    i_02 = (t_02/5)^1.514,
-                    i_03 = (t_03/5)^1.514,
-                    i_04 = (t_04/5)^1.514,
-                    i_05 = (t_05/5)^1.514,
-                    i_06 = (t_06/5)^1.514,
-                    i_07 = (t_07/5)^1.514,
-                    i_08 = (t_08/5)^1.514,
-                    i_09 = (t_09/5)^1.514,
-                    i_10 = (t_10/5)^1.514,
-                    i_11 = (t_11/5)^1.514,
-                    i_12 = (t_12/5)^1.514,
+```{r thornthwaite-fra-by-hand }
+thorn.fra <- mutate(fra, i_01 = (tmean_01/5)^1.514,
+                    i_02 = (tmean_02/5)^1.514,
+                    i_03 = (tmean_03/5)^1.514,
+                    i_04 = (tmean_04/5)^1.514,
+                    i_05 = (tmean_05/5)^1.514,
+                    i_06 = (tmean_06/5)^1.514,
+                    i_07 = (tmean_07/5)^1.514,
+                    i_08 = (tmean_08/5)^1.514,
+                    i_09 = (tmean_09/5)^1.514,
+                    i_10 = (tmean_10/5)^1.514,
+                    i_11 = (tmean_11/5)^1.514,
+                    i_12 = (tmean_12/5)^1.514,
                     I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
                     a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
-                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
-                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*t_02/I)^a,
-                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*t_03/I)^a,
-                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*t_04/I)^a,
-                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*t_05/I)^a,
-                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*t_06/I)^a,
-                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*t_07/I)^a,
-                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*t_08/I)^a,
-                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*t_09/I)^a,
-                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*t_10/I)^a,
-                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*t_11/I)^a,
-                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*t_12/I)^a,
-                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12) # en mm
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","long","lat"))
+                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*tmean_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*tmean_02/I)^a,
+                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*tmean_03/I)^a,
+                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*tmean_04/I)^a,
+                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*tmean_05/I)^a,
+                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*tmean_06/I)^a,
+                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*tmean_07/I)^a,
+                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*tmean_08/I)^a,
+                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*tmean_09/I)^a,
+                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*tmean_10/I)^a,
+                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tmean_11/I)^a,
+                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tmean_12/I)^a,
+                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
+                    AI = pre/ET)
 
-tho <- merge(monthly.t, annual.p) %>% mutate(AI = pre/ET)
+thorn.fra$cat.AI <- cut(thorn.fra$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
 
-tho$cat <- cut(tho$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) # cuts from Tsakiris2005
-tho$cat.AI <- revalue(tho$cat, c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid"))
-
-ggplot(tho)+geom_tile(aes(x = long, y = lat, fill = cat.AI))+
+ggplot(thorn.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
   borders(regions = "France")+
-  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
+ggplot(thorn.fra)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+    borders(regions = "France")+
+  labs(title = "UNEP Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
+```{r thornthwaite-w-by-hand }
+thorn.w <- mutate(world.df, 
+                    i_01 = (tmean_01/5)^1.514,
+                    i_02 = (tmean_02/5)^1.514,
+                    i_03 = (tmean_03/5)^1.514,
+                    i_04 = (tmean_04/5)^1.514,
+                    i_05 = (tmean_05/5)^1.514,
+                    i_06 = (tmean_06/5)^1.514,
+                    i_07 = (tmean_07/5)^1.514,
+                    i_08 = (tmean_08/5)^1.514,
+                    i_09 = (tmean_09/5)^1.514,
+                    i_10 = (tmean_10/5)^1.514,
+                    i_11 = (tmean_11/5)^1.514,
+                    i_12 = (tmean_12/5)^1.514,
+                    I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
+                    a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
+                    e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*tmean_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                    e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*tmean_02/I)^a,
+                    e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*tmean_03/I)^a,
+                    e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*tmean_04/I)^a,
+                    e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*tmean_05/I)^a,
+                    e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*tmean_06/I)^a,
+                    e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*tmean_07/I)^a,
+                    e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*tmean_08/I)^a,
+                    e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*tmean_09/I)^a,
+                    e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*tmean_10/I)^a,
+                    e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tmean_11/I)^a,
+                    e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tmean_12/I)^a,
+                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
+                    AI = pre/ET)
+
+thorn.w$cat.AI <- cut(thorn.w$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+
+ggplot(thorn.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(thorn.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+  labs(title = "UNEP Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
+NA pour températures annuelles moyennes < 0, car les indices de chaleur mensuels sont calculés à partir de la température moyenne mensuelle élevé à la puissance 1.514
 
 # AI with Hargreave evapotranspiration 
 
-Equations from: https://www.agraria.unirc.it/documentazione/materiale_didattico/1462_2016_412_24509.pdf
+Hargreaves formula: @Hargreaves1985
 
-```{r hargreaves-fra-by-hand, fig.dim = c(3,3)}
-monthly.tavg <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.tavg) <- c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat")
+Ra formula: https://www.agraria.unirc.it/documentazione/materiale_didattico/1462_2016_412_24509.pdf
 
-monthly.tmax <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.tmax) <- c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat")
+```{r hargreaves-civ-by-hand}
 
-monthly.tmin <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.tmin) <- c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat")
-
-monthly.p <- raster::stack("wc2.1_country/FRA_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.p) <- c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat")
-
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
-
-hg.df <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% 
-  merge(annual.p, by = c("lon","lat")) %>% merge(monthly.p, by = c("lon","lat"))
-
-hg.df <- mutate(hg.df, 
-                    psi = pi/180*lat, # latitude in radian
+hg.civ <- civ %>% mutate(psi = pi/180*lat, # latitude in radian
                     delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
                     delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
                     delta_03 = 0.409 * sin(2*pi/365*yday("2000-03-15")-1.39), #solar declination
@@ -640,69 +659,118 @@ hg.df <- mutate(hg.df,
                     dr_11 = 1+0.033*cos(2*pi/365*yday("2000-11-15")), # inverse relative distance Earth-Sun                    
                     dr_12 = 1+0.033*cos(2*pi/365*yday("2000-12-15")), # inverse relative distance Earth-Sun                    
                     Ra_01 = 24*60/pi * 0.0820 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
-                    Ra_02 = 24*60/pi * 0.0820 * dr_02 * ((ws_02*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day                
-                    Ra_03 = 24*60/pi * 0.0820 * dr_03 * ((ws_03*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day              
-                    Ra_04 = 24*60/pi * 0.0820 * dr_04 * ((ws_04*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day                
-                    Ra_05 = 24*60/pi * 0.0820 * dr_05 * ((ws_05*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day    
-                    Ra_06 = 24*60/pi * 0.0820 * dr_06 * ((ws_06*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day                
-                    Ra_07 = 24*60/pi * 0.0820 * dr_07 * ((ws_07*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day  
-                    Ra_08 = 24*60/pi * 0.0820 * dr_08 * ((ws_08*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
-                    Ra_09 = 24*60/pi * 0.0820 * dr_09 * ((ws_09*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day              
-                    Ra_10 = 24*60/pi * 0.0820 * dr_10 * ((ws_10*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
-                    Ra_11 = 24*60/pi * 0.0820 * dr_11 * ((ws_11*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
-                    Ra_12 = 24*60/pi * 0.0820 * dr_12 * ((ws_12*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), # external radiation MJ/m2/day
-                    e_01 = 0.0023*0.408*Ra_01*sqrt(tmax_01-tmin_01)*(tmean_01+17.8), #ET for January
-                    e_02 = 0.0023*0.408*Ra_02*sqrt(tmax_02-tmin_02)*(tmean_02+17.8), #ET for January
-                    e_03 = 0.0023*0.408*Ra_03*sqrt(tmax_03-tmin_03)*(tmean_03+17.8), #ET for January
-                    e_04 = 0.0023*0.408*Ra_04*sqrt(tmax_04-tmin_04)*(tmean_04+17.8), #ET for January
-                    e_05 = 0.0023*0.408*Ra_05*sqrt(tmax_05-tmin_05)*(tmean_05+17.8), #ET for January
-                    e_06 = 0.0023*0.408*Ra_06*sqrt(tmax_06-tmin_06)*(tmean_06+17.8), #ET for January
-                    e_07 = 0.0023*0.408*Ra_07*sqrt(tmax_07-tmin_07)*(tmean_07+17.8), #ET for January
-                    e_08 = 0.0023*0.408*Ra_08*sqrt(tmax_08-tmin_08)*(tmean_08+17.8), #ET for January
-                    e_09 = 0.0023*0.408*Ra_09*sqrt(tmax_09-tmin_09)*(tmean_09+17.8), #ET for January
-                    e_10 = 0.0023*0.408*Ra_10*sqrt(tmax_10-tmin_10)*(tmean_10+17.8), #ET for January
-                    e_11 = 0.0023*0.408*Ra_11*sqrt(tmax_11-tmin_11)*(tmean_11+17.8), #ET for January
-                    e_12 = 0.0023*0.408*Ra_12*sqrt(tmax_12-tmin_12)*(tmean_12+17.8), #ET for January
-                    ET = (e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11+e_12)*365, # en mm/day
+                    Ra_02 = 24*60/pi * 0.0820 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day                
+                    Ra_03 = 24*60/pi * 0.0820 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day              
+                    Ra_04 = 24*60/pi * 0.0820 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day                
+                    Ra_05 = 24*60/pi * 0.0820 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day    
+                    Ra_06 = 24*60/pi * 0.0820 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day                
+                    Ra_07 = 24*60/pi * 0.0820 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day  
+                    Ra_08 = 24*60/pi * 0.0820 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
+                    Ra_09 = 24*60/pi * 0.0820 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day              
+                    Ra_10 = 24*60/pi * 0.0820 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
+                    Ra_11 = 24*60/pi * 0.0820 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
+                    Ra_12 = 24*60/pi * 0.0820 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), # external radiation MJ/m2/day
+                    e_01 = 0.00023*0.408*Ra_01*sqrt(tmax_01-tmin_01)*(tmean_01+17.8), #ET for January
+                    e_02 = 0.00023*0.408*Ra_02*sqrt(tmax_02-tmin_02)*(tmean_02+17.8), #ET for January
+                    e_03 = 0.00023*0.408*Ra_03*sqrt(tmax_03-tmin_03)*(tmean_03+17.8), #ET for January
+                    e_04 = 0.00023*0.408*Ra_04*sqrt(tmax_04-tmin_04)*(tmean_04+17.8), #ET for January
+                    e_05 = 0.00023*0.408*Ra_05*sqrt(tmax_05-tmin_05)*(tmean_05+17.8), #ET for January
+                    e_06 = 0.00023*0.408*Ra_06*sqrt(tmax_06-tmin_06)*(tmean_06+17.8), #ET for January
+                    e_07 = 0.00023*0.408*Ra_07*sqrt(tmax_07-tmin_07)*(tmean_07+17.8), #ET for January
+                    e_08 = 0.00023*0.408*Ra_08*sqrt(tmax_08-tmin_08)*(tmean_08+17.8), #ET for January
+                    e_09 = 0.00023*0.408*Ra_09*sqrt(tmax_09-tmin_09)*(tmean_09+17.8), #ET for January
+                    e_10 = 0.00023*0.408*Ra_10*sqrt(tmax_10-tmin_10)*(tmean_10+17.8), #ET for January
+                    e_11 = 0.00023*0.408*Ra_11*sqrt(tmax_11-tmin_11)*(tmean_11+17.8), #ET for January
+                    e_12 = 0.00023*0.408*Ra_12*sqrt(tmax_12-tmin_12)*(tmean_12+17.8), #ET for January
+                    MAI_01 = pre_01/e_01, #monthly moisture availability index
+                    MAI_02 = pre_02/e_02,
+                    MAI_03 = pre_03/e_03,
+                    MAI_04 = pre_04/e_04,
+                    MAI_05 = pre_05/e_05,
+                    MAI_06 = pre_06/e_06,
+                    MAI_07 = pre_07/e_07,
+                    MAI_08 = pre_08/e_08,
+                    MAI_09 = pre_09/e_09,
+                    MAI_10 = pre_10/e_10,
+                    MAI_11 = pre_11/e_11,
+                    MAI_12 = pre_12/e_12,
+                    ET = (e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11+e_12)*365, # en mm/daye_01/p_01
                     AI = pre/ET)
-                
-hg.df$cat.AI <- cut(hg.df$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% # cuts from Tsakiris2005
-  revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) 
 
-ggplot(hg.df)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  borders(regions = "France")+
+# Classification from Hargreaves 1974
+
+hg.civ$cat.AI <- with(hg.civ, 
+                         ifelse(MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 |
+                           MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 |
+                           MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 |
+                           MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 |
+                           MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 |
+                           MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 |
+                           MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 |
+                           MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 |
+                           MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 |
+                           MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 |
+                           MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 |
+                           MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34,
+                           "Wet-dry", 
+                           ifelse(MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34|
+                                  MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34|
+                                  MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34|
+                                  MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34|
+                                  MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34|
+                                  MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34|
+                                  MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34|
+                                  MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34|
+                                  MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34|
+                                  MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34|
+                                  MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34|
+                                  MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34,
+                            "Semi-arid",
+                            ifelse(MAI_01 > 0.34 & MAI_02 > 0.34| 
+                                  MAI_02 > 0.34 & MAI_04 > 0.34|
+                                  MAI_03 > 0.34 & MAI_04 > 0.34|
+                                  MAI_04 > 0.34 & MAI_05 > 0.34|
+                                  MAI_05 > 0.34 & MAI_06 > 0.34|
+                                  MAI_06 > 0.34 & MAI_07 > 0.34|
+                                  MAI_07 > 0.34 & MAI_08 > 0.34|
+                                  MAI_08 > 0.34 & MAI_09 > 0.34|
+                                  MAI_09 > 0.34 & MAI_10 > 0.34|
+                                  MAI_10 > 0.34 & MAI_11 > 0.34|
+                                  MAI_11 > 0.34 & MAI_12 > 0.34|
+                                  MAI_12 > 0.34 & MAI_01 > 0.34,
+                                "Arid",
+                               ifelse(MAI_01 < 0.33 & MAI_02 < 0.33 & MAI_03 < 0.33 & MAI_04 < 0.33 & MAI_05 < 0.33 & MAI_06 < 0.33  & 
+                                      MAI_07 < 0.33 & MAI_08 < 0.33 & MAI_09 < 0.33 & MAI_10 < 0.33 & MAI_11 < 0.33 & MAI_12< 0.33, 
+                                      "Very Arid",
+                                      NA)))))
+                         
+
+ggplot(hg.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  borders(regions = "Ivory Coast")+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_d(direction = -1, na.translate = F)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(hg.df)+geom_tile(aes(x = lon, y = lat, fill = AI))+
-  borders(regions = "France")+
+ggplot(hg.civ)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+  borders(regions = "Ivory Coast")+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+hg.civ$cat.AI2 <- cut(hg.civ$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+
+ggplot(hg.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI2))+
+  borders(regions = "Ivory Coast")+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 ```
 
 
-```{r hargreaves-civ-by-hand, fig.dim = c(3,3)}
-monthly.tavg <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.tavg) <- c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat")
+```{r hargreaves-fra-by-hand }
 
-monthly.tmax <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.tmax) <- c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat")
-
-monthly.tmin <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.tmin) <- c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat")
-
-monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-names(monthly.p) <- c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat")
-
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
-
-hg.civ.df <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% merge(annual.p, by = c("lon","lat")) %>% merge(monthly.p, by = c("lon","lat"))
-
-hg.civ.df <- mutate(hg.civ.df, 
-                    psi = pi/180*lat, # latitude in radian
+hg.fra <- fra %>% mutate(psi = pi/180*lat, # latitude in radian
                     delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
                     delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
                     delta_03 = 0.409 * sin(2*pi/365*yday("2000-03-15")-1.39), #solar declination
@@ -739,51 +807,275 @@ hg.civ.df <- mutate(hg.civ.df,
                     dr_10 = 1+0.033*cos(2*pi/365*yday("2000-10-15")), # inverse relative distance Earth-Sun                    
                     dr_11 = 1+0.033*cos(2*pi/365*yday("2000-11-15")), # inverse relative distance Earth-Sun                    
                     dr_12 = 1+0.033*cos(2*pi/365*yday("2000-12-15")), # inverse relative distance Earth-Sun                    
-                    Ra_01 = 1/pi * 0.0820 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
-                    Ra_02 = 1/pi * 0.0820 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day                
-                    Ra_03 = 1/pi * 0.0820 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day              
-                    Ra_04 = 1/pi * 0.0820 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day                
-                    Ra_05 = 1/pi * 0.0820 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day    
-                    Ra_06 = 1/pi * 0.0820 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day                
-                    Ra_07 = 1/pi * 0.0820 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day  
-                    Ra_08 = 1/pi * 0.0820 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
-                    Ra_09 = 1/pi * 0.0820 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day              
-                    Ra_10 = 1/pi * 0.0820 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
-                    Ra_11 = 1/pi * 0.0820 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
-                    Ra_12 = 1/pi * 0.0820 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), # external radiation MJ/m2/day
-                    e_01 = 0.0023*0.408*Ra_01*sqrt(tmax_01-tmin_01)*(tmean_01+17.8), #ET for January
-                    e_02 = 0.0023*0.408*Ra_02*sqrt(tmax_02-tmin_02)*(tmean_02+17.8), #ET for January
-                    e_03 = 0.0023*0.408*Ra_03*sqrt(tmax_03-tmin_03)*(tmean_03+17.8), #ET for January
-                    e_04 = 0.0023*0.408*Ra_04*sqrt(tmax_04-tmin_04)*(tmean_04+17.8), #ET for January
-                    e_05 = 0.0023*0.408*Ra_05*sqrt(tmax_05-tmin_05)*(tmean_05+17.8), #ET for January
-                    e_06 = 0.0023*0.408*Ra_06*sqrt(tmax_06-tmin_06)*(tmean_06+17.8), #ET for January
-                    e_07 = 0.0023*0.408*Ra_07*sqrt(tmax_07-tmin_07)*(tmean_07+17.8), #ET for January
-                    e_08 = 0.0023*0.408*Ra_08*sqrt(tmax_08-tmin_08)*(tmean_08+17.8), #ET for January
-                    e_09 = 0.0023*0.408*Ra_09*sqrt(tmax_09-tmin_09)*(tmean_09+17.8), #ET for January
-                    e_10 = 0.0023*0.408*Ra_10*sqrt(tmax_10-tmin_10)*(tmean_10+17.8), #ET for January
-                    e_11 = 0.0023*0.408*Ra_11*sqrt(tmax_11-tmin_11)*(tmean_11+17.8), #ET for January
-                    e_12 = 0.0023*0.408*Ra_12*sqrt(tmax_12-tmin_12)*(tmean_12+17.8), #ET for January
-                    ET = (e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11+e_12), # en mm/day
+                    Ra_01 = 24*60/pi * 0.0820 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
+                    Ra_02 = 24*60/pi * 0.0820 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day                
+                    Ra_03 = 24*60/pi * 0.0820 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day              
+                    Ra_04 = 24*60/pi * 0.0820 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day                
+                    Ra_05 = 24*60/pi * 0.0820 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day    
+                    Ra_06 = 24*60/pi * 0.0820 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day                
+                    Ra_07 = 24*60/pi * 0.0820 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day  
+                    Ra_08 = 24*60/pi * 0.0820 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
+                    Ra_09 = 24*60/pi * 0.0820 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day              
+                    Ra_10 = 24*60/pi * 0.0820 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
+                    Ra_11 = 24*60/pi * 0.0820 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
+                    Ra_12 = 24*60/pi * 0.0820 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), # external radiation MJ/m2/day
+                    e_01 = 0.00023*0.408*Ra_01*sqrt(tmax_01-tmin_01)*(tmean_01+17.8), #ET for January
+                    e_02 = 0.00023*0.408*Ra_02*sqrt(tmax_02-tmin_02)*(tmean_02+17.8), #ET for January
+                    e_03 = 0.00023*0.408*Ra_03*sqrt(tmax_03-tmin_03)*(tmean_03+17.8), #ET for January
+                    e_04 = 0.00023*0.408*Ra_04*sqrt(tmax_04-tmin_04)*(tmean_04+17.8), #ET for January
+                    e_05 = 0.00023*0.408*Ra_05*sqrt(tmax_05-tmin_05)*(tmean_05+17.8), #ET for January
+                    e_06 = 0.00023*0.408*Ra_06*sqrt(tmax_06-tmin_06)*(tmean_06+17.8), #ET for January
+                    e_07 = 0.00023*0.408*Ra_07*sqrt(tmax_07-tmin_07)*(tmean_07+17.8), #ET for January
+                    e_08 = 0.00023*0.408*Ra_08*sqrt(tmax_08-tmin_08)*(tmean_08+17.8), #ET for January
+                    e_09 = 0.00023*0.408*Ra_09*sqrt(tmax_09-tmin_09)*(tmean_09+17.8), #ET for January
+                    e_10 = 0.00023*0.408*Ra_10*sqrt(tmax_10-tmin_10)*(tmean_10+17.8), #ET for January
+                    e_11 = 0.00023*0.408*Ra_11*sqrt(tmax_11-tmin_11)*(tmean_11+17.8), #ET for January
+                    e_12 = 0.00023*0.408*Ra_12*sqrt(tmax_12-tmin_12)*(tmean_12+17.8), #ET for January
+                    MAI_01 = pre_01/e_01, #monthly moisture availability index
+                    MAI_02 = pre_02/e_02,
+                    MAI_03 = pre_03/e_03,
+                    MAI_04 = pre_04/e_04,
+                    MAI_05 = pre_05/e_05,
+                    MAI_06 = pre_06/e_06,
+                    MAI_07 = pre_07/e_07,
+                    MAI_08 = pre_08/e_08,
+                    MAI_09 = pre_09/e_09,
+                    MAI_10 = pre_10/e_10,
+                    MAI_11 = pre_11/e_11,
+                    MAI_12 = pre_12/e_12,
+                    ET = (e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11+e_12)*365, # en mm/daye_01/p_01
                     AI = pre/ET)
-                
-hg.civ.df$cat.AI <- cut(hg.civ.df$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% # cuts from Tsakiris2005
-  revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) 
 
-ggplot(hg.civ.df)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  borders(regions = "Ivory Coast")+
-  labs(title = "AI (Hargreaves)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+# Classification from Hargreaves 1974
 
-ggplot(hg.civ.df)+geom_tile(aes(x = lon, y = lat, fill = AI))+
-  borders(regions = "Ivory Coast")+
-  labs(title = "AI (Hargreaves)", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+hg.fra$cat.AI <- with(hg.fra, 
+                         ifelse(MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 |
+                           MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 |
+                           MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 |
+                           MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 |
+                           MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 |
+                           MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 |
+                           MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 |
+                           MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 |
+                           MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 |
+                           MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 |
+                           MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 |
+                           MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34,
+                           "Wet-dry", 
+                           ifelse(MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34|
+                                  MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34|
+                                  MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34|
+                                  MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34|
+                                  MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34|
+                                  MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34|
+                                  MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34|
+                                  MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34|
+                                  MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34|
+                                  MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34|
+                                  MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34|
+                                  MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34,
+                            "Semi-arid",
+                            ifelse(MAI_01 > 0.34 & MAI_02 > 0.34| 
+                                  MAI_02 > 0.34 & MAI_04 > 0.34|
+                                  MAI_03 > 0.34 & MAI_04 > 0.34|
+                                  MAI_04 > 0.34 & MAI_05 > 0.34|
+                                  MAI_05 > 0.34 & MAI_06 > 0.34|
+                                  MAI_06 > 0.34 & MAI_07 > 0.34|
+                                  MAI_07 > 0.34 & MAI_08 > 0.34|
+                                  MAI_08 > 0.34 & MAI_09 > 0.34|
+                                  MAI_09 > 0.34 & MAI_10 > 0.34|
+                                  MAI_10 > 0.34 & MAI_11 > 0.34|
+                                  MAI_11 > 0.34 & MAI_12 > 0.34|
+                                  MAI_12 > 0.34 & MAI_01 > 0.34,
+                                "Arid",
+                               ifelse(MAI_01 < 0.33 & MAI_02 < 0.33 & MAI_03 < 0.33 & MAI_04 < 0.33 & MAI_05 < 0.33 & MAI_06 < 0.33  & 
+                                      MAI_07 < 0.33 & MAI_08 < 0.33 & MAI_09 < 0.33 & MAI_10 < 0.33 & MAI_11 < 0.33 & MAI_12< 0.33, 
+                                      "Very Arid",
+                                      NA)))))
+                         
+
+ggplot(hg.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  borders(regions = "France")+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(hg.fra)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+  borders(regions = "France")+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+hg.fra$cat.AI2 <- cut(hg.fra$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+
+ggplot(hg.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI2))+
+  borders(regions = "France")+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
+
+```{r har-world}
+
+hg.w <- world.df 
+
+hg.w$tmax <- apply(dplyr::select(world.df, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+hg.w$tmin <- apply(dplyr::select(world.df, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
+
+hg.w <- hg.w %>% mutate(psi = pi/180*lat, # latitude in radian
+                    delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
+                    delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
+                    delta_03 = 0.409 * sin(2*pi/365*yday("2000-03-15")-1.39), #solar declination
+                    delta_04 = 0.409 * sin(2*pi/365*yday("2000-04-15")-1.39), #solar declination
+                    delta_05 = 0.409 * sin(2*pi/365*yday("2000-05-15")-1.39), #solar declination
+                    delta_06 = 0.409 * sin(2*pi/365*yday("2000-06-15")-1.39), #solar declination
+                    delta_07 = 0.409 * sin(2*pi/365*yday("2000-07-15")-1.39), #solar declination                    
+                    delta_08 = 0.409 * sin(2*pi/365*yday("2000-08-15")-1.39), #solar declination
+                    delta_09 = 0.409 * sin(2*pi/365*yday("2000-09-15")-1.39), #solar declination                    
+                    delta_10 = 0.409 * sin(2*pi/365*yday("2000-10-15")-1.39), #solar declination
+                    delta_11 = 0.409 * sin(2*pi/365*yday("2000-11-15")-1.39), #solar declination                    
+                    delta_12 = 0.409 * sin(2*pi/365*yday("2000-12-15")-1.39), #solar declination                    
+                    ws_01 = acos(-tan(psi)*tan(delta_01)), #sunset hour angle
+                    ws_02 = acos(-tan(psi)*tan(delta_02)), #sunset hour angle
+                    ws_03 = acos(-tan(psi)*tan(delta_03)), #sunset hour angle                    
+                    ws_04 = acos(-tan(psi)*tan(delta_04)), #sunset hour angle                    
+                    ws_05 = acos(-tan(psi)*tan(delta_05)), #sunset hour angle                    
+                    ws_06 = acos(-tan(psi)*tan(delta_06)), #sunset hour angle                    
+                    ws_07 = acos(-tan(psi)*tan(delta_07)), #sunset hour angle                    
+                    ws_08 = acos(-tan(psi)*tan(delta_08)), #sunset hour angle
+                    ws_09 = acos(-tan(psi)*tan(delta_09)), #sunset hour angle                    
+                    ws_10 = acos(-tan(psi)*tan(delta_10)), #sunset hour angle
+                    ws_11 = acos(-tan(psi)*tan(delta_11)), #sunset hour angle
+                    ws_12 = acos(-tan(psi)*tan(delta_12)), #sunset hour angle                    
+                    dr_01 = 1+0.033*cos(2*pi/365*yday("2000-01-15")), # inverse relative distance Earth-Sun
+                    dr_02 = 1+0.033*cos(2*pi/365*yday("2000-02-15")), # inverse relative distance Earth-Sun
+                    dr_03 = 1+0.033*cos(2*pi/365*yday("2000-03-15")), # inverse relative distance Earth-Sun                    
+                    dr_04 = 1+0.033*cos(2*pi/365*yday("2000-04-15")), # inverse relative distance Earth-Sun                    
+                    dr_05 = 1+0.033*cos(2*pi/365*yday("2000-05-15")), # inverse relative distance Earth-Sun                    
+                    dr_06 = 1+0.033*cos(2*pi/365*yday("2000-06-15")), # inverse relative distance Earth-Sun                    
+                    dr_07 = 1+0.033*cos(2*pi/365*yday("2000-07-15")), # inverse relative distance Earth-Sun                    
+                    dr_08 = 1+0.033*cos(2*pi/365*yday("2000-08-15")), # inverse relative distance Earth-Sun
+                    dr_09 = 1+0.033*cos(2*pi/365*yday("2000-09-15")), # inverse relative distance Earth-Sun                    
+                    dr_10 = 1+0.033*cos(2*pi/365*yday("2000-10-15")), # inverse relative distance Earth-Sun                    
+                    dr_11 = 1+0.033*cos(2*pi/365*yday("2000-11-15")), # inverse relative distance Earth-Sun                    
+                    dr_12 = 1+0.033*cos(2*pi/365*yday("2000-12-15")), # inverse relative distance Earth-Sun                    
+                    Ra_01 = 24*60/pi * 0.0820 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
+                    Ra_02 = 24*60/pi * 0.0820 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day                
+                    Ra_03 = 24*60/pi * 0.0820 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day              
+                    Ra_04 = 24*60/pi * 0.0820 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day                
+                    Ra_05 = 24*60/pi * 0.0820 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day    
+                    Ra_06 = 24*60/pi * 0.0820 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day                
+                    Ra_07 = 24*60/pi * 0.0820 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day  
+                    Ra_08 = 24*60/pi * 0.0820 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
+                    Ra_09 = 24*60/pi * 0.0820 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day              
+                    Ra_10 = 24*60/pi * 0.0820 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
+                    Ra_11 = 24*60/pi * 0.0820 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
+                    Ra_12 = 24*60/pi * 0.0820 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), # external radiation MJ/m2/day
+                    e_01 = 0.00023*0.408*Ra_01*sqrt(tmax_01-tmin_01)*(tmean_01+17.8), #ET for January
+                    e_02 = 0.00023*0.408*Ra_02*sqrt(tmax_02-tmin_02)*(tmean_02+17.8), #ET for January
+                    e_03 = 0.00023*0.408*Ra_03*sqrt(tmax_03-tmin_03)*(tmean_03+17.8), #ET for January
+                    e_04 = 0.00023*0.408*Ra_04*sqrt(tmax_04-tmin_04)*(tmean_04+17.8), #ET for January
+                    e_05 = 0.00023*0.408*Ra_05*sqrt(tmax_05-tmin_05)*(tmean_05+17.8), #ET for January
+                    e_06 = 0.00023*0.408*Ra_06*sqrt(tmax_06-tmin_06)*(tmean_06+17.8), #ET for January
+                    e_07 = 0.00023*0.408*Ra_07*sqrt(tmax_07-tmin_07)*(tmean_07+17.8), #ET for January
+                    e_08 = 0.00023*0.408*Ra_08*sqrt(tmax_08-tmin_08)*(tmean_08+17.8), #ET for January
+                    e_09 = 0.00023*0.408*Ra_09*sqrt(tmax_09-tmin_09)*(tmean_09+17.8), #ET for January
+                    e_10 = 0.00023*0.408*Ra_10*sqrt(tmax_10-tmin_10)*(tmean_10+17.8), #ET for January
+                    e_11 = 0.00023*0.408*Ra_11*sqrt(tmax_11-tmin_11)*(tmean_11+17.8), #ET for January
+                    e_12 = 0.00023*0.408*Ra_12*sqrt(tmax_12-tmin_12)*(tmean_12+17.8), #ET for January
+                    MAI_01 = pre_01/e_01, #monthly moisture availability index
+                    MAI_02 = pre_02/e_02,
+                    MAI_03 = pre_03/e_03,
+                    MAI_04 = pre_04/e_04,
+                    MAI_05 = pre_05/e_05,
+                    MAI_06 = pre_06/e_06,
+                    MAI_07 = pre_07/e_07,
+                    MAI_08 = pre_08/e_08,
+                    MAI_09 = pre_09/e_09,
+                    MAI_10 = pre_10/e_10,
+                    MAI_11 = pre_11/e_11,
+                    MAI_12 = pre_12/e_12,
+                    ET = (e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11+e_12)*365, # en mm/daye_01/p_01
+                    AI = pre/ET)
+
+# Classification from Hargreaves 1974
+
+hg.w$cat.AI <- with(hg.w, 
+                         ifelse(MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 |
+                           MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 |
+                           MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 |
+                           MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 |
+                           MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 |
+                           MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 |
+                           MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 |
+                           MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 |
+                           MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 |
+                           MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 |
+                           MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 |
+                           MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34,
+                           "Wet-dry", 
+                           ifelse(MAI_01 > 0.34 & MAI_02 > 0.34 & MAI_03 > 0.34|
+                                  MAI_02 > 0.34 & MAI_03 > 0.34 & MAI_04 > 0.34|
+                                  MAI_03 > 0.34 & MAI_04 > 0.34 & MAI_05 > 0.34|
+                                  MAI_04 > 0.34 & MAI_05 > 0.34 & MAI_06 > 0.34|
+                                  MAI_05 > 0.34 & MAI_06 > 0.34 & MAI_07 > 0.34|
+                                  MAI_06 > 0.34 & MAI_07 > 0.34 & MAI_08 > 0.34|
+                                  MAI_07 > 0.34 & MAI_08 > 0.34 & MAI_09 > 0.34|
+                                  MAI_08 > 0.34 & MAI_09 > 0.34 & MAI_10 > 0.34|
+                                  MAI_09 > 0.34 & MAI_10 > 0.34 & MAI_11 > 0.34|
+                                  MAI_10 > 0.34 & MAI_11 > 0.34 & MAI_12 > 0.34|
+                                  MAI_11 > 0.34 & MAI_12 > 0.34 & MAI_01 > 0.34|
+                                  MAI_12 > 0.34 & MAI_01 > 0.34 & MAI_02 > 0.34,
+                            "Semi-arid",
+                            ifelse(MAI_01 > 0.34 & MAI_02 > 0.34| 
+                                  MAI_02 > 0.34 & MAI_04 > 0.34|
+                                  MAI_03 > 0.34 & MAI_04 > 0.34|
+                                  MAI_04 > 0.34 & MAI_05 > 0.34|
+                                  MAI_05 > 0.34 & MAI_06 > 0.34|
+                                  MAI_06 > 0.34 & MAI_07 > 0.34|
+                                  MAI_07 > 0.34 & MAI_08 > 0.34|
+                                  MAI_08 > 0.34 & MAI_09 > 0.34|
+                                  MAI_09 > 0.34 & MAI_10 > 0.34|
+                                  MAI_10 > 0.34 & MAI_11 > 0.34|
+                                  MAI_11 > 0.34 & MAI_12 > 0.34|
+                                  MAI_12 > 0.34 & MAI_01 > 0.34,
+                                "Arid",
+                               ifelse(MAI_01 < 0.33 & MAI_02 < 0.33 & MAI_03 < 0.33 & MAI_04 < 0.33 & MAI_05 < 0.33 & MAI_06 < 0.33  & 
+                                      MAI_07 < 0.33 & MAI_08 < 0.33 & MAI_09 < 0.33 & MAI_10 < 0.33 & MAI_11 < 0.33 & MAI_12< 0.33, 
+                                      "Very Arid",
+                                      NA)))))
+                         
+
+ggplot(hg.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(hg.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+hg.w$cat.AI2 <- cut(hg.w$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+
+ggplot(hg.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI2))+
+  labs(title = "AI (Hargreaves)", fill = "")+
+  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(hg.w)+geom_point(aes(x=lat, y = psi, col = AI))+scale_color_viridis_c()
+```
+# References
+
+`r knitr::knit_exit()`
+
 
 # SPEI
 
 Can be calculated at a given location for a time series of months with the SPEI package @SPEI.
 Otherwise, SPEI has been calculated by the creators for time scales of 1 to 48 months worldwide. https://digital.csic.es/handle/10261/153475
 
-```{r spei-nc, fig.dim = c(3,3)}
+```{r spei-nc }
 library(ncdf4)
 spei <- nc_open("spei12.nc")
 
@@ -810,9 +1102,7 @@ ggplot(spei.2020)+geom_tile(aes(x = x, y = y, fill = layer))+
   scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 ```
 
-# References
 
-`r knitr::knit_exit()`
 
 # Extra
 
