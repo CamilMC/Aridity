@@ -23,6 +23,9 @@ library(dplyr)
 library(raster)
 library(sf)
 library(ggplot2)
+library(ggpubr)
+library(viridisLite)
+library(lemon)
 
 library(reshape2)
 
@@ -182,91 +185,129 @@ saveRDS(world.df, "world.df.rds")
 fra <- readRDS("fra.rds")
 civ <- readRDS("civ.rds")
 world.df <- readRDS("world.df.rds")
+
+colorvec <- viridis(n = 7, direction = -1)
 ```
 
 # Lang Rain Factor
+
+```{r categories-lang}
+breaks.lang <- c(0,20,40,60,100,160,Inf)
+cat.lang <- c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,Inf]"="Hyper humid")
+col.cat <- c("Deserts" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Hyper humid"= colorvec[6])
+```
 
 Detailed in @Thornthwaite1948 and [here]<https://iast.univ-setif.dz/documents/Cours/Cours6BioclimatologieL2GAT21.pdf> 
 
 ```{r lang-civ }
 lang.civ <- civ %>% mutate(RF = pre/temp)
 
-lang.civ$cat.AI <- cut(lang.civ$RF, breaks = c(0,20,40,60,100,160,200)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,200]"="Hyper humid"))
+lang.civ$cat.AI <- cut(lang.civ$RF, breaks = breaks.lang) %>% revalue(cat.lang)
 
-ggplot(lang.civ)+geom_tile(aes(x = lon, y = lat, fill = RF))+
+g1c <- ggplot(lang.civ)+geom_raster(aes(x = lon, y = lat, fill = RF))+
     borders(regions = "Ivory Coast")+
-  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+  labs(title = "Lang Rain Factor, Ivory Coast", fill = "")+scale_fill_viridis_c(direction = -1,lim = c(-0, 200))+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-ggplot(lang.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g2c <- ggplot(lang.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
-
+  labs(title = "Lang Rain Factor, Ivory Coast", fill = "")+
+  scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 ```
 
 ```{r lang-france}
 lang.fra <- fra %>% mutate(RF = pre/temp)
 
-lang.fra$cat.AI <- cut(lang.fra$RF, breaks = c(0,20,40,60,100,160,500,Inf)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,500]"="Hyper humid", "(500,Inf]" = "Annual temp near 0"))
+lang.fra$cat.AI <- cut(lang.fra$RF, breaks = breaks.lang) %>% revalue(cat.lang)
 
-ggplot(lang.fra)+geom_tile(aes(x = lon, y = lat, fill = RF))+
+g1f <- ggplot(lang.fra)+geom_raster(aes(x = lon, y = lat, fill = RF))+
     borders(regions = "France")+
-  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_c(direction = -1, lim = c(-0, 200))+theme_void(base_size = 10)+theme(legend.position = "bottom")
+  labs(title = "Lang Rain Factor, France", fill = "")+scale_fill_viridis_c(direction = -1, lim = c(-0, 200))+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-ggplot(lang.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g2f <- ggplot(lang.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "France")+
-  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+  labs(title = "Lang Rain Factor, France", fill = "")+
+  scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")
+```
 
+```{r ggarrange}
+ggarrange(g1c,g1f, common.legend = T, legend = "bottom")
+ggarrange(g2c, g2f, common.legend = T, legend = "bottom")
+```
+
+```{r lang-world}
+lang.w <- world.df %>% mutate(RF = pre/temp)
+
+lang.w$cat.AI <- cut(lang.w$RF, breaks = breaks.lang) %>% revalue(cat.lang)
+
+ggplot(lang.w)+geom_raster(aes(x = lon, y = lat, fill = RF))+
+  labs(title = "Lang Rain Factor", fill = "")+scale_fill_viridis_c(direction = -1, lim = c(-0, 500))+theme_void(base_size = 10)+theme(legend.position = "bottom")
+
+ggplot(lang.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "Lang Rain Factor", fill = "")+
+  scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 ```
 
 # AI De Martonne
 
 Defined by @Martonne1926, used and detailed by @Baltas2007.
 
-```{r martonne-civ }
+```{r categories-martonne}
+breaks.martonne <- c(0,10,20,24,28,35,55,Inf)
+cat.martonne <- c("[0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Humid","(35,55]" = "Very humid (a)", "(55,Inf]" = "Very humid (b)")
+col.cat <- c("Dry" = colorvec[1], "Semi-dry"= colorvec[2],"Meditarranean"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Very humid (a)"= colorvec[6], "Very humid (b)" = colorvec[7])
+```
+
+```{r martonne-civ}
 martonne.civ <- civ %>% mutate(Am = pre/(temp+10)) # pre en mm
-martonne.civ$cat.AI <- martonne.civ$Am %>% cut(c(0,10,20,24,28,35,55,100)) %>% revalue(c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+martonne.civ$cat.AI <- martonne.civ$Am %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-
-ggplot(martonne.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g1c <- ggplot(martonne.civ)+geom_raster(aes(x = lon, y = lat, fill = Am))+
     borders(regions = "Ivory Coast")+
-  labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "De Martonne Aridity Index, Ivory Coast", fill = "")+
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(martonne.civ)+geom_tile(aes(x = lon, y = lat, fill = Am))+
+g2c <- ggplot(martonne.civ)+ geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  labs(title = "De Martonne Aridity Index, Ivory Coast", fill = "")+
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 ```
 
-```{r martonne-fra }
-
+```{r martonne-fra}
 martonne.fra <- fra %>% mutate(Am = pre/(temp+10)) # pre en mm
-martonne.fra$cat.AI <- martonne.fra$Am %>% cut(c(0,10,20,24,28,35,55,100)) %>% revalue(c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+martonne.fra$cat.AI <- martonne.fra$Am %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-
-ggplot(martonne.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g1f <- ggplot(martonne.fra)+geom_raster(aes(x = lon, y = lat, fill = Am))+
     borders(regions = "France")+
-  labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "De Martonne Aridity Index, France", fill = "")+
+  scale_fill_viridis_c(direction = -1, lim = c(0,100))+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(martonne.fra)+geom_tile(aes(x = lon, y = lat, fill = Am))+
+g2f <- ggplot(martonne.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "France")+
-  labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1, lim = c(0,100))+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  labs(title = "De Martonne Aridity Index, France", fill = "")+
+  scale_fill_manual(values = COL;CAT)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+
 ```
-```{r martonne-world }
 
+```{r plot-lang}
+ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
+ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
+```
+
+```{r martonne-world}
 martonne.w <- world.df %>% mutate(Am = pre/(temp+10)) # pre en mm
-martonne.w$cat.AI <- martonne.w$Am %>% cut(c(0,10,20,24,28,35,55,100)) %>% revalue(c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+martonne.w$cat.AI <- martonne.w$Am %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-
-ggplot(martonne.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  scale_fill_manual(values = cat.colorvec)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
-ggplot(martonne.w)+geom_tile(aes(x = lon, y = lat, fill = Am))+
+ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = Am))+
   labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1, lim = c(0,100))+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  scale_fill_viridis_c(direction = -1, lim = c(0, 200))+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
 # Emberger
@@ -282,6 +323,12 @@ STILL NOT SURE
 
 T and t in K. 100P
 
+```{r categories-emberger}
+breaks.emberger <- c(-Inf, 0,10,45,70,110,150, +Inf)
+cat.emberger <- c("(-Inf,0]" = NA,"(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150, Inf]" = "Hyper-humid")
+col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Subhumid" = colorvec[4], "Humid"= colorvec[5],"Hyper-humid"= colorvec[6])
+```
+
 ```{r emberger-civ }
 
 emberger.civ <- civ 
@@ -289,15 +336,16 @@ emberger.civ$tmax <- apply(dplyr::select(civ, c("tmean_01", "tmean_02", "tmean_0
 emberger.civ$tmin <- apply(dplyr::select(civ, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
 emberger.civ$Em <- with(emberger.civ, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
 
-ggplot(emberger.civ)+geom_tile(aes(x = lon, y = lat, fill = Em))+
+g1c <- ggplot(emberger.civ)+geom_raster(aes(x = lon, y = lat, fill = Em))+
     borders(regions = "Ivory Coast")+
   labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-emberger.civ$cat.AI <- cut(emberger.civ$Em, breaks = c(0,10,45,70,110,150,760)) %>% revalue(c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
+emberger.civ$cat.AI <- cut(emberger.civ$Em, breaks = breaks.emberger) %>% revalue(cat.emberger)
 
-ggplot(emberger.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g2c <- ggplot(emberger.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
-  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+
+  theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 ```
 
@@ -308,19 +356,23 @@ emberger.fra$tmax <- apply(dplyr::select(fra, c("tmean_01", "tmean_02", "tmean_0
 emberger.fra$tmin <- apply(dplyr::select(fra, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
 emberger.fra$Em <- with(emberger.fra, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
 
-ggplot(emberger.fra)+geom_tile(aes(x = lon, y = lat, fill = Em))+
+g1f <- ggplot(emberger.fra)+geom_raster(aes(x = lon, y = lat, fill = Em))+
     borders(regions = "France")+
   labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-emberger.fra$cat.AI <- cut(emberger.fra$Em, breaks = c(0,10,45,70,110,150,760)) %>% revalue(c("(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150,760]" = "Hyper-humid"))
+emberger.fra$cat.AI <- cut(emberger.fra$Em, breaks = breaks.emberger) %>% revalue(cat.emberger)
 
-ggplot(emberger.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g2f <- ggplot(emberger.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "France")+
-  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
-```{r emberger-w}
+```{r plot-emberger}
+ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
+ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
+```
 
+```{r emberger-w}
 emberger.w <- world.df
 
 emberger.w$tmax <-apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, max, na.rm = T)
@@ -328,66 +380,81 @@ emberger.w$tmin <- apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmea
 emberger.w$Em <- with(emberger.w, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
 
 
-ggplot(emberger.w)+geom_tile(aes(x = lon, y = lat, fill = Em))+
+ggplot(emberger.w)+geom_raster(aes(x = lon, y = lat, fill = Em))+
   labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-emberger.w$cat.AI <- cut(emberger.w$Em, breaks = c(-Inf, 0,10,45,70,110,150, +Inf)) %>% revalue(c("(-Inf,0]" = NA,"(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150, Inf]" = "Hyper-humid"))
+emberger.w$cat.AI <- cut(emberger.w$Em, breaks = breaks.emberger) %>% revalue(cat.emberger)
 
-ggplot(emberger.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1,   na.value = "grey50", na.translate = T)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+ggplot(emberger.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
 
 Encore une fois, ne fonctionne pas si la température annuelle moyenne (ou tmax-tmin) est < 0: l'indice devient négatif
+
 # Ångström
 
 Same categorization as Martonne?
 
-```{r angstrom-civ}
+```{r categories-angstrom}
+breaks.angstrom <- c(0,20,40,60,100,160,Inf)
+cat.angstrom <- c("[0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,Inf]"= "Hyper-humid")
+col.cat <- c("Deserts" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Hyper-humid"= colorvec[6])
+```
 
+```{r angstrom-civ}
 ang.civ <- civ %>% mutate(AI = pre/(1.07^temp))
 
-ang.civ$cat.AI <- ang.civ$AI %>% cut(breaks = c(0,20,40,60,100,160,700)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
-#martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+ang.civ$cat.AI <- ang.civ$AI %>% cut(breaks = breaks.angstrom, include.lowest = T) %>% revalue(cat.angstrom)
 
-ggplot(ang.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-    borders(regions = "Ivory Coast")+
-  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-
-ggplot(ang.civ)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+g1c <- ggplot(ang.civ)+geom_raster(aes(x = lon, y = lat, fill = AI))+
     borders(regions = "Ivory Coast")+
   labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-```
-```{r angstrom-fra }
 
+g2c <- ggplot(ang.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+    borders(regions = "Ivory Coast")+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
+
+```{r angstrom-fra}
 ang.fra <- fra %>% mutate(AI = pre/(1.07^temp))
 
-ang.fra$cat.AI <- ang.fra$AI %>% cut(breaks = c(0,20,40,60,100,160,700, 2000)) %>% 
-  revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"= "Hyper humid", "(700,2e+03]" = "Even more humid"))
-#martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+ang.fra$cat.AI <- ang.fra$AI %>% cut(breaks = breaks.angstrom) %>% 
+  revalue(cat.angstrom)
 
-ggplot(ang.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g1f <- ggplot(ang.fra)+geom_raster(aes(x = lon, y = lat, fill = AI))+
+  borders(regions = "France")+
+  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+g2f <- ggplot(ang.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   borders(regions = "France")+
   labs(title = "Ångström Aridity Index", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
 
-ggplot(ang.fra)+geom_tile(aes(x = lon, y = lat, fill = AI))+
-  borders(regions = "France")+
-  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```{r plot-angstrom}
+ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
+ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
 
 ```{r angstrom-world }
 
 ang.w <- world.df %>% mutate(AI = pre/(1.07^temp))
 
-ang.w$cat.AI <- ang.w$AI %>% cut(breaks = c(0,20,40,60,100,160,700)) %>% revalue(c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,700]"="Hyper humid"))
-#martonne.df$cat.AI <- revalue(martonne.df$cat, c("(0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Semi-humid","(35,55]" = "Very humid (a)", "(55,100]" = "Very humid (b)"))
+ang.w$cat.AI <- ang.w$AI %>% cut(breaks = breaks.angstrom, include.lowest = T) %>% revalue(cat.angstrom)
 
-ggplot(ang.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = T, na.value = "grey50")+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+ggplot(ang.w)+geom_raster(aes(x = lon, y = lat, fill = AI))+
+  labs(title = "Ångström Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+
+  theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(ang.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
-  labs(title = "Ångström Aridity Index", fill = "")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+ggplot(ang.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "Ångström Aridity Index", fill = "")+
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
 ```
 
 # AI UNESCO (PM, FAO)
@@ -395,6 +462,12 @@ ggplot(ang.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
 Index established by UNESCO1979, used and detailed by @Tsakiris2005
 
 Formulas available at: https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
+
+```{r categories-unesco}
+breaks.unesco <- c(0,0.03,0.2,0.5,0.75,Inf)
+cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+```
 
 
 ```{r PM-perso-civ} 
@@ -410,12 +483,19 @@ unesco.civ$ea <- with(unesco.civ, with(unesco.civ, ifelse(tmin > 0, 0.61078*exp(
 unesco.civ$ET0 <-with(unesco.civ, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
 unesco.civ$AI_FAO <- with(unesco.civ, pre/(ET0*365))
 
-unesco.civ$cat.AI_FAO <- unesco.civ$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,3)) %>% 
-  revalue(c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,3]" = "Humid"))
+unesco.civ$cat.AI_FAO <- unesco.civ$AI_FAO %>% cut(breaks = breaks.unesco, include.lowest = T) %>% 
+  revalue(cat.unesco)
 
-ggplot(unesco.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI_FAO))+
+g1c <- ggplot(unesco.civ)+geom_raster(aes(x = lon, y = lat, fill = AI_FAO))+
   borders(regions = "Ivory Coast")+
-  labs(title = "Unesco Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+  labs(title = "Unesco Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+
+g2c <- ggplot(unesco.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI_FAO))+
+  borders(regions = "Ivory Coast")+
+  labs(title = "Unesco Aridity Index", fill = "")+
+  scale_fill_manual(values = col.cat)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
@@ -433,19 +513,25 @@ unesco.fra$ea <- with(unesco.fra, with(unesco.fra, ifelse(tmin > 0, 0.61078*exp(
 unesco.fra$ET0 <-with(unesco.fra, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
 unesco.fra$AI_FAO <- with(unesco.fra, pre/(ET0*365))
 
-unesco.fra$cat.AI_FAO <- unesco.fra$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,4)) %>% 
-  revalue(c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,4]" = "Humid"))
+unesco.fra$cat.AI_FAO <- unesco.fra$AI_FAO %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
 
-ggplot(unesco.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI_FAO))+
-  borders(regions = "France")+
-  labs(title = "Unesco Aridity Index", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
-  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-
-ggplot(unesco.fra)+geom_tile(aes(x = lon, y = lat, fill = AI_FAO))+
+g1f <- ggplot(unesco.fra)+geom_raster(aes(x = lon, y = lat, fill = AI_FAO))+
     borders(regions = "France")+
   labs(title = "Unesco Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
+g2f <- ggplot(unesco.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI_FAO))+
+  borders(regions = "France")+
+  labs(title = "Unesco Aridity Index", fill = "")+
+    scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
+
+```{r plot-unesco}
+ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
+ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
 ```{r PM-perso-world} 
 unesco.w <- world.df %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
@@ -462,17 +548,18 @@ unesco.w$ea <- with(unesco.w, with(unesco.w, ifelse(tmin > 0, 0.61078*exp(17.27*
 unesco.w$ET0 <-with(unesco.w, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
 unesco.w$AI_FAO <- with(unesco.w, pre/(ET0*365))
 
-unesco.w$cat.AI_FAO <- unesco.w$AI_FAO %>% cut(breaks = c(0,0.03,0.2,0.5,0.75,14), include.lowest = T) %>% # otherwise regions in  which pre = 0 are excluded 
-  revalue(c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,14]" = "Humid"))
+unesco.w$cat.AI_FAO <- unesco.w$AI_FAO %>% cut(breaks = breaks.unesco, include.lowest = T) %>% # otherwise regions in  which pre = 0 are excluded 
+  revalue(cat.unesco)
 
-ggplot(unesco.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI_FAO))+
-  labs(title = "Unesco Aridity Index)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+ggplot(unesco.w)+geom_raster(aes(x = lon, y = lat, fill = AI_FAO))+
+  labs(title = "Unesco Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(unesco.w)+geom_tile(aes(x = lon, y = lat, fill = AI_FAO))+
-  labs(title = "Unesco Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-
+ggplot(unesco.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI_FAO))+
+  labs(title = "Unesco Aridity Index)", fill = "")+
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
 # AI UNEP (Thornthwaite)
@@ -483,6 +570,11 @@ ggplot(unesco.w)+geom_tile(aes(x = lon, y = lat, fill = AI_FAO))+
 
 Catégorisation @Tsakiris2005
 
+```{r categories-unep}
+breaks.unep <- c(0,0.05,0.2,0.5,0.65,Inf)
+cat.unep <- c("[0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+```
 
 ```{r thornthwaite-civ-by-hand }
 thorn.civ <- mutate(civ, i_01 = (tmean_01/5)^1.514,
@@ -514,18 +606,19 @@ thorn.civ <- mutate(civ, i_01 = (tmean_01/5)^1.514,
                     ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
                     AI = pre/ET)
 
-thorn.civ$cat.AI <- cut(thorn.civ$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+thorn.civ$cat.AI <- cut(thorn.civ$AI, breaks = breaks.unep) %>% revalue(cat.unep) # cuts from Tsakiris2005
 
-ggplot(thorn.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  borders(regions = "Ivory Coast")+
-  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
-  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-
-ggplot(thorn.civ)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+g1c <- ggplot(thorn.civ)+geom_raster(aes(x = lon, y = lat, fill = AI))+
     borders(regions = "Ivory Coast")+
   labs(title = "UNEP Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
+g2c <- ggplot(thorn.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  borders(regions = "Ivory Coast")+
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
 ```{r thornthwaite-fra-by-hand }
@@ -558,18 +651,26 @@ thorn.fra <- mutate(fra, i_01 = (tmean_01/5)^1.514,
                     ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
                     AI = pre/ET)
 
-thorn.fra$cat.AI <- cut(thorn.fra$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+thorn.fra$cat.AI <- cut(thorn.fra$AI, breaks = breaks.unep) %>% revalue(cat.unep) # cuts from Tsakiris2005
 
-ggplot(thorn.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  borders(regions = "France")+
-  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
-  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-
-ggplot(thorn.fra)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+g1f <- ggplot(thorn.fra)+geom_raster(aes(x = lon, y = lat, fill = AI))+
     borders(regions = "France")+
   labs(title = "UNEP Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+  scale_fill_viridis_c(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+g2f <- ggplot(thorn.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  borders(regions = "France")+
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
+
+```{r plot-uneo}
+ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
+ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
+```
+
 ```{r thornthwaite-w-by-hand }
 thorn.w <- mutate(world.df, 
                     i_01 = (tmean_01/5)^1.514,
@@ -601,16 +702,19 @@ thorn.w <- mutate(world.df,
                     ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
                     AI = pre/ET)
 
-thorn.w$cat.AI <- cut(thorn.w$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+thorn.w$cat.AI <- cut(thorn.w$AI, breaks = breaks.unep, include.lowest = T) %>% revalue(cat.unep) # cuts from Tsakiris2005
 
-ggplot(thorn.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
-  labs(title = "UNEP AI (Thornthwaite)", fill = "")+scale_fill_viridis_d(direction = -1, na.translate = F)+
+ggplot(thorn.w)+geom_raster(aes(x = lon, y = lat, fill = AI))+
+  labs(title = "UNEP Aridity Index", fill = "")+
+  scale_fill_viridis_c(direction = -1)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(thorn.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
-  labs(title = "UNEP Aridity Index", fill = "")+
-  scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+ggplot(thorn.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  labs(title = "UNEP AI (Thornthwaite)", fill = "")+
+  scale_fill_manual(values = col.cat)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
+
 NA pour températures annuelles moyennes < 0, car les indices de chaleur mensuels sont calculés à partir de la température moyenne mensuelle élevé à la puissance 1.514
 
 # AI with Hargreave evapotranspiration 
@@ -619,8 +723,13 @@ Hargreaves formula: @Hargreaves1985
 
 Ra formula: https://www.agraria.unirc.it/documentazione/materiale_didattico/1462_2016_412_24509.pdf
 
-```{r hargreaves-civ-by-hand}
+```{r categories-har}
+breaks.har <- c(0,0.05,0.2,0.5,0.65,Inf)
+cat.har <- c("[0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+```
 
+```{r hargreaves-civ-by-hand}
 hg.civ <- civ %>% mutate(psi = pi/180*lat, # latitude in radian
                     delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
                     delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
@@ -745,31 +854,29 @@ hg.civ$cat.AI <- with(hg.civ,
                                       NA)))))
                          
 
-ggplot(hg.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g0c <- ggplot(hg.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   borders(regions = "Ivory Coast")+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_d(direction = -1, na.translate = F)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(hg.civ)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+g01c <- ggplot(hg.civ)+geom_raster(aes(x = lon, y = lat, fill = AI))+
   borders(regions = "Ivory Coast")+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_c(direction = -1)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-hg.civ$cat.AI2 <- cut(hg.civ$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+hg.civ$cat.AI2 <- cut(hg.civ$AI, breaks = breaks.har, include.lowest = T) %>% revalue(cat.har) # cuts from Tsakiris2005
 
-ggplot(hg.civ)+geom_tile(aes(x = lon, y = lat, fill = cat.AI2))+
+g1c <- ggplot(hg.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI2))+
   borders(regions = "Ivory Coast")+
   labs(title = "AI (Hargreaves)", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  scale_fill_manual(values = col.cat)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 ```
 
-
 ```{r hargreaves-fra-by-hand }
-
 hg.fra <- fra %>% mutate(psi = pi/180*lat, # latitude in radian
                     delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
                     delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
@@ -894,25 +1001,30 @@ hg.fra$cat.AI <- with(hg.fra,
                                       NA)))))
                          
 
-ggplot(hg.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+g0f <- ggplot(hg.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   borders(regions = "France")+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_d(direction = -1, na.translate = F)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(hg.fra)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+g01f <- ggplot(hg.fra)+geom_raster(aes(x = lon, y = lat, fill = AI))+
   borders(regions = "France")+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_c(direction = -1)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-hg.fra$cat.AI2 <- cut(hg.fra$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+hg.fra$cat.AI2 <- cut(hg.fra$AI, breaks = breaks.har, include.lowest = T) %>% revalue(cat.har) # cuts from Tsakiris2005
 
-ggplot(hg.fra)+geom_tile(aes(x = lon, y = lat, fill = cat.AI2))+
+g1f <- ggplot(hg.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI2))+
   borders(regions = "France")+
   labs(title = "AI (Hargreaves)", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  scale_fill_manual(values = col.cat)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+```
+
+```{r plot-hargreaves}
+ggarrange(g1c,g1f, common.legend = T, legend = "bottom")
+
 ```
 
 ```{r har-world}
@@ -1046,25 +1158,24 @@ hg.w$cat.AI <- with(hg.w,
                                       NA)))))
                          
 
-ggplot(hg.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI))+
+ggplot(hg.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_d(direction = -1, na.translate = F)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-ggplot(hg.w)+geom_tile(aes(x = lon, y = lat, fill = AI))+
+ggplot(hg.w)+geom_raster(aes(x = lon, y = lat, fill = AI))+
   labs(title = "AI (Hargreaves)", fill = "")+
   scale_fill_viridis_c(direction = -1)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
-hg.w$cat.AI2 <- cut(hg.w$AI, breaks = c(0,0.05,0.2,0.5,0.65,4)) %>% revalue(c("(0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,4]" = "Humid")) # cuts from Tsakiris2005
+hg.w$cat.AI2 <- cut(hg.w$AI, breaks = breaks.har, include.lowest = T) %>% revalue(cat.har) # cuts from Tsakiris2005
 
-ggplot(hg.w)+geom_tile(aes(x = lon, y = lat, fill = cat.AI2))+
+ggplot(hg.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI2))+
   labs(title = "AI (Hargreaves)", fill = "")+
-  scale_fill_viridis_d(direction = -1, na.translate = F)+
+  scale_fill_manual(values = col.cat)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
-
-ggplot(hg.w)+geom_point(aes(x=lat, y = psi, col = AI))+scale_color_viridis_c()
 ```
+
 # References
 
 `r knitr::knit_exit()`
@@ -1091,12 +1202,12 @@ spei.raster <- raster(t(spei.slice), xmn = min(lon), xmx = max(lon), ymn = min(l
 plot(spei.raster)
 
 spei.2020 <- spei.raster %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-ggplot(spei.2020)+geom_tile(aes(x = x, y = y, fill = layer))+ 
+ggplot(spei.2020)+geom_raster(aes(x = x, y = y, fill = layer))+ 
   borders(regions = "Ivory Coast") + ylim(3.5,11) + xlim(-9,-2)+
   labs(title="SPEI December 2000, 12 months\nIvory Coast", fill = "SPEI")+
   scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
-ggplot(spei.2020)+geom_tile(aes(x = x, y = y, fill = layer))+ 
+ggplot(spei.2020)+geom_raster(aes(x = x, y = y, fill = layer))+ 
   borders(regions = "France") + ylim(41.5,51.5) + xlim(-5,8.5)+
   labs(title="SPEI December 2000, 12 months\nFrance", fill = "SPEI")+
   scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
@@ -1135,12 +1246,12 @@ head(AI.df)
 AI.df$cat <- cut(AI.df$AI, breaks = c(0,0.03,0.2,0.5,0.65))
 AI.df$cat.AI <- revalue(AI.df$cat, newvalues)
 
-g <- ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = AI))+
+g <- ggplot(AI.df)+geom_raster(aes(x = x, y = y, fill = AI))+
     borders(regions = "Ivory Coast")+
   labs(fill = "", subtitle = i)+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 8)+theme(legend.position = "bottom")
 ggsave(plot = g, filename = paste("AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
 
-g <- ggplot(AI.df)+geom_tile(aes(x = x, y = y, fill = cat.AI))+
+g <- ggplot(AI.df)+geom_raster(aes(x = x, y = y, fill = cat.AI))+
     borders(regions = "Ivory Coast")+
   labs(subtitle = i, fill = "")+scale_fill_manual(values = mycolors)+theme_void(base_size = 8)+theme(legend.position = "bottom")
 ggsave(plot = g, filename = paste("cat.AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
