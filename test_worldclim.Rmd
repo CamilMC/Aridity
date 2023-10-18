@@ -15,7 +15,7 @@ bibliography: AI.bib
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
 ```
 
-```{r testing-worldclim}
+```{r libraries}
 library(geodata)
 library(plyr)
 library(dplyr)
@@ -189,7 +189,20 @@ world.df <- readRDS("world.df.rds")
 colorvec <- viridis(n = 7, direction = -1)
 ```
 
-# Lang Rain Factor
+# Définition de l'aridité
+
+L’aridité (aridity) désigne une tendance de long-terme et désigne des régions sèches où les ressources en eau sont limitées. Une sécheresse (drought), au contraire, désigne un épisode temporaire de déficit en eau. Une sécheresse commence toujours par un déficit de pluie (sécheresse atmosphérique), mais peut ensuite évoluer en sécheresse hydrologique si elle affecte le niveau de nappes phréatiques et des cours d’eau ; ou encore en sécheresse écologique si cela affecte le niveau d’humidité des sols. Si on considère les impacts sur les activités humaines, on peut également parler de sécheresse agricole ou de sécheresse socio-économique 1. 
+
+*Définition IPCC : The state of a long-term climatic feature characterised by low average precipitation or available water in a region. Aridity generally arises from widespread persistent atmospheric subsidence or anticyclonic conditions, and from more localised subsidence in the lee side of mountains (adapted from Ogallo and Gbeckor-Kove, 1989).* 2
+
+Les premières classifications climatiques ont été effectuées durant la seoncde moitié du 19e siècle, à partir d’une description de la végétation et des précipitations3, 4. Cette classification intéresse à la fois les botanistes/agronomes, et les météorologistes. Les premiers s’intéressent aux EFFETS du climat sur la végétation, les seconds s’intéressent aux ORIGINES du climat. Les indices d’aridités, censés faciliter la catégorisation des régions, sont nés de cette interaction. Les premiers indices sont donc assez intuitifs, fondés sur les données disponibles : les précipitations et la température. Plus tard, la notion d’évaporation puis d’évapotranspiration seront introduites4. La forte dépendance de l’évapotranspiration à la température explique que des indices utilisant la température soient toujours considérés comme pertinents. 
+
+
+# Lang Rain Factor, 1920
+
+Le facteur de précipitation de Lang consiste simplement dans le ratio $I=P/T$. P en mm et T en °C. 
+
+Il sert à décrire, en se basant sur des paramètres facilement accessibles, les zones climatiques telles qu’exposées par les phytogéographes. Malgré l’incohérence des unités, ce facteur montre bien que l’efficacité des précipitations augmente avec P et diminue avec T 6. 
 
 ```{r categories-lang}
 breaks.lang <- c(0,20,40,60,100,160,Inf)
@@ -229,9 +242,9 @@ g2f <- ggplot(lang.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 ```
 
-```{r ggarrange}
-ggarrange(g1c,g1f, common.legend = T, legend = "bottom")
-ggarrange(g2c, g2f, common.legend = T, legend = "bottom")
+```{r ggarrange, fig.dim = c(8,4)}
+ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
+ggarrange(g2f, g2c, common.legend = T, legend = "bottom")
 ```
 
 ```{r lang-world}
@@ -247,9 +260,27 @@ ggplot(lang.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 ```
 
-# AI De Martonne
+# De Martonne, 1926
 
-Defined by @Martonne1926, used and detailed by @Baltas2007.
+Dans une communication en 1926, De Martonne présente son indice d’aridité fondé sur un ratio entre les précipitations et la température 7, similaire à l’indice de Lang, mais qui peut être utilisé pour des températures annuelles négatives. Les seuils de cet indice sont définis en comparant la répartition géographique de l’indice avec celle des zones « sans écoulement ».  
+
+$A_m=  P/(T+10)$
+
+Avec P en cm et T en degrés celsius. 
+
+Tableau: https://lbusett.github.io/insert_table/ 
+
+Am	Zone	Irrigation	Exemple
+< 5	Désert		Le Caire, Lima, Port Nolloth
+5 < Am < 10	Zone aride	Irrigation indispensable	Dueim, Brakfontein
+10 < Am < 20	Zone semi-aride	Irrigation nécessaire	Lahore, Kayes, Salta
+20 < Am < 30	Zone tempérée	Irrigation utile	
+30 < Am < 40	Zone humide	Irrigation inutile, drainage parfois nécessaire	
+> 40	Forêt 		
+
+
+Définition: @Martonne1926
+Usage et détails: @Baltas2007.
 
 ```{r categories-martonne}
 breaks.martonne <- c(0,10,20,24,28,35,55,Inf)
@@ -287,12 +318,12 @@ g1f <- ggplot(martonne.fra)+geom_raster(aes(x = lon, y = lat, fill = Am))+
 g2f <- ggplot(martonne.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
     borders(regions = "France")+
   labs(title = "De Martonne Aridity Index, France", fill = "")+
-  scale_fill_manual(values = COL;CAT)+
+  scale_fill_manual(values = col.cat)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
 
-```{r plot-lang}
+```{r plot-lang, fig.dim = c(8,4)}
 ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
 ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
@@ -303,25 +334,45 @@ martonne.w$cat.AI <- martonne.w$Am %>% cut(breaks.martonne, include.lowest = T) 
 
 ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   labs(title = "De Martonne Aridity Index", fill = "")+
-  scale_fill_manual(values = cat.colorvec)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = Am))+
   labs(title = "De Martonne Aridity Index", fill = "")+
   scale_fill_viridis_c(direction = -1, lim = c(0, 200))+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-# Emberger
+Autres usages:
 
-Defined by Emberger in 1932, and explained in @Marres1972.
+•	Comparaison des indices d’aridité dans le Nord de l’Algérie, Derdous et al. 20219. Obj : « accurate climate classification in Northern Algeria ».
+•	Mustafa et al 201810 : aridity trend in Kurdistan
+•	Tabari 201411: aridity trends in Iran and impact on regional agriculture
+•	Baltas 20068 : assessing climate in Northern Greece
+•	Bahmani et al. 2021: De Martonne, Pinna, UNEP: aridity in the Sirvan River Basin Iran
+•	Ahma et al. 2018, Moral et al. 2016: De Martonne, Pinna, FAO indeces to assess the spatial distribution of aridity in Ethiopia and Spain.
+•	Croitoru 2013: De Martonne and Pinna combinative; spatial patterns of aridity in Romania
 
-Used by @Baldy1972 for Liban. 
 
-Used by @Shaban2019, who modified the original formula to use the average monthly rainfall instead of the cumulated annual rainfall AND END UP WITH THE WEIRDEST EQUATION
+# Emberger, 1930
 
-Problème: je ne prends pas les bons max/min? Pas de consensus sur la formule dans la littérature. Les fonctions R prédéfinies utilisent 100P/(T2-t2) en K, alors que  Baldy utilise un facteur 1000 et Marres parle en °C. Shaban utilisent des °C. 
-STILL NOT SURE
+Emberger est un botaniste. En comparant la végétation du sud de la France et celle du Maroc, notamment les chênes verts, il se rend compte que les mêmes arbres n’occupent pas forcément le même étage d’altitude. Il synthétise le climat à l’aide d’un quotient pluviométrique qui prend en compte les précipitations annuelles et les extrêmes de température12. Cela permet de prendre en compte les interactions entre les températures minimum et la disponibilité de l’eau.  Ainsi, les régions telles que le Moyen et Grand Atlas peuvent supporter une végétation de type méditerranéenne, car elles sont plus sèches13. 
 
-T and t in K. 100P
+La formule est définie dans @Emberger1932 et expliquée dans @Marres1972. 
+
+Q=  (P×100)/(2×((M+m)/2)×(M-m))
+P : précipitations annuelles, mm
+M : moyenne des maxima de température du mois le plus chaud ; °C
+M : moyenne des minima de température du mois le plus froid ; °C
+Indice	Zone
+< 10	Hyper arid
+10-45	Aride
+45-70	Semi Aride
+70-110	Subhumid
+110-150	Humid
+>150 	Hyper humid
+
+
+Détails sur le calcul: 
+La température max utilisée est la température moyenne du mois le plus chaud, et inversement pour la température minimum, ici en degrés. Plusieurs versions de la formule existent dans la littérature. Les fonctions R prédéfinies utilisent 100P/(T2-t2) en K, alors que  @Baldy1972 au Liban utilise un facteur 1000 et Marres parle en °C. @Shaban2019 utilisent des °C. 
 
 ```{r categories-emberger}
 breaks.emberger <- c(-Inf, 0,10,45,70,110,150, +Inf)
@@ -367,7 +418,7 @@ g2f <- ggplot(emberger.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   labs(title = "Emberger Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
-```{r plot-emberger}
+```{r plot-emberger, fig.dim = c(8,4)}
 ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
 ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
@@ -392,9 +443,11 @@ ggplot(emberger.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
 
 Encore une fois, ne fonctionne pas si la température annuelle moyenne (ou tmax-tmin) est < 0: l'indice devient négatif
 
-# Ångström
+# Ångström, 1936
 
-Same categorization as Martonne?
+Angström note que les indices d’aridité fondés sur des rapports de précipitation et de température n’ont pas de sens physique16. Il souhaite intégrer la notion d’évaporation dans l’indice, mais celle-ci est difficile à estimer. En utilisant des données expérimentales de certaines rivières suédoises, il exprime l’intensité des précipitations annuelles en fonction de la température. 
+
+Il note la similitude de l’indice avec celui de De Martonne. Utilisation des mêmes seuils ?
 
 ```{r categories-angstrom}
 breaks.angstrom <- c(0,20,40,60,100,160,Inf)
@@ -434,7 +487,7 @@ g2f <- ggplot(ang.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-```{r plot-angstrom}
+```{r plot-angstrom, fig.dim = c(8,4)}
 ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
 ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
@@ -457,9 +510,42 @@ ggplot(ang.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
 
 ```
 
-# AI UNESCO (PM, FAO)
+# UNESCO, 1979 
 
-Index established by UNESCO1979, used and detailed by @Tsakiris2005
+AI, défini comme le rapport entre la demande en eau (évapotranspiration) et la ressource en eau (précipitation), sur une moyenne de 30 ans. Il est largement dépendant de la manière dont est calculée la valeur moyenne de l’évapotranspiration. Dans l’équation de référence, définie par la FAO17, l’évapotranspiration est calculée selon l’équation de Penman-Monteith en fonction du niveau de radiation solaire, du vent, de la pression de vapeur saturante, etc. L’évapotranspiration potentielle utilisée comme référence correspond à l’évapotranspiration d’une surface de référence, couverte d’une hypothétique céréale de 12 cm, bien arrosée. Cette référence est critiquée notamment parce qu’elle tendrait à surestimer l’évapotranspiration dans un contexte de changement climatique, ne prenant pas en compte l’augmentation de la concentration en CO2 de l’atmosphère et l’augmentation de l’efficacité d’usage de l’eau des plantes18. 
+
+La formule de Penman-Monteith17 pour l’évapotranspiration est :
+
+$ET_0=(0.408∆(R_n-G)+γ 900/(T+273) u_2 (e_s-e_a ))/(∆+γ(1+0.34u_2 ) )$
+
+Avec : 
+•	ET0 reference evapotrasnpiration mm/day
+•	Rn net radiation at the crop surface MJ/m2/day
+•	G soil heat flux density MJ/m2/day
+•	T mean daily air temperature °C
+•	u2 wind speed at 2 m height m/s
+•	es saturation vapour pressure kPa
+•	ea actual vapour pressure kPa
+•	es-ea saturation vapour pressure deficit kPa
+•	Δ slope vapour pressure constant ka/°C
+•	γ psychrometric constant kPa/°C
+
+
+Indice	Zone
+AI < 0.03	Hyper-aride
+0.03 < AI < 0.2	Aride
+0.2 < AI < 0.5	Semi-aride
+0.5 < AI < 0.65	Aride subhumide
+
+Autres usages:
+•	Ahma et al. 2018, Moral et al. 2016: De Martonne, Pinna, FAO indeces to assess the spatial distribution of aridity in Ethiopia and Spain.
+•	Greve et al 201918 : how will the index evolve with climate change?
+
+
+
+More details:
+
+Index established by @UNESCO1979, used and detailed by @Tsakiris2005
 
 Formulas available at: https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
 
@@ -468,7 +554,6 @@ breaks.unesco <- c(0,0.03,0.2,0.5,0.75,Inf)
 cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,Inf]" = "Humid")
 col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
 ```
-
 
 ```{r PM-perso-civ} 
 unesco.civ <- civ %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
@@ -529,7 +614,7 @@ g2f <- ggplot(unesco.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI_FAO))+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-```{r plot-unesco}
+```{r plot-unesco, fig.dim = c(8,4)}
 ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
 ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
@@ -562,7 +647,29 @@ ggplot(unesco.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI_FAO))+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-# AI UNEP (Thornthwaite)
+# UNEP (Thornthwaite)
+
+## Définition 
+
+Comme précédemment, l’aridité est définie comme le rapport entre les précipitations et l’évapotranspiration potentielle. Ici, l’évapotranspiration est calculée selon la formule de Thornthwaite, qui l’exprime en fonction de la température moyenne. 
+E_p=16×L/12×N/30×((10×T_a)/I)^a
+	L est la durée du jour en h
+	N le nombre de jours dans le mois
+	Ta la température annuelle moyenne
+I est la somme des « indices de chaleur » mensuels :
+I= ∑▒(T_a/5)^1.514 
+Et a est une fonction de I :
+a=6.75×〖10〗^(-7)×I^3-7.71×〖10〗^(-5)×I^2+1.79×〖10〗^(-2)×I+0.49
+
+
+## Usages
+
+•	World atlas of desertification19 (also 1992 when the index was defined)
+•	Sarlak and mahmood agha 2018: Lang, De Martonne, UNEP and Erinc aridity index, spatiotemporal variabtions of aridity in Irak.
+•	Kumar et Gautam20 2021 : frequency of droughts depending on aridity regions
+
+
+## Détails de calcul
 
 1. Extraire la température mensuelle pur les 12 mois. 
 2. calculer tho pour chaque point. Résultat: PET par mois
@@ -666,7 +773,7 @@ g2f <- ggplot(thorn.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-```{r plot-uneo}
+```{r plot-unep, fig.dim = c(8,4)}
 ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
 ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
 ```
@@ -1022,7 +1129,7 @@ g1f <- ggplot(hg.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI2))+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
-```{r plot-hargreaves}
+```{r plot-hargreaves, fig.dim = c(8,4)}
 ggarrange(g1c,g1f, common.legend = T, legend = "bottom")
 
 ```

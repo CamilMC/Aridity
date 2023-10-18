@@ -1,0 +1,69 @@
+---
+title: "Historical AI"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+date: "2023-09-13"
+bibliography: AI.bib
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
+```
+
+```{r libraries}
+library(raster)
+library(dplyr)
+library(ggplot2)
+library(plyr)
+library(viridisLite)
+library(sf)
+colorvec <- viridis(n = 7, direction = -1)
+```
+
+```{r rasters}
+list.temp <- list.files(path = "CMIP6/", pattern = "ts", full.names = T)
+list.pre <- list.files(path = "CMIP6/", pattern = "pr", full.names = T)
+
+ipcc_regions <- read_sf(dsn = "IPCC-WGI-reference-regions-v4.shp")
+```
+
+
+IPCC regions from @Iturbide2020
+
+```{r AI-1850_1880}
+breaks.martonne <- c(0,10,20,24,28,35,55,Inf)
+cat.martonne <- c("[0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Humid","(35,55]" = "Very humid (a)", "(55,Inf]" = "Very humid (b)")
+
+cat.m <- c("Dry", "Semi-dry","Meditarranean", "Semi-humid", "Humid", "Very humid (a)", "Very humid (b)")
+
+col.cat <- c("Dry" = colorvec[1], "Semi-dry"= colorvec[2],"Meditarranean"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Very humid (a)"= colorvec[6], "Very humid (b)" = colorvec[7])
+
+
+for(i in 1:length(list.temp)){
+  
+  #get model name
+  mname <- sub(pattern = ".*Amon_*.", x = list.temp[i], replacement = "") %>% sub(replacement = "", pattern = "_1850*.*")
+  
+  # get variables  
+  tavg <- raster::stack(list.temp[i], bands = c(1:361)) %>% mean(na.rm = T) %>% reclassify(cbind(-Inf,(-10+273),NA))   #mean annual temperature for the period in K
+  pavg <- raster::stack(list.pre[i], bands = c(1:361)) %>% mean(na.rm = T) #monthly average of daily precipitation in kg/m2/s-1. Converted to mm / month by 1) compute the global average, 2) multiply by 12 to obtain annual average, 3) multiply by 60*60*365 to obtain annual values
+  
+  #computes and save AI
+  AI <- (pavg*12*60*60*365)/((tavg-273)+10)
+  plot(AI)
+  writeRaster(AI, filename = paste("CMIP6/AI",mname,"1850-1880.nc", sep = "_"), format = "CDF", overwrite = T)
+}
+
+
+AI.df <- AI %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("AI","lon","lat"))
+AI.df$cat.AI <- AI.df$AI %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+ggplot(AI.df)+ geom_raster(aes(x=lon, y = lat, fill = cat.AI))+borders()
+
+
+raster("CMIP6/AI_AMS-CSM1-0_historical_r1i1p1f1_gn_1850-1880.nc") %>% plot()
+```
