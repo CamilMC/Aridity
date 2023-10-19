@@ -29,18 +29,27 @@ colorvec <- viridis(n = 7, direction = -1)
 list.temp <- list.files(path = "CMIP6/", pattern = "ts", full.names = T)
 list.pre <- list.files(path = "CMIP6/", pattern = "pr", full.names = T)
 
-ipcc_regions <- read_sf(dsn = "IPCC-WGI-reference-regions-v4.shp")
+
+land_mask <- raster("land_sea_mask_1degree.nc4")
+land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
+
+ipcc_regions <- shapefile("IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326"))
+ext <- floor(extent(ipcc_regions))
+rr <- raster(ext, res = 1)
+ripcc_regions <- rasterize(ipcc_regions, rr)
+ipcc_regions.df <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+plot(ripcc_regions)
+
+elev <- raster("elevation_100KMmn_GMTEDmn.tif") %>% projectRaster(to = ripcc_regions)
 ```
 
-
 IPCC regions from @Iturbide2020
+Elevation from https://www.earthenv.org/topography 
 
-```{r AI-1850_1880}
+```{r AI-De-Martonne}
 breaks.martonne <- c(0,10,20,24,28,35,55,Inf)
 cat.martonne <- c("[0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Humid","(35,55]" = "Very humid (a)", "(55,Inf]" = "Very humid (b)")
-
 cat.m <- c("Dry", "Semi-dry","Meditarranean", "Semi-humid", "Humid", "Very humid (a)", "Very humid (b)")
-
 col.cat <- c("Dry" = colorvec[1], "Semi-dry"= colorvec[2],"Meditarranean"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Very humid (a)"= colorvec[6], "Very humid (b)" = colorvec[7])
 
 
@@ -53,17 +62,72 @@ for(i in 1:length(list.temp)){
   tavg <- raster::stack(list.temp[i], bands = c(1:361)) %>% mean(na.rm = T) %>% reclassify(cbind(-Inf,(-10+273),NA))   #mean annual temperature for the period in K
   pavg <- raster::stack(list.pre[i], bands = c(1:361)) %>% mean(na.rm = T) #monthly average of daily precipitation in kg/m2/s-1. Converted to mm / month by 1) compute the global average, 2) multiply by 12 to obtain annual average, 3) multiply by 60*60*365 to obtain annual values
   
-  #computes and save AI
+  #computes and save AI raster
   AI <- (pavg*12*60*60*365)/((tavg-273)+10)
-  plot(AI)
+  extent(AI) <- c(-180,180,-90,90)
+  AI <- projectRaster(from = AI, to = ripcc_regions)
   writeRaster(AI, filename = paste("CMIP6/AI",mname,"1850-1880.nc", sep = "_"), format = "CDF", overwrite = T)
+  
+  
+  # converts to DF and compute categories per IPCC region
+  AI.df <- as.data.frame(AI, xy = T) %>% setNames(c("lon","lat","AI"))
+  AI.df$cat.AI <- AI.df$AI %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+  tot <- merge(AI.df, ipcc_regions.df, by = c("lon","lat")) %>% merge(land_mask.df, by = c("lon","lat"))
+  tot.land <- subset(tot,lm == 1)
+  write.table(tot.land, file = paste("CMIP6/AI",mname,"1850-1880.csv", sep = "_"))
+  sorted.df <- table(tot.land$cat.AI,tot.land$Acronym) %>% as.data.frame() %>% setNames(c("cat.AI","Region","t1850"))
+  write.table(sorted.df, file = paste("CMIP6/region_AI",mname,"1850-1880.csv", sep = "_"))
+  
+  g <- ggplot(tot.land)+geom_raster(aes(x=lon, y = lat, fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+  labs(title = paste(mname,"1850-1880", sep = "_"), fill = "")+
+    theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  plot(g)
+}
+
+for(i in 1:length(list.temp)){
+  
+  #get model name
+  mname <- sub(pattern = ".*Amon_*.", x = list.temp[i], replacement = "") %>% sub(replacement = "", pattern = "_1850*.*")
+  
+  # get variables  
+  tavg <- raster::stack(list.temp[i], bands = c(1621:1980)) %>% mean(na.rm = T) %>% reclassify(cbind(-Inf,(-10+273),NA))   #mean annual temperature for the period in K
+  pavg <- raster::stack(list.pre[i], bands = c(1621:1980)) %>% mean(na.rm = T) #monthly average of daily precipitation in kg/m2/s-1. Converted to mm / month by 1) compute the global average, 2) multiply by 12 to obtain annual average, 3) multiply by 60*60*365 to obtain annual values
+  
+  #computes and save AI raster
+  AI <- (pavg*12*60*60*365)/((tavg-273)+10)
+  extent(AI) <- c(-180,180,-90,90)
+  AI <- projectRaster(from = AI, to = ripcc_regions)
+  writeRaster(AI, filename = paste("CMIP6/AI",mname,"1984-2014.nc", sep = "_"), format = "CDF", overwrite = T)
+  
+  # converts to DF and compute categories per IPCC region
+  AI.df <- as.data.frame(AI, xy = T) %>% setNames(c("lon","lat","AI"))
+  AI.df$cat.AI <- AI.df$AI %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+  tot <- merge(AI.df, ipcc_regions.df, by = c("lon","lat")) %>% merge(land_mask.df, by = c("lon","lat"))
+  tot.land <- subset(tot,lm == 1)
+  write.table(tot.land, file = paste("CMIP6/AI",mname,"1984-2014.csv", sep = "_"))
+  sorted.df <- table(tot.land$cat.AI,tot.land$Acronym) %>% as.data.frame() %>% setNames(c("cat.AI","Region","t1984"))
+    write.table(sorted.df, file = paste("CMIP6/region_AI",mname,"1984-2014.csv", sep = "_"))
+  
+  g <- ggplot(tot.land)+geom_raster(aes(x=lon, y = lat, fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+  labs(title = paste(mname,"1984-2014", sep = "_"), fill = "")+
+    theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  plot(g)
 }
 
 
-AI.df <- AI %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("AI","lon","lat"))
-AI.df$cat.AI <- AI.df$AI %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
-ggplot(AI.df)+ geom_raster(aes(x=lon, y = lat, fill = cat.AI))+borders()
 
+```
 
-raster("CMIP6/AI_AMS-CSM1-0_historical_r1i1p1f1_gn_1850-1880.nc") %>% plot()
+```{r compare-periods}
+list.tables <- list.files(path = "CMIP6/", pattern = "region_AI", full.names = T) %>% 
+  lapply(read.table, header = T)
+df <- do.call("merge",list.tables) %>% mutate(diff = t1984-t1850)
+
+ggplot(df, aes(x=Region))+geom_col(aes(y = t1850, fill = cat.AI))+
+  geom_col(aes(y = -t1984, fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+ 
+  theme_bw(base_size = 10)+theme(legend.position = "bottom")
+ggplot(df, aes(x=Region))+geom_col(aes(y = diff, fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+ 
+  theme_bw(base_size = 10)+theme(legend.position = "bottom")
 ```

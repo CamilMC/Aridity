@@ -191,18 +191,18 @@ colorvec <- viridis(n = 7, direction = -1)
 
 # Définition de l'aridité
 
-L’aridité (aridity) désigne une tendance de long-terme et désigne des régions sèches où les ressources en eau sont limitées. Une sécheresse (drought), au contraire, désigne un épisode temporaire de déficit en eau. Une sécheresse commence toujours par un déficit de pluie (sécheresse atmosphérique), mais peut ensuite évoluer en sécheresse hydrologique si elle affecte le niveau de nappes phréatiques et des cours d’eau ; ou encore en sécheresse écologique si cela affecte le niveau d’humidité des sols. Si on considère les impacts sur les activités humaines, on peut également parler de sécheresse agricole ou de sécheresse socio-économique 1. 
+L’aridité (aridity) désigne une tendance de long-terme et désigne des régions sèches où les ressources en eau sont limitées. Une sécheresse (drought), au contraire, désigne un épisode temporaire de déficit en eau. Une sécheresse commence toujours par un déficit de pluie (sécheresse atmosphérique), mais peut ensuite évoluer en sécheresse hydrologique si elle affecte le niveau de nappes phréatiques et des cours d’eau ; ou encore en sécheresse écologique si cela affecte le niveau d’humidité des sols. Si on considère les impacts sur les activités humaines, on peut également parler de sécheresse agricole ou de sécheresse socio-économique @Heffernan2013. 
 
-*Définition IPCC : The state of a long-term climatic feature characterised by low average precipitation or available water in a region. Aridity generally arises from widespread persistent atmospheric subsidence or anticyclonic conditions, and from more localised subsidence in the lee side of mountains (adapted from Ogallo and Gbeckor-Kove, 1989).* 2
+*Définition IPCC : The state of a long-term climatic feature characterised by low average precipitation or available water in a region. Aridity generally arises from widespread persistent atmospheric subsidence or anticyclonic conditions, and from more localised subsidence in the lee side of mountains (adapted from Ogallo and Gbeckor-Kove, 1989).* [@Moller2022]
 
-Les premières classifications climatiques ont été effectuées durant la seoncde moitié du 19e siècle, à partir d’une description de la végétation et des précipitations3, 4. Cette classification intéresse à la fois les botanistes/agronomes, et les météorologistes. Les premiers s’intéressent aux EFFETS du climat sur la végétation, les seconds s’intéressent aux ORIGINES du climat. Les indices d’aridités, censés faciliter la catégorisation des régions, sont nés de cette interaction. Les premiers indices sont donc assez intuitifs, fondés sur les données disponibles : les précipitations et la température. Plus tard, la notion d’évaporation puis d’évapotranspiration seront introduites4. La forte dépendance de l’évapotranspiration à la température explique que des indices utilisant la température soient toujours considérés comme pertinents. 
+Les premières classifications climatiques ont été effectuées durant la seoncde moitié du 19e siècle, à partir d’une description de la végétation et des précipitations [@Wallen1967; @Rubel2011]. Cette classification intéresse à la fois les botanistes/agronomes, et les météorologistes. Les premiers s’intéressent aux EFFETS du climat sur la végétation, les seconds s’intéressent aux ORIGINES du climat. Les indices d’aridités, censés faciliter la catégorisation des régions, sont nés de cette interaction. Les premiers indices sont donc assez intuitifs, fondés sur les données disponibles : les précipitations et la température. Plus tard, la notion d’évaporation puis d’évapotranspiration seront introduites [@Wallen1967]. La forte dépendance de l’évapotranspiration à la température explique que des indices utilisant la température soient toujours considérés comme pertinents. 
 
 
 # Lang Rain Factor, 1920
 
 Le facteur de précipitation de Lang consiste simplement dans le ratio $I=P/T$. P en mm et T en °C. 
 
-Il sert à décrire, en se basant sur des paramètres facilement accessibles, les zones climatiques telles qu’exposées par les phytogéographes. Malgré l’incohérence des unités, ce facteur montre bien que l’efficacité des précipitations augmente avec P et diminue avec T 6. 
+Il sert à décrire, en se basant sur des paramètres facilement accessibles, les zones climatiques telles qu’exposées par les phytogéographes. Malgré l’incohérence des unités, ce facteur montre bien que l’efficacité des précipitations augmente avec P et diminue avec T [@Thornthwaite1948]. 
 
 ```{r categories-lang}
 breaks.lang <- c(0,20,40,60,100,160,Inf)
@@ -262,7 +262,7 @@ ggplot(lang.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
 
 # De Martonne, 1926
 
-Dans une communication en 1926, De Martonne présente son indice d’aridité fondé sur un ratio entre les précipitations et la température 7, similaire à l’indice de Lang, mais qui peut être utilisé pour des températures annuelles négatives. Les seuils de cet indice sont définis en comparant la répartition géographique de l’indice avec celle des zones « sans écoulement ».  
+Dans une communication en 1926, De Martonne présente son indice d’aridité fondé sur un ratio entre les précipitations et la température [@Martonne1926], similaire à l’indice de Lang, mais qui peut être utilisé pour des températures annuelles négatives. Les seuils de cet indice sont définis en comparant la répartition géographique de l’indice avec celle des zones « sans écoulement ».  
 
 $A_m=  P/(T+10)$
 
@@ -344,19 +344,19 @@ ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = Am))+
 Autres usages:
 
 •	Comparaison des indices d’aridité dans le Nord de l’Algérie, Derdous et al. 20219. Obj : « accurate climate classification in Northern Algeria ».
-•	Mustafa et al 201810 : aridity trend in Kurdistan
-•	Tabari 201411: aridity trends in Iran and impact on regional agriculture
-•	Baltas 20068 : assessing climate in Northern Greece
+•	@Mustafa2018 : aridity trend in Kurdistan
+•	@Tabari2014: aridity trends in Iran and impact on regional agriculture
+•	@Baltas2007 : assessing climate in Northern Greece
 •	Bahmani et al. 2021: De Martonne, Pinna, UNEP: aridity in the Sirvan River Basin Iran
 •	Ahma et al. 2018, Moral et al. 2016: De Martonne, Pinna, FAO indeces to assess the spatial distribution of aridity in Ethiopia and Spain.
-•	Croitoru 2013: De Martonne and Pinna combinative; spatial patterns of aridity in Romania
+•	@Croitoru2013: De Martonne and Pinna combinative; spatial patterns of aridity in Romania
 
 
 # Emberger, 1930
 
-Emberger est un botaniste. En comparant la végétation du sud de la France et celle du Maroc, notamment les chênes verts, il se rend compte que les mêmes arbres n’occupent pas forcément le même étage d’altitude. Il synthétise le climat à l’aide d’un quotient pluviométrique qui prend en compte les précipitations annuelles et les extrêmes de température12. Cela permet de prendre en compte les interactions entre les températures minimum et la disponibilité de l’eau.  Ainsi, les régions telles que le Moyen et Grand Atlas peuvent supporter une végétation de type méditerranéenne, car elles sont plus sèches13. 
+Emberger est un botaniste. En comparant la végétation du sud de la France et celle du Maroc, notamment les chênes verts, il se rend compte que les mêmes arbres n’occupent pas forcément le même étage d’altitude. Il synthétise le climat à l’aide d’un quotient pluviométrique qui prend en compte les précipitations annuelles et les extrêmes de température12. Cela permet de prendre en compte les interactions entre les températures minimum et la disponibilité de l’eau.  Ainsi, les régions telles que le Moyen et Grand Atlas peuvent supporter une végétation de type méditerranéenne, car elles sont plus sèches @Marres1972. 
 
-La formule est définie dans @Emberger1932 et expliquée dans @Marres1972. 
+La formule est définie dans @Emberger1930 et expliquée dans @Marres1972. 
 
 Q=  (P×100)/(2×((M+m)/2)×(M-m))
 P : précipitations annuelles, mm
@@ -445,7 +445,7 @@ Encore une fois, ne fonctionne pas si la température annuelle moyenne (ou tmax-
 
 # Ångström, 1936
 
-Angström note que les indices d’aridité fondés sur des rapports de précipitation et de température n’ont pas de sens physique16. Il souhaite intégrer la notion d’évaporation dans l’indice, mais celle-ci est difficile à estimer. En utilisant des données expérimentales de certaines rivières suédoises, il exprime l’intensité des précipitations annuelles en fonction de la température. 
+Angström note que les indices d’aridité fondés sur des rapports de précipitation et de température n’ont pas de sens physique [@Angstrom1936]. Il souhaite intégrer la notion d’évaporation dans l’indice, mais celle-ci est difficile à estimer. En utilisant des données expérimentales de certaines rivières suédoises, il exprime l’intensité des précipitations annuelles en fonction de la température. 
 
 Il note la similitude de l’indice avec celui de De Martonne. Utilisation des mêmes seuils ?
 
@@ -512,9 +512,9 @@ ggplot(ang.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
 
 # UNESCO, 1979 
 
-AI, défini comme le rapport entre la demande en eau (évapotranspiration) et la ressource en eau (précipitation), sur une moyenne de 30 ans. Il est largement dépendant de la manière dont est calculée la valeur moyenne de l’évapotranspiration. Dans l’équation de référence, définie par la FAO17, l’évapotranspiration est calculée selon l’équation de Penman-Monteith en fonction du niveau de radiation solaire, du vent, de la pression de vapeur saturante, etc. L’évapotranspiration potentielle utilisée comme référence correspond à l’évapotranspiration d’une surface de référence, couverte d’une hypothétique céréale de 12 cm, bien arrosée. Cette référence est critiquée notamment parce qu’elle tendrait à surestimer l’évapotranspiration dans un contexte de changement climatique, ne prenant pas en compte l’augmentation de la concentration en CO2 de l’atmosphère et l’augmentation de l’efficacité d’usage de l’eau des plantes18. 
+AI, défini comme le rapport entre la demande en eau (évapotranspiration) et la ressource en eau (précipitation), sur une moyenne de 30 ans. Il est largement dépendant de la manière dont est calculée la valeur moyenne de l’évapotranspiration. Dans l’équation de référence, définie par la FAO17, l’évapotranspiration est calculée selon l’équation de Penman-Monteith en fonction du niveau de radiation solaire, du vent, de la pression de vapeur saturante, etc. L’évapotranspiration potentielle utilisée comme référence correspond à l’évapotranspiration d’une surface de référence, couverte d’une hypothétique céréale de 12 cm, bien arrosée. Cette référence est critiquée notamment parce qu’elle tendrait à surestimer l’évapotranspiration dans un contexte de changement climatique, ne prenant pas en compte l’augmentation de la concentration en CO2 de l’atmosphère et l’augmentation de l’efficacité d’usage de l’eau des plantes @Greve2019. 
 
-La formule de Penman-Monteith17 pour l’évapotranspiration est :
+La formule de Penman-Monteith @FAO1998 pour l’évapotranspiration est :
 
 $ET_0=(0.408∆(R_n-G)+γ 900/(T+273) u_2 (e_s-e_a ))/(∆+γ(1+0.34u_2 ) )$
 
@@ -539,7 +539,7 @@ AI < 0.03	Hyper-aride
 
 Autres usages:
 •	Ahma et al. 2018, Moral et al. 2016: De Martonne, Pinna, FAO indeces to assess the spatial distribution of aridity in Ethiopia and Spain.
-•	Greve et al 201918 : how will the index evolve with climate change?
+•	@Greve2019 : how will the index evolve with climate change?
 
 
 
@@ -666,7 +666,7 @@ a=6.75×〖10〗^(-7)×I^3-7.71×〖10〗^(-5)×I^2+1.79×〖10〗^(-2)×I+0.49
 
 •	World atlas of desertification19 (also 1992 when the index was defined)
 •	Sarlak and mahmood agha 2018: Lang, De Martonne, UNEP and Erinc aridity index, spatiotemporal variabtions of aridity in Irak.
-•	Kumar et Gautam20 2021 : frequency of droughts depending on aridity regions
+•	@Kumar2021 : frequency of droughts depending on aridity regions
 
 
 ## Détails de calcul
