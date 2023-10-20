@@ -71,104 +71,104 @@ worldclim_global(var = "bio", res = 10, path = ".")
 ```
 
 ```{r merge-france, eval = F}
-monthly.tavg <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
+monthly.tavg <- raster::stack("Worldclim/wc2.1_country/FRA_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
   setNames( c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat"))
 
-monthly.tmax <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+monthly.tmax <- raster::stack("Worldclim/wc2.1_country/FRA_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat"))
 
-monthly.tmin <- raster::stack("wc2.1_country/FRA_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+monthly.tmin <- raster::stack("Worldclim/wc2.1_country/FRA_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat"))
 
-monthly.p <- raster::stack("wc2.1_country/FRA_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+monthly.p <- raster::stack("Worldclim/wc2.1_country/FRA_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
 
-annual.p <- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
+annual.p <- raster("Worldclim/wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
 
-annual.t<- raster("wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+annual.t<- raster("Worldclim/wc2.1_country/FRA_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("temp","lon","lat"))
 
-elev <- raster("wc2.1_country/FRA_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
+elev <- raster("Worldclim/wc2.1_country/FRA_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
 
-annual.wind <- raster::stack("wc2.1_country/FRA_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","lon","lat"))
+annual.wind <- raster::stack("Worldclim/wc2.1_country/FRA_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","lon","lat"))
 
-annual.srad <- raster::stack("wc2.1_country/FRA_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","lon","lat")) #Rn en kJ/m2/day
+annual.srad <- raster::stack("Worldclim/wc2.1_country/FRA_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","lon","lat")) #Rn en kJ/m2/day
 
 fra <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% 
   merge(monthly.p, by = c("lon","lat")) %>% merge(annual.p, by = c("lon","lat"))  %>% merge(annual.t, by = c("lon","lat")) %>% 
   merge(annual.wind, by = c("lon","lat")) %>% merge(annual.srad, by = c("lon","lat")) %>%
   merge(elev, by = c("lon","lat"))
 
-saveRDS(fra, "fra.rds")
+saveRDS(fra, "Worldclim/fra.rds")
 ``` 
 
 ```{r merge-civ, eval = F}
-monthly.tavg <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
+monthly.tavg <- raster::stack("Worldclim/wc2.1_country/CIV_wc2.1_30s_tavg.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
   setNames( c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat"))
 
-monthly.tmax <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+monthly.tmax <- raster::stack("Worldclim/wc2.1_country/CIV_wc2.1_30s_tmax.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat"))
 
-monthly.tmin <- raster::stack("wc2.1_country/CIV_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+monthly.tmin <- raster::stack("Worldclim/wc2.1_country/CIV_wc2.1_30s_tmin.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat"))
 
-monthly.p <- raster::stack("wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+monthly.p <- raster::stack("Worldclim/wc2.1_country/CIV_wc2.1_30s_prec.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
 
-annual.p <- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
+annual.p <- raster("Worldclim/wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 12) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("pre","lon","lat"))
 
-annual.t<- raster("wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+annual.t<- raster("Worldclim/wc2.1_country/CIV_wc2.1_30s_bio.tif", band = 1) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("temp","lon","lat"))
 
-elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
+elev <- raster("Worldclim/wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
 
-annual.wind <- raster::stack("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","lon","lat"))
+annual.wind <- raster::stack("Worldclim/wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("u2","lon","lat"))
 
-annual.srad <- raster::stack("wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","lon","lat")) #Rn en kJ/m2/day
+annual.srad <- raster::stack("Worldclim/wc2.1_country/CIV_wc2.1_30s_srad.tif") %>% raster::mean(na.rm = T) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("Rn","lon","lat")) #Rn en kJ/m2/day
  
 civ <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(monthly.tmin, by = c("lon","lat")) %>% 
   merge(monthly.p, by = c("lon","lat")) %>% merge(annual.p, by = c("lon","lat"))  %>% merge(annual.t, by = c("lon","lat")) %>% 
   merge(annual.wind, by = c("lon","lat")) %>% merge(annual.srad, by = c("lon","lat")) %>%
   merge(elev, by = c("lon","lat"))
 
-saveRDS(civ, "civ.rds")
+saveRDS(civ, "Worldclim/civ.rds")
 ```
 
 ```{r merge-world, eval = F}
 
-list.prec <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T) 
+list.prec <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T) 
 monthly.prec <- raster::stack(list.prec) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
 
-list.tavg <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_tavg_", full.names = T) 
+list.tavg <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tavg_", full.names = T) 
 monthly.tavg <- raster::stack(list.tavg) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% 
   setNames(c("tmean_01","tmean_02","tmean_03","tmean_04","tmean_05","tmean_06","tmean_07","tmean_08","tmean_09","tmean_10","tmean_11","tmean_12","lon","lat"))
 
-list.tmax <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_tmax_", full.names = T) 
+list.tmax <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tmax_", full.names = T) 
 monthly.tmax <- raster::stack(list.tmax) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12","lon","lat"))
 
-list.tmin <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_tmin_", full.names = T) 
+list.tmin <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tmin_", full.names = T) 
 monthly.tmin <- raster::stack(list.tmin) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12","lon","lat"))
 
-list.pre <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T) 
+list.pre <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T) 
 monthly.p <- raster::stack(list.pre) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("pre_01","pre_02","pre_03","pre_04","pre_05","pre_06","pre_07","pre_08","pre_09","pre_10","pre_11","pre_12","lon","lat"))
 
-annual.p <- raster("wc2.1_10m/wc2.1_10m_bio_12.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+annual.p <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("pre","lon","lat"))
 
-annual.t<- raster("wc2.1_10m/wc2.1_10m_bio_1.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
+annual.t<- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("temp","lon","lat"))
 
-elev <- raster("wc2.1_10m/wc2.1_10m_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
+elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>% setNames(c("z","lon","lat"))
 
-list.wind <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_wind_", full.names = T) 
+list.wind <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_wind_", full.names = T) 
 monthly.wind <- raster::stack(list.wind) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("u_01","u_02","u_03","u_04","u_05","u_06","u_07","u_08","u_09","u_10","u_11","u_12","lon","lat"))
 
-list.srad <- list.files(path = "wc2.1_10m", pattern = "wc2.1_10m_srad_", full.names = T) 
+list.srad <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_srad_", full.names = T) 
 monthly.srad <- raster::stack(list.srad) %>% as("SpatialPixelsDataFrame") %>% as.data.frame() %>%
   setNames(c("srad_01","srad_02","srad_03","srad_04","srad_05","srad_06","srad_07","srad_08","srad_09","srad_10","srad_11","srad_12","lon","lat"))
 
@@ -177,14 +177,14 @@ world.df <- monthly.tavg %>% merge(monthly.tmax, by = c("lon","lat")) %>% merge(
   merge(monthly.wind, by = c("lon","lat")) %>% merge(monthly.srad, by = c("lon","lat")) %>%
    merge(elev, by = c("lon","lat"))
 
-saveRDS(world.df, "world.df.rds")
+saveRDS(world.df, "Worldclim/world.df.rds")
 ```
 
 
 ```{r load-data}
-fra <- readRDS("fra.rds")
-civ <- readRDS("civ.rds")
-world.df <- readRDS("world.df.rds")
+fra <- readRDS("Worldclim/fra.rds")
+civ <- readRDS("Worldclim/civ.rds")
+world.df <- readRDS("Worldclim/world.df.rds")
 
 colorvec <- viridis(n = 7, direction = -1)
 ```
