@@ -283,8 +283,8 @@ Définition: @Martonne1926
 Usage et détails: @Baltas2007.
 
 ```{r categories-martonne}
-breaks.martonne <- c(0,10,20,24,28,35,55,Inf)
-cat.martonne <- c("[0,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Meditarranean", "(24,28]" = "Semi-humid", "(28,35]" = "Humid","(35,55]" = "Very humid (a)", "(55,Inf]" = "Very humid (b)")
+breaks.martonne <- c(0,5,10,20,24,28,35,55,Inf)
+cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Mediterranean", "(24,28]" = "Semi-humid", "(28,35]" = "Humid","(35,55]" = "Very humid (a)", "(55,Inf]" = "Very humid (b)")
 col.cat <- c("Dry" = colorvec[1], "Semi-dry"= colorvec[2],"Meditarranean"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Very humid (a)"= colorvec[6], "Very humid (b)" = colorvec[7])
 ```
 
@@ -1283,6 +1283,55 @@ ggplot(hg.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI2))+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 ```
 
+
+
+# Compare categories
+
+```{r all-indices}
+all.indices <- world.df %>% select(c("lon","lat","pre","temp"))
+
+all.indices$lang <- lang.w$RF
+all.indices$lang.cat <- lang.w$cat.AI
+all.indices$lang.catu <- all.indices$lang.cat %>% revalue(c("Hyperhumid" = "Humid"))
+
+all.indices$emberger <- emberger.w$Em
+all.indices$emberger.cat <- emberger.w$cat.AI
+all.indices$emberger.catu <- all.indices$emberger.cat %>% revalue(c("Hyperhumid" = "Humid"))
+
+all.indices$martonne <- martonne.w$Am
+all.indices$martonne.cat <- martonne.w$cat.AI
+all.indices$martonne.catu <- all.indices$martonne.cat %>% revalue(c("Desert"="Hyperarid", "Dry"="Arid","Semi-dry"="Semi-arid","Mediterranean" = "Semi-arid", "Very humid (a)" = "Humid", "Very humid (b)" = "Humid"))
+
+all.indices$unesco <- unesco.w$AI_FAO
+all.indices$unesco.cat <- unesco.w$cat.AI_FAO
+all.indices$unesco.catu <- all.indices$unesco.cat %>% revalue(c("Dry subhumid" = "Semi-humid"))
+
+all.indices$unep <- thorn.w$AI
+all.indices$unep.cat <- thorn.w$cat.AI 
+all.indices$unep.catu <- all.indices$unep.cat %>% revalue(c("Dry subhumid" = "Semi-humid"))
+
+ggplot(all.indices)+geom_raster(aes(x = lon, y = lat, fill = martonne.catu))+
+  labs(title = "Martonne - uniform", fill = "")+scale_fill_viridis_d(direction = -1, na.value = "gray90")+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(all.indices)+geom_raster(aes(x = lon, y = lat, fill = emberger.catu))+
+  labs(title = "Emberger - uniform", fill = "")+scale_fill_viridis_d(direction = -1, na.value = "gray90")+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(all.indices)+geom_raster(aes(x = lon, y = lat, fill = unesco.catu))+
+  labs(title = "Unesco - uniform", fill = "")+scale_fill_viridis_d(direction = -1)+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+ggplot(all.indices)+geom_raster(aes(x = lon, y = lat, fill = unep.catu))+
+  labs(title = "Unep - uniform", fill = "")+scale_fill_viridis_d(direction = -1, na.value = "gray90")+
+  theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
+
+all.indices$max.cat <- with(select(all.indices, c("martonne.catu", "emberger.catu", "unesco.catu", "unep.catu")), which.max(table())) 
+all.indices$agreement <-  with(all.indices, str_count(string = cat.AI, pattern = cat.AI.maj)/11)
+
+cat.AI.maj =  names(which.max(table(cat.AI, exclude = NULL))),
+                                        agreement = str_count(string = cat.AI, pattern = cat.AI.maj)/11)
+``` 
 # References
 
 `r knitr::knit_exit()`

@@ -300,6 +300,8 @@ list.tot.df.1940 <- list.files(path = "CMIP6/historical/Martonne/", pattern = "1
 list.tot.df.1970 <- list.files(path = "CMIP6/historical/Martonne/", pattern = "1970-2000.csv", full.names = T) %>% setdiff(list.region.1970)  %>% lapply(read.table, header = T)
 list.tot.df.1984 <- list.files(path = "CMIP6/historical/Martonne/", pattern = "1984-2014.csv", full.names = T) %>% setdiff(list.region.1984)  %>% lapply(read.table, header = T)
 
+
+# 1850-1880
 df_1850 <- do.call("rbind", list.tot.df.1850)
 df_1850$cat.AI <- df_1850$cat.AI
 
@@ -317,38 +319,66 @@ ggplot()+geom_raster(data = sum_1850, aes(x=lon, y = lat, fill = cat.AI.maj))+
    geom_point(data = filter(sum_diff, agreement > 0.6), aes(x = lon, y = lat), col = "black", shape = "'")+
     theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
-
-
-
-
-
+# 1880-1910
 df_1880 <- do.call("rbind", list.tot.df.1880)
-sum_1880 <- df_1880 %>% group_by(lon,lat,Acronym) %>%  dplyr::summarise(AI.avg = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T)) %>% as.data.frame()
+df_1880$cat.AI <- df_1880$cat.AI
+
+sum_1880 <- df_1880 %>% group_by(lon,lat,Acronym) %>%  
+                        dplyr::summarise(AI.avg = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T),
+                                        cat.AI.maj =  names(which.max(table(cat.AI, exclude = NULL))),
+                                        agreement = str_count(string = cat.AI, pattern = cat.AI.maj)/11) %>% 
+                      as.data.frame()
 sum_1880$cat.AI <- sum_1880$AI.avg %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-ggplot(sum_1880)+geom_raster(aes(x=lon, y = lat, fill = cat.AI))+
+sum_1880$cat.AI.maj <- sum_1880$cat.AI.maj %>% factor() %>% ordered(cat.m)
+
+ggplot()+geom_raster(data = sum_1880, aes(x=lon, y = lat, fill = cat.AI.maj))+
     scale_fill_manual(values = col.cat, na.value = "grey90")+  labs(title = "AI 1880-1910", fill = "")+
+   geom_point(data = filter(sum_diff, agreement > 0.6), aes(x = lon, y = lat), col = "black", shape = "'")+
     theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
-df_1880 <- do.call("rbind", list.tot.df.1880)
-sum_1880 <- df_1880 %>% group_by(lon,lat,Acronym) %>%  dplyr::summarise(AI.avg = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T)) %>% as.data.frame()
-sum_1880$cat.AI <- sum_1880$AI.avg %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+# 1910-1940
+df_1910 <- do.call("rbind", list.tot.df.1910)
+df_1910$cat.AI <- df_1910$cat.AI
 
-ggplot(sum_1880)+geom_raster(aes(x=lon, y = lat, fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.value = "grey90")+  labs(title = "AI 1880-1910", fill = "")+
+sum_1910 <- df_1910 %>% group_by(lon,lat,Acronym) %>%  
+                        dplyr::summarise(AI.avg = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T),
+                                        cat.AI.maj =  names(which.max(table(cat.AI, exclude = NULL))),
+                                        agreement = str_count(string = cat.AI, pattern = cat.AI.maj)/11) %>% 
+                      as.data.frame()
+sum_1910$cat.AI <- sum_1910$AI.avg %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+
+sum_1910$cat.AI.maj <- sum_1910$cat.AI.maj %>% factor() %>% ordered(cat.m)
+
+ggplot()+geom_raster(data = sum_1910, aes(x=lon, y = lat, fill = cat.AI.maj))+
+    scale_fill_manual(values = col.cat, na.value = "grey90")+  labs(title = "AI 1910-1940", fill = "")+
+   geom_point(data = filter(sum_diff, agreement > 0.6), aes(x = lon, y = lat), col = "black", shape = "'")+
+    theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+
+
+# 1940-1970
+df_1940 <- do.call("rbind", list.tot.df.1940)
+df_1940$cat.AI <- df_1940$cat.AI
+
+sum_1940 <- df_1940 %>% group_by(lon,lat,Acronym) %>%  
+                        dplyr::summarise(AI.avg = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T),
+                                        cat.AI.maj =  names(which.max(table(cat.AI, exclude = NULL))),
+                                        agreement = str_count(string = cat.AI, pattern = cat.AI.maj)/11) %>% 
+                      as.data.frame()
+sum_1940$cat.AI <- sum_1940$AI.avg %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+
+sum_1940$cat.AI.maj <- sum_1910$cat.AI.maj %>% factor() %>% ordered(cat.m)
+
+ggplot()+geom_raster(data = sum_1910, aes(x=lon, y = lat, fill = cat.AI.maj))+
+    scale_fill_manual(values = col.cat, na.value = "grey90")+  labs(title = "AI 1910-1940", fill = "")+
+   geom_point(data = filter(sum_diff, agreement > 0.6), aes(x = lon, y = lat), col = "black", shape = "'")+
     theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 
 
 
 
-df_1984 <- do.call("rbind", list.tot.df.1984)
-sum_1984 <- df_1984 %>% group_by(lon,lat,Acronym) %>%  dplyr::summarise(AI.avg = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T)) %>% as.data.frame()
-sum_1984$cat.AI <- sum_1984$AI.avg %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-ggplot(sum_1984)+geom_raster(aes(x=lon, y = lat, fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.value = "grey90")+  labs(title = "AI 1984-2014", fill = "")+
-    theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 diff.df <- merge(df_1850, df_1984, by = c("lon","lat","Continent","Type","Name","Acronym","model","lm")) %>% mutate(diff.AI = AI.y - AI.x, sign.diff = ifelse(diff.AI > 0,"+","-"))
 sum_diff <- diff.df %>% group_by(lon,lat,Acronym) %>% dplyr::summarise(diff.AI = mean(diff.AI, na.rm = T) , change.plus = sum(sign.diff == "+", na.rm = T), change.minus = sum(sign.diff == "-", na.rm = T), agreement = max(change.plus,change.minus)/11) %>% as.data.frame()
