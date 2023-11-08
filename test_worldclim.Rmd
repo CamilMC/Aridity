@@ -585,8 +585,8 @@ Index established by @UNESCO1979, used and detailed by @Tsakiris2005
 Formulas available at: https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
 
 ```{r categories-unesco}
-breaks.unesco <- c(0,0.03,0.2,0.5,0.75,Inf)
-cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.75]" = "Dry subhumid","(0.75,Inf]" = "Humid")
+breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
 ```
 
@@ -617,7 +617,6 @@ g2c <- ggplot(unesco.civ)+geom_raster(aes(x = lon, y = lat, fill = cat.AI_FAO))+
   labs(title = "Unesco Aridity Index", fill = "")+
   scale_fill_manual(values = col.cat)+
   theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
-
 ```
 
 ```{r PM-perso-fra} 
@@ -1328,18 +1327,18 @@ saveRDS(hg.w,"Worldclim/hg.w.rds")
 
 # Compare categories
 
-```{r all-indices}
+```{r all-indices, eval = F}
 all.indices <- world.df %>% dplyr::select(c("lon","lat","pre","temp"))
 
 lang.w <- readRDS("Worldclim/lang.w.rds")
 all.indices$lang <- lang.w$RF
 all.indices$lang.cat <- lang.w$cat.AI
-all.indices$lang.catu <- all.indices$lang.cat %>% revalue(c("Hyperhumid" = "Humid"))
+all.indices$lang.catu <- all.indices$lang.cat %>% revalue(c("Hyper humid" = "Humid"))
 
 emberger.w <- readRDS("Worldclim/emberger.w.rds")
 all.indices$emberger <- emberger.w$Em
 all.indices$emberger.cat <- emberger.w$cat.AI
-all.indices$emberger.catu <- all.indices$emberger.cat %>% revalue(c("Hyperhumid" = "Humid"))
+all.indices$emberger.catu <- all.indices$emberger.cat %>% revalue(c("Hyper-humid" = "Humid"))
 
 martonne.w <- readRDS("Worldclim/martonne.w.rds")
 all.indices$martonne <- martonne.w$Am
@@ -1358,6 +1357,11 @@ thorn.w <- readRDS("Worldclim/thorn.w.rds")
 all.indices$unep <- thorn.w$AI
 all.indices$unep.cat <- thorn.w$cat.AI 
 all.indices$unep.catu <- all.indices$unep.cat %>% revalue(c("Dry subhumid" = "Semi-humid"))
+saveRDS(all.indices, "Worldclim/all.indices.rds")
+```
+
+```{r plot-all, eval = F}
+
 
 ggplot(all.indices)+geom_raster(aes(x = lon, y = lat, fill = martonne.catu))+
   labs(title = "Martonne - uniform", fill = "")+scale_fill_viridis_d(direction = -1, na.value = "gray90")+
@@ -1377,236 +1381,147 @@ ggplot(all.indices)+geom_raster(aes(x = lon, y = lat, fill = unep.catu))+
 ```
 
 ```{r compare-cat}
-b1 <- ggplot()+
-  ylim(0,140)+
-  geom_hline(yintercept = c(5,10,20,24,28,35,55))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 5, fill = "1. Desert"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 5, ymax = 10, fill = "2.Dry"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 10, ymax = 20, fill = "3. Semi-dry"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 20, ymax = 24, fill = "4. Mediterranean"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 24, ymax = 28, fill = "5. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 28, ymax = 35, fill = "6. Humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 35, ymax = 55, fill = "7. Very humid (a)"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 55, ymax = 140, fill = "8. Very humid (a)"))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Hyperarid"), aes(x="1. Hyperarid", y = martonne), col = "white")+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Arid"), aes(x="2. Arid", y = martonne))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Semi-arid"), aes(x="3. Semi-arid", y = martonne))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Dry subhumid"), aes(x="4. Semi-humid", y = martonne))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Humid"), aes(x="5. Humid", y = martonne))+
-  scale_fill_viridis_d()+labs(x="Unesco categories",y="De Martonne, Baltas categories", title = "Comparison De Martonne/Unesco")+
-  theme_minimal()
-
-b2 <- ggplot()+
-  ylim(0,140)+
+compAI <- function(AI1,AI2, df){ #AI must be one of "lang", "emberger", "martonne", "unesco","unep"
+  
+   if(AI2 == "unesco"){
+  bp <- ggplot() + geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.65, fill = "4. Semi-humid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.65, ymax = 3, fill = "5. Humid"))+
+    scale_y_continuous(breaks = c(0.03,0.2,0.5,0.65), limits = c(0,3))
+   
+  }else if(AI2 == "unep"){
+  bp <- ggplot() + geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.65, fill = "4. Semi-humid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.65, ymax = 3, fill = "5. Humid"))+
+  scale_y_continuous(breaks = c(0.03,0.2,0.5,0.75), limits = c(0,3))
+  
+  }else if(AI2 == "martonne"){
+  bp <- ggplot()+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 5, fill = "1. Desert"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 5, ymax = 10, fill = "2.Arid"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 10, ymax = 20, fill = "3. Semi-arid"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 20, ymax = 30, fill = "4. Temperate"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 30, ymax = 40, fill = "5. Humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 40, ymax = 140, fill = "6. Forest"))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Hyperarid"), aes(x="1. Hyperarid", y = martonne), col = "white")+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Arid"), aes(x="2. Arid", y = martonne))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Semi-arid"), aes(x="3. Semi-arid", y = martonne))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Dry subhumid"), aes(x="4. Semi-humid", y = martonne))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Humid"), aes(x="5. Humid", y = martonne))+
-  scale_fill_viridis_d()+labs(x="Unesco categories",y="De Martonne", title = "Comparison De Martonn/Unesco")+
-  theme_minimal()
-
-b3 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.65, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.65, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Desert"), aes(x="1. Hyperarid", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Arid"), aes(x="2. Arid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Temperate"), aes(x="4. Temperate", y = unesco))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Humid"), aes(x="5. Humid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Forest"), aes(x="6. Forest", y = unesco))+
-  scale_fill_viridis_d()+labs(x="De Martonne",y="Unesco", title = "Comparison De MartonnE/Unesco")+
-  theme_minimal()
-
-b4 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.75, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.75, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Hyperarid"), aes(x="1. Hyperarid", y = unep), col = "white")+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Arid"), aes(x="2. Arid", y = unep))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unep))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Dry subhumid"), aes(x="4. Dry subhumid", y = unep))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Humid"), aes(x="5. Humid", y = unep))+
-  scale_fill_viridis_d()+labs(x="UNESCO",y="Unep", title = "Comparison Unep/Unesco", fill = "Unep categories")+
-  theme_minimal()
-
-b5 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.65, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.65, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Hyperarid"), aes(x="1. Hyperarid", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Arid"), aes(x="2. Arid", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Dry subhumid"), aes(x="4. Dry subhumid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Humid"), aes(x="5. Humid", y = unesco))+
-  scale_fill_viridis_d()+labs(x="UNESCO",y="UNEP", title = "Comparison Unep/Unesco", fill = "Unep categories")+
-  theme_minimal()
-
-b6 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.65, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.65, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Hyperarid"), aes(x="1. Hyperarid", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Arid"), aes(x="2. Arid", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Subhumid"), aes(x="4. Dry subhumid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Humid"), aes(x="5. Humid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Hyper-humid"), aes(x="5. Hyper-humid", y = unesco))+
-  scale_fill_viridis_d()+labs(x="Emberger",y="unesco", title = "Comparison Emberger/Unesco", fill = "Unesco categories")+
-  theme_minimal()
-
-b7 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.65, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.65, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Deserts"), aes(x="1. Deserts", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Arid"), aes(x="2. Arid", y = unesco), col = "white")+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Semi-humid"), aes(x="4. Semi-humid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Humid"), aes(x="5. Humid", y = unesco))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Hyper humid"), aes(x="6. Hyper humid", y = unesco))+
-  scale_fill_viridis_d()+labs(x="Lang",y="UNESCO", title = "Comparison Lang/Unesco", fill = "Unesco categories")+
-  theme_minimal()
-
-b8 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.75, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.75, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Hyperarid"), aes(x="1. Hyperarid", y = unep), col = "white")+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Arid"), aes(x="2. Arid", y = unep), col = "white")+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unep))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Subhumid"), aes(x="4. Dry subhumid", y = unep))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Humid"), aes(x="5. Humid", y = unep))+
-  geom_boxplot(data = filter(all.indices, emberger.cat == "Hyper-humid"), aes(x="5. Hyper-humid", y = unep))+
-  scale_fill_viridis_d()+labs(x="Emberger",y="UNEP", title = "Comparison Emberger/UNEP", fill = "UNEP categories")+
-  theme_minimal()
-
-
-
-b9 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.75, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.75, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Desert"), aes(x="1. Hyperarid", y = unep), col = "white")+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Arid"), aes(x="2. Arid", y = unep))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unep))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Temperate"), aes(x="4. Temperate", y = unep))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Humid"), aes(x="5. Humid", y = unep))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Forest"), aes(x="6. Forest", y = unep))+
-  scale_fill_viridis_d()+labs(x="De Martonne",y="UNEP", title = "Comparison De Martonne/UNEP")+
-  theme_minimal()
-
-b10 <- ggplot()+
-  ylim(0,5)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 0.03, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.03, ymax = 0.2, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.2, ymax = 0.5, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.5, ymax = 0.75, fill = "4. Semi-humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0.75, ymax = 5, fill = "5. Humid"))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Deserts"), aes(x="1. Deserts", y = unep), col = "white")+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Arid"), aes(x="2. Arid", y = unep), col = "white")+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Semi-arid"), aes(x="3. Semi-arid", y = unep))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Semi-humid"), aes(x="4. Semi-humid", y = unep))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Humid"), aes(x="5. Humid", y = unep))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Hyper humid"), aes(x="6. Hyper humid", y = unep))+
-  scale_fill_viridis_d()+labs(x="Lang",y="UNEP", title = "Comparison Lang/UNEP", fill = "UNEP categories")+
-  theme_minimal()
-
-b11 <- ggplot()+
-  ylim(0,200)+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 40, ymax = 130, fill = "6. Forest"))+
+  scale_y_continuous(breaks = c(5,10,20,30,40), limits = c(0,130))
+  
+  }else if(AI2 == "emberger"){
+  bp <- ggplot()+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 10, fill = "1. Hyperarid"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 10, ymax = 45, fill = "2.Arid"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 45, ymax = 70, fill = "3. Semi-arid"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 70, ymax = 110, fill = "4. Subhumid"))+
   geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 110, ymax = 150, fill = "5. Humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 150, ymax = 200, fill = "6. Hyperhumid"))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Hyperarid"), aes(x="1. Hyperarid", y = emberger), col = "white")+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Arid"), aes(x="2. Arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Semi-arid"), aes(x="3. Semi-arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Dry subhumid"), aes(x="4. Dry subhumid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, unesco.cat == "Humid"), aes(x="5. Humid", y = emberger))+
-  scale_fill_viridis_d()+labs(x="UNESCO",y="Emberger", title = "Comparison Unesco/Emberger", fill = "Emberger categories")+
-  theme_minimal()
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 150, ymax = 600, fill = "6. Hyperhumid"))+
+  scale_y_continuous(breaks = c(10,45,70,110,150), limits = c(0,600))
+  
+  }else if(AI2 == "lang"){
+  bp <- ggplot()+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 20, fill = "1. Deserts"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 20, ymax = 40, fill = "2.Arid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 40, ymax = 60, fill = "3. Semi-arid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 60, ymax = 100, fill = "4. Semi-humid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 100, ymax = 160, fill = "5. Humid"))+
+  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 160, ymax = 200, fill = "6. Hyperhumid"))+
+  scale_y_continuous(breaks = c(10,45,70,110,150), limits = c(0,200))
+  }
 
-b12 <- ggplot()+
-  ylim(0,200)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 10, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 10, ymax = 45, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 45, ymax = 70, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 70, ymax = 110, fill = "4. Subhumid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 110, ymax = 150, fill = "5. Humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 150, ymax = 200, fill = "6. Hyperhumid"))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Hyperarid"), aes(x="1. Hyperarid", y = emberger), col = "white")+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Arid"), aes(x="2. Arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Semi-arid"), aes(x="3. Semi-arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Dry subhumid"), aes(x="4. Dry subhumid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, unep.cat == "Humid"), aes(x="5. Humid", y = emberger))+
-  scale_fill_viridis_d()+labs(x="UNEP",y="Emberger", title = "Comparison UNEP/Emberger", fill = "Emberger categories")+
-  theme_minimal()
+  
+  if(AI1 == "lang"){
+  bip <- bp + geom_boxplot(data = filter(df, lang.cat == "Deserts"), aes(x="1. Deserts", y = .data[[AI2]]), col = "gray90", outlier.shape = NA)+
+  geom_boxplot(data = filter(df, lang.cat == "Arid"), aes(x="2. Arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, lang.cat == "Semi-arid"), aes(x="3. Semi-arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, lang.cat == "Semi-humid"), aes(x="4. Semi-humid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, lang.cat == "Humid"), aes(x="5. Humid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, lang.cat == "Hyper humid"), aes(x="6. Hyper humid", y = .data[[AI2]]), outlier.shape = NA)
+  
+  }else if(AI1 == "emberger"){
+  bip <- bp +  geom_boxplot(data = filter(df, emberger.cat == "Hyperarid"), aes(x="1. Hyperarid", y = .data[[AI2]]), col = "gray90", outlier.shape = NA)+
+  geom_boxplot(data = filter(df, emberger.cat == "Arid"), aes(x="2. Arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, emberger.cat == "Semi-arid"), aes(x="3. Semi-arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, emberger.cat == "Subhumid"), aes(x="4. Dry subhumid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, emberger.cat == "Humid"), aes(x="5. Humid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, emberger.cat == "Hyper-humid"), aes(x="5. Hyper-humid", y = .data[[AI2]]), outlier.shape = NA)
+  }else if(AI1 == "martonne"){
+  bip <- bp +  geom_boxplot(data = filter(df, martonne.cat == "Desert"), aes(x="1. Hyperarid", y = .data[[AI2]]), col = "gray90", outlier.shape = NA)+
+  geom_boxplot(data = filter(df, martonne.cat == "Arid"), aes(x="2. Arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, martonne.cat == "Semi-arid"), aes(x="3. Semi-arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, martonne.cat == "Temperate"), aes(x="4. Temperate", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, martonne.cat == "Humid"), aes(x="5. Humid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, martonne.cat == "Forest"), aes(x="6. Forest", y = .data[[AI2]]), outlier.shape = NA)
 
-b13 <- ggplot()+
-  ylim(0,200)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 10, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 10, ymax = 45, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 45, ymax = 70, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 70, ymax = 110, fill = "4. Subhumid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 110, ymax = 150, fill = "5. Humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 150, ymax = 200, fill = "6. Hyperhumid"))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Desert"), aes(x="1. Desert", y = emberger), col = "white")+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Arid"), aes(x="2. Arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Semi-arid"), aes(x="3. Semi-arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Temperate"), aes(x="4. Temperate", y = emberger))+
-  geom_boxplot(data = filter(all.indices, martonne.cat == "Humid"), aes(x="5. Humid", y = emberger))+
-    geom_boxplot(data = filter(all.indices, martonne.cat == "Forest"), aes(x="6. Forest", y = emberger))+
-  scale_fill_viridis_d()+labs(x="Martonne",y="Emberger", title = "Comparison Martonne/Emberger", fill = "Emberger categories")+
-  theme_minimal()
+  }else if(AI1 == "unep"){
+  bip <- bp + geom_boxplot(data = filter(df, unep.cat == "Hyperarid"), aes(x="1. Hyperarid", y = .data[[AI2]]), col = "gray90", outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unep.cat == "Arid"), aes(x="2. Arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unep.cat == "Semi-arid"), aes(x="3. Semi-arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unep.cat == "Dry subhumid"), aes(x="4. Dry subhumid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unep.cat == "Humid"), aes(x="5. Humid", y = .data[[AI2]]), outlier.shape = NA)
+  }else if(AI1 == "unesco"){
+  bip <- bp +  geom_boxplot(data = filter(df, unesco.cat == "Hyperarid"), aes(x="1. Hyperarid", y = .data[[AI2]]), col = "gray90", outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unesco.cat == "Arid"), aes(x="2. Arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unesco.cat == "Semi-arid"), aes(x="3. Semi-arid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unesco.cat == "Dry subhumid"), aes(x="4. Semi-humid", y = .data[[AI2]]), outlier.shape = NA)+
+  geom_boxplot(data = filter(df, unesco.cat == "Humid"), aes(x="5. Humid", y = .data[[AI2]]), outlier.shape = NA)
+  }
+ 
+  beauty.bp <- bip +   
+    scale_fill_viridis_d(guide = guide_legend(reverse = T, label.position = "left", title.hjust = 1))+
+    labs(x=AI1, fill = AI2, y = "")+
+    theme_minimal()+
+    theme(legend.position = "left", legend.justification = "bottom", panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  
+return(beauty.bp)
+}
+```
 
-b14 <- ggplot()+
-  ylim(0,400)+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 0, ymax = 10, fill = "1. Hyperarid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 10, ymax = 45, fill = "2.Arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 45, ymax = 70, fill = "3. Semi-arid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 70, ymax = 110, fill = "4. Subhumid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 110, ymax = 150, fill = "5. Humid"))+
-  geom_rect(aes(xmin = -Inf, xmax = + Inf, ymin = 150, ymax = 400, fill = "6. Hyperhumid"))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Deserts"), aes(x="1. Desert", y = emberger), col = "white")+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Arid"), aes(x="2. Arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Semi-arid"), aes(x="3. Semi-arid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Semi-humid"), aes(x="4. Semi-humid", y = emberger))+
-  geom_boxplot(data = filter(all.indices, lang.cat == "Humid"), aes(x="5. Humid", y = emberger))+
-    geom_boxplot(data = filter(all.indices, lang.cat == "Hyper humid"), aes(x="6. Hyper-humid", y = emberger))+
-  scale_fill_viridis_d()+labs(x="Lang",y="Emberger", title = "Comparison Lang/Emberger", fill = "Emberger categories")+
-  theme_minimal()
+```{r compare-plots}
+all.indices <- readRDS("Worldclim/all.indices.rds")
+
+  compAI("unesco","unesco", all.indices)
+  compAI("unesco","unep", all.indices)
+  compAI("unesco","martonne", all.indices)
+  compAI("unesco","emberger", all.indices)
+  compAI("unesco","lang", all.indices)
 
 ``` 
+
+```{r compare-by-regions, eval = F}
+ipcc_regions <- shapefile("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-regions/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326"))
+ext <- floor(extent(ipcc_regions))
+rr <- raster(ext, res = 1)
+ripcc_regions <- rasterize(ipcc_regions, rr)
+ipcc_regions.sf <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym")) %>% st_as_sf(coords = c("lon","lat"))
+st_crs(ipcc_regions.sf) <- crs(ripcc_regions)
+
+all.indices <- readRDS("Worldclim/all.indices.rds")
+
+all.ipcc <- all.indices %>% st_as_sf(coords = c("lon","lat"))
+st_crs(all.ipcc) <- crs(ripcc_regions)
+
+all.ripcc <- st_join(all.ipcc, ipcc_regions.sf, st_nearest_feature) 
+all.ripcc.df <- all.ripcc %>% st_drop_geometry %>% cbind(select(all.indices, c("lon","lat")))
+
+saveRDS(all.ripcc.df, "Worldclim/all.ripcc.df.rds")
+``` 
+
+```{r compare-AI-regions}
+all.ripcc.df <- readRDS("Worldclim/all.ripcc.df.rds")
+
+for(i in unique(all.ripcc.df$Name)){
+  df <- filter(all.ripcc.df, Name == i)
+  print(compAI(AI1 = "unesco", AI2 = "martonne", df = df)+ggtitle(i))
+}
+
+for(i in unique(all.ripcc.df$Name)){
+  df <- filter(all.ripcc.df, Name == i)
+  print(compAI(AI1 = "unesco", AI2 = "unep", df = df)+ggtitle(i))
+}
+```
+
 
 # References
 
