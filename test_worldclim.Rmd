@@ -368,7 +368,7 @@ ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = cat.baltas))+
 
 ggplot(martonne.w)+geom_raster(aes(x = lon, y = lat, fill = cat.martonne))+
   labs(title = "De Martonne Aridity Index\n Martonne categories", fill = "")+
-  scale_fill_manual(values = col.martonne)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  scale_fill_manual(values = col.martonne)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 1))
 
 saveRDS(martonne.w, "Worldclim/martonne.w.rds")
 ```
@@ -1508,6 +1508,9 @@ all.ripcc.df <- all.ripcc %>% st_drop_geometry %>% cbind(select(all.indices, c("
 saveRDS(all.ripcc.df, "Worldclim/all.ripcc.df.rds")
 ``` 
 
+# Compare by region 
+
+## Compare Unesco and Martonne
 ```{r compare-AI-regions}
 all.ripcc.df <- readRDS("Worldclim/all.ripcc.df.rds")
 
@@ -1515,7 +1518,11 @@ for(i in unique(all.ripcc.df$Name)){
   df <- filter(all.ripcc.df, Name == i)
   print(compAI(AI1 = "unesco", AI2 = "martonne", df = df)+ggtitle(i))
 }
+```
 
+## Compare Unesco and Unep by regions
+
+```{r compare-unep-unesco-regions}
 for(i in unique(all.ripcc.df$Name)){
   df <- filter(all.ripcc.df, Name == i)
   print(compAI(AI1 = "unesco", AI2 = "unep", df = df)+ggtitle(i))
