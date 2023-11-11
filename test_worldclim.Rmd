@@ -1489,6 +1489,10 @@ all.indices <- readRDS("Worldclim/all.indices.rds")
 
 ``` 
 
+
+
+# Compare by region 
+
 ```{r compare-by-regions, eval = F}
 ipcc_regions <- shapefile("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-regions/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326"))
 ext <- floor(extent(ipcc_regions))
@@ -1496,6 +1500,7 @@ rr <- raster(ext, res = 1)
 ripcc_regions <- rasterize(ipcc_regions, rr)
 ipcc_regions.sf <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym")) %>% st_as_sf(coords = c("lon","lat"))
 st_crs(ipcc_regions.sf) <- crs(ripcc_regions)
+saveRDS(ipcc_regions.sf, "ipcc_regions.sf.rds")
 
 all.indices <- readRDS("Worldclim/all.indices.rds")
 
@@ -1508,9 +1513,18 @@ all.ripcc.df <- all.ripcc %>% st_drop_geometry %>% cbind(select(all.indices, c("
 saveRDS(all.ripcc.df, "Worldclim/all.ripcc.df.rds")
 ``` 
 
-# Compare by region 
+```{r plot-regions}
+ipcc_regions.sf <- readRDS("ipcc_regions.sf")
+ggplot(filter(ipcc_regions.sf, Type %in% c("Land","Land-Ocean")))+geom_sf(aes(fill=Name))+geom_sf_label(aes(label = Name))+
+  theme(legend.position = "none")
+
+```
+
 
 ## Compare Unesco and Martonne
+
+### all regions
+
 ```{r compare-AI-regions}
 all.ripcc.df <- readRDS("Worldclim/all.ripcc.df.rds")
 
@@ -1519,6 +1533,29 @@ for(i in unique(all.ripcc.df$Name)){
   print(compAI(AI1 = "unesco", AI2 = "martonne", df = df)+ggtitle(i))
 }
 ```
+
+### africa
+
+```{r martonne-unesco-africa}
+africa.lines <- grep(pattern = "Africa", x = all.ripcc.df$Name)
+
+compAI(AI1 = "unesco", AI2 = "martonne", df = all.ripcc.df[africa.lines,])
+```
+### S. america
+
+```{r martonne-unesco-samerica}
+samerica.lines <- grep(pattern = "South-America", x = all.ripcc.df$Name)
+
+compAI(AI1 = "unesco", AI2 = "martonne", df = all.ripcc.df[samerica.lines,])
+```
+### Australia
+
+```{r martonne-unesco-australia}
+australia.lines <- grep(pattern = "Australia", x = all.ripcc.df$Name)
+
+compAI(AI1 = "unesco", AI2 = "martonne", df = all.ripcc.df[australia.lines,])
+```
+
 
 ## Compare Unesco and Unep by regions
 
