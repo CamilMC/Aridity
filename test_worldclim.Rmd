@@ -1514,10 +1514,50 @@ saveRDS(all.ripcc.df, "Worldclim/all.ripcc.df.rds")
 ``` 
 
 ```{r plot-regions}
-ipcc_regions.sf <- readRDS("ipcc_regions.sf")
-ggplot(filter(ipcc_regions.sf, Type %in% c("Land","Land-Ocean")))+geom_sf(aes(fill=Name))+geom_sf_label(aes(label = Name))+
+ipcc_regions <- shapefile("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-regions/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326"))
+
+ipcc_sf <- st_as_sf(ipcc_regions)
+
+ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean")))+
+  geom_sf(aes(fill=Acronym))+
+  scale_fill_viridis_d(option = "E", alpha = 0.5)+
+ # geom_sf_text(aes(label = Name), size = 1, position = position_jitter(height = 3))+
+  geom_sf_text(aes(label = Acronym), size = 1)+
+  theme_void()+
+  theme(legend.position = "none")
+#ggsave("ipcc_regions.png", width = 12, height = 8, units = "cm", dpi = "retina")
+
+ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean") & Acronym %in% c("NEU","WCE","MED")))+
+  geom_sf(aes(fill=Acronym))+
+  scale_fill_viridis_d(option = "E", alpha = 0.5)+
+  geom_sf_text(aes(label = Name), size = 5, position = position_jitter(height = 3))+
+  #geom_sf_text(aes(label = Acronym), size = 5)+
+  theme_void()+
   theme(legend.position = "none")
 
+ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean") & Acronym %in% c("WAF","CAF","WSAF","ESAF","SEAF","NEAF")))+
+  geom_sf(aes(fill=Acronym))+
+  scale_fill_viridis_d(option = "E", alpha = 0.5)+
+  geom_sf_text(aes(label = Name), size = 5, position = position_jitter(height = 3))+
+ # geom_sf_text(aes(label = Acronym), size = 5)+
+  theme_void()+
+  theme(legend.position = "none")
+
+ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean") & Acronym %in% c("NWS","NSA","SAM","NES","SES","SWS","SSA")))+
+  geom_sf(aes(fill=Acronym))+
+  scale_fill_viridis_d(option = "E", alpha = 0.5)+
+  geom_sf_text(aes(label = Name), size = 5, position = position_jitter(height = 3))+
+ # geom_sf_text(aes(label = Acronym), size = 5)+
+  theme_void()+
+  theme(legend.position = "none")
+
+ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean") & Acronym %in% c("NAU","CAU","EAU","SAU")))+
+  geom_sf(aes(fill=Acronym))+
+  scale_fill_viridis_d(option = "E", alpha = 0.5)+
+  geom_sf_text(aes(label = Name), size = 5, position = position_jitter(height = 3))+
+ # geom_sf_text(aes(label = Acronym), size = 5)+
+  theme_void()+
+  theme(legend.position = "none")
 ```
 
 
@@ -1538,16 +1578,18 @@ for(i in unique(all.ripcc.df$Name)){
 
 ```{r martonne-unesco-africa}
 africa.lines <- grep(pattern = "Africa", x = all.ripcc.df$Name)
+all.ripcc.df[grep("Africa", all.ripcc.df$Name), ]$Acronym %>% unique()
 
-compAI(AI1 = "unesco", AI2 = "martonne", df = all.ripcc.df[africa.lines,])
+compAI(AI1 = "unesco", AI2 = "martonne", df = filter(all.ripcc.df, Acronym %in% c("WAF","CAF","WSAF","ESAF","SEAF","NEAF")))
 ```
 ### S. america
 
 ```{r martonne-unesco-samerica}
 samerica.lines <- grep(pattern = "South-America", x = all.ripcc.df$Name)
 
-compAI(AI1 = "unesco", AI2 = "martonne", df = all.ripcc.df[samerica.lines,])
+compAI(AI1 = "unesco", AI2 = "martonne", df = filter(all.ripcc.df, Acronym %in% c("NWS","NSA","SAM","NES","SES","SWS","SSA")))
 ```
+
 ### Australia
 
 ```{r martonne-unesco-australia}
@@ -1556,8 +1598,16 @@ australia.lines <- grep(pattern = "Australia", x = all.ripcc.df$Name)
 compAI(AI1 = "unesco", AI2 = "martonne", df = all.ripcc.df[australia.lines,])
 ```
 
+### Europe
+
+```{r martonne-unesco-europe}
+compAI(AI1 = "unesco", AI2 = "martonne", df = filter(all.ripcc.df, Name %in% c("West&Central-Europe","Mediterranean")))
+```
+
 
 ## Compare Unesco and Unep by regions
+
+### All regions
 
 ```{r compare-unep-unesco-regions}
 for(i in unique(all.ripcc.df$Name)){
@@ -1566,6 +1616,32 @@ for(i in unique(all.ripcc.df$Name)){
 }
 ```
 
+
+### Africa
+
+```{r unep-unesco-africa}
+compAI(AI1 = "unesco", AI2 = "unep", df = filter(all.ripcc.df, Acronym %in% c("WAF","CAF","WSAF","ESAF","SEAF","NEAF")))
+```
+
+### S. america
+
+```{r unep-unesco-samerica}
+compAI(AI1 = "unesco", AI2 = "unep", df = filter(all.ripcc.df, Acronym %in% c("NWS","NSA","SAM","NES","SES","SWS","SSA")))
+```
+
+### Australia
+
+```{r unep-unesco-australia}
+australia.lines <- grep(pattern = "Australia", x = all.ripcc.df$Name)
+
+compAI(AI1 = "unesco", AI2 = "unep", df = all.ripcc.df[australia.lines,])
+```
+
+### Europe
+
+```{r unep-unesco-europe}
+compAI(AI1 = "unesco", AI2 = "unep", df = filter(all.ripcc.df, Name %in% c("West&Central-Europe","Mediterranean")))
+```
 
 # References
 
