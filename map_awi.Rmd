@@ -1,0 +1,1 @@
+list_awi <- list.files(path="/bettik/crapartc/Average/ts", pattern = "awi*")
