@@ -889,7 +889,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cams.ssp585.2030-206
 
 ## SSP585 2070-2100 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/pr:pr_Amon_CAMS-CSM1-0_ssp585_r1i1p1f1_gn_201501-209912.nc"
+list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CAMS-CSM1-0_ssp585_r1i1p1f1_gn_201501-209912.nc"
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf, bands = c(661:1020)) %>% raster::mean(na.rm = T)
@@ -1064,7 +1064,7 @@ write.table(dec.rsds.df, file = "/bettik/crapartc/Averages/rsds/cams.hist.1985-2
 
 ## SSP245 2030-2060 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CAMS-CSM1-0_ssp245_r1i1p1f1_gn_201512-209912.nc"
+list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CAMS-CSM1-0_ssp245_r1i1p1f1_gn_201501-209912.nc"
 
 ### annual mean ----
 rsds.stack <- raster::stack(list.nf, bands = c(181:540)) %>% raster::mean(na.rm = T)
@@ -1823,55 +1823,55 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp58
 list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_CAMS-CSM1-0_ssp585_r1i1p1f1_gn_201501-209912.nc"
 
 ### annual mean ----
-sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)
+sfcWind.stack <- raster::stack(list.nf, bands = c(661:1020)) %>% raster::mean(na.rm = T)
 sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.sfcWind.txt")
 
 ### mensual mean ----
-jan.sfcWind.stack <- raster::stack(list.nf, bands = 1) %>% raster::mean(na.rm = T)
+jan.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 661, to = 1009, by = 12)) %>% raster::mean(na.rm = T)
 jan.sfcWind.df <- as.data.frame(jan.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jan.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.jan.sfcWind.txt")
 
-fev.sfcWind.stack <- raster::stack(list.nf, bands = 2) %>% raster::mean(na.rm = T)
+fev.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 662, to = 1010, by = 12)) %>% raster::mean(na.rm = T)
 fev.sfcWind.df <- as.data.frame(fev.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.fev.sfcWind.txt")
 
-mar.sfcWind.stack <- raster::stack(list.nf, bands = 3) %>% raster::mean(na.rm = T)
+mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 663, to = 1011, by = 12)) %>% raster::mean(na.rm = T)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.fev.sfcWind.txt")
 
-avr.sfcWind.stack <- raster::stack(list.nf, bands = 4) %>% raster::mean(na.rm = T)
+avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 664, to = 1012, by = 12)) %>% raster::mean(na.rm = T)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(avr.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.avr.sfcWind.txt")
 
-may.sfcWind.stack <- raster::stack(list.nf, bands = 5) %>% raster::mean(na.rm = T)
+may.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 665, to = 1013, by = 12)) %>% raster::mean(na.rm = T)
 may.sfcWind.df <- as.data.frame(may.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(may.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.may.sfcWind.txt")
 
-jun.sfcWind.stack <- raster::stack(list.nf, bands = 6) %>% raster::mean(na.rm = T)
+jun.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 666, to = 1014, by = 12)) %>% raster::mean(na.rm = T)
 jun.sfcWind.df <- as.data.frame(jun.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jun.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.jun.sfcWind.txt")
 
-jul.sfcWind.stack <- raster::stack(list.nf, bands = 7) %>% raster::mean(na.rm = T)
+jul.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 667, to = 1015, by = 12)) %>% raster::mean(na.rm = T)
 jul.sfcWind.df <- as.data.frame(jul.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jul.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.jul.sfcWind.txt")
 
-agu.sfcWind.stack <- raster::stack(list.nf, bands = 8) %>% raster::mean(na.rm = T)
+agu.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 668, to = 1016, by = 12)) %>% raster::mean(na.rm = T)
 agu.sfcWind.df <- as.data.frame(agu.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(agu.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.agu.sfcWind.txt")
 
-sep.sfcWind.stack <- raster::stack(list.nf, bands = 9) %>% raster::mean(na.rm = T)
+sep.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 669, to = 1017, by = 12)) %>% raster::mean(na.rm = T)
 sep.sfcWind.df <- as.data.frame(sep.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sep.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.sep.sfcWind.txt")
 
-oct.sfcWind.stack <- raster::stack(list.nf, bands = 10) %>% raster::mean(na.rm = T)
+oct.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 670, to = 1018, by = 12)) %>% raster::mean(na.rm = T)
 oct.sfcWind.df <- as.data.frame(oct.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(oct.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.oct.sfcWind.txt")
 
-nov.sfcWind.stack <- raster::stack(list.nf, bands = 11) %>% raster::mean(na.rm = T)
+nov.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 671, to = 1019, by = 12)) %>% raster::mean(na.rm = T)
 nov.sfcWind.df <- as.data.frame(nov.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(nov.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.nov.sfcWind.txt")
 
-dec.sfcWind.stack <- raster::stack(list.nf, bands = 12) %>% raster::mean(na.rm = T)
+dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 672, to = 1020, by = 12)) %>% raster::mean(na.rm = T)
 dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cams.ssp585.2070-2100.dec.sfcWind.txt")

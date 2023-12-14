@@ -127,7 +127,6 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cams.hist.1985-2015.
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_ssp245_r1i1p1f1_gn_201501-206412.nc"
 
-
 ### annual mean -----------
 
 ts.stack <- raster::stack(list.nf, bands = c(181:540)) %>% raster::mean(na.rm = T)
@@ -247,7 +246,7 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cams.ssp245.2070-210
 ## SSP370 2030-2060 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_ssp370_r1i1p1f1_gn_201501-206412.nc"
-
+                                    
 ### annual mean ----
 ts.stack <- raster::stack(list.nf, bands = c(181:540)) %>% raster::mean(na.rm = T)
 ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -482,7 +481,7 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cams.ssp585.2070-210
 
 ## historical 1850-1880 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACMM_historical_r1i1p1f1_gn_185001-201412.nc"
+list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
 
 ### annual mean ----- 
 
@@ -717,6 +716,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cams.ssp245.2070-210
 ## SSP370 2030-2060 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACCM_ssp370_r1i1p1f1_gn_201501-206412.nc"
+                                    
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf, bands = c(181:540)) %>% raster::mean(na.rm = T)
@@ -890,7 +890,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cams.ssp585.2030-206
 
 ## SSP585 2070-2100 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/pr:pr_Amon_CESM2-WACCM_ssp585_r1i1p1f1_gn_201501-210012.nc"
+list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACCM_ssp585_r1i1p1f1_gn_201501-210012.nc"
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf, bands = c(61:432)) %>% raster::mean(na.rm = T)
