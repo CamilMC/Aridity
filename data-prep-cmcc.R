@@ -1060,7 +1060,7 @@ write.table(dec.rsds.df, file = "/bettik/crapartc/Averages/rsds/cmcc.hist.1985-2
 
 ## SSP245 2030-2060 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CMCC-CM2-SR5_ssp245_r1i1p1f1_gn_201512-209912.nc"
+list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CMCC-CM2-SR5_ssp245_r1i1p1f1_gn_201501-210012.nc"
 
 ### annual mean ----
 rsds.stack <- raster::stack(list.nf, bands = c(181:540)) %>% raster::mean(na.rm = T)
