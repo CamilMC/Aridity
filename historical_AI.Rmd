@@ -31,6 +31,7 @@ colorvec <- viridis(n = 7, direction = -1)
 ```{r common-data}
 land_mask <- raster("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-grids/land_sea_mask_1degree.nc4")
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
+write.table(land_mask.df, "land_mask.txt")
 
 ipcc_regions <- shapefile("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-regions/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326"))
 ext <- floor(extent(ipcc_regions))
@@ -38,6 +39,7 @@ rr <- raster(ext, res = 1)
 ripcc_regions <- rasterize(ipcc_regions, rr)
 ipcc_regions.df <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 plot(ripcc_regions)
+write.table(ipcc_regions.df, "ipcc_regions.txt")
 
 elev <- raster("elevation_100KMmn_GMTEDmn.tif") %>% projectRaster(to = ripcc_regions)
 
