@@ -23,7 +23,18 @@ library(plyr)
 library(viridisLite)
 library(sf)
 library(stringr)
+
+land_mask <- read.table("Aridity/land_mask.txt")
+ipcc_regions <- read.table("Aridity/ipcc_regions.txt")
 ```
+
+```{r masks}
+land_mask <- raster("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-grids/land_sea_mask_1degree.nc4")
+
+land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
+
+```
+
 ```{r import-dfs}
 awi_annual <- merge(read.table("/bettik/crapartc/Averages/ts/awi.hist.1850-1880.ts.txt"), read.table("/bettik/crapartc/Averages/ts/awi.hist.1985-2015.ts.txt"), by = c("lon", "lat")) %>%
 merge(read.table("/bettik/crapartc/Averages/ts/awi.ssp245.2030-2060.ts.txt"), by = c("lon", "lat")) %>%
@@ -41,6 +52,6 @@ ggplot(awi_annual, aes(x = hist_1850_1880))+geom_point(aes(y = hist_1985_2015, c
     geom_point(aes(y = ssp585_2070_2100, col = "ssp245"), size = 0.5, alpha = 0.5) + 
     scale_color_viridis_d()
 
-
+awi_land <- merge(awi_annual, land_mask, )
 
 ```
