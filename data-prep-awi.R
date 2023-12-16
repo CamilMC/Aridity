@@ -2,10 +2,8 @@ library(ggplot2)
 library(dplyr)
 library(raster)
 
-ex_raster <- raster("/bettik/crapartc/CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
-ex_raster.df <- as.data.frame(ex_raster, xy = T) %>% setNames(c("lon","lat","ts"))
-rev <- ex_raster %>% projectRaster(ts.stack)
-rev.df <- as.data.frame(rev, xy = T) %>% setNames(c("lon","lat","ts"))
+cmcc <- raster("/bettik/crapartc/CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
+crs(cmcc) <- "EPSG:4326"
 
 # Average-awi-temperature ----
 
@@ -14,7 +12,7 @@ rev.df <- as.data.frame(rev, xy = T) %>% setNames(c("lon","lat","ts"))
 list.nf <- list.files(path="/bettik/crapartc/CMIP6/ts", pattern = "ts_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_185*|ts_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_186*|ts_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_187*", full.names = T)
 
 ### annual mean
-ts.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) # %>% projectRaster(ex_raster, alignOnly = F)
+ts.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% projectRaster(cmcc)
 ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(ts.df, file = "/bettik/crapartc/Averages/ts/awi.hist.1850-1880.ts.txt")
 

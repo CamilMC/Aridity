@@ -37,8 +37,9 @@ ipcc_regions <- shapefile("ATLAS-v1.6/SantanderMetGroup-ATLAS-d75f71f/reference-
 ext <- floor(extent(ipcc_regions))
 rr <- raster(ext, res = 1)
 ripcc_regions <- rasterize(ipcc_regions, rr)
-ipcc_regions.df <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 plot(ripcc_regions)
+ipcc_regions.df <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+head(ipcc_regions.df)
 write.table(ipcc_regions.df, "ipcc_regions.txt")
 
 elev <- raster("elevation_100KMmn_GMTEDmn.tif") %>% projectRaster(to = ripcc_regions)
