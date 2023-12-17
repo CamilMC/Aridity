@@ -891,7 +891,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cnrm.ssp585.2030-206
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CNRM-CM6-1-HR_ssp585_r1i1p1f2_gr_201501-210012.nc"
 
 ### annual mean ----
-pr.stack <- raster::stack(list.nf, c(661:1020)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+pr.stack <- raster::stack(list.nf, bands = c(661:1020)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 pr.df <- as.data.frame(pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(pr.df, file = "/bettik/crapartc/Averages/pr/cnrm.ssp585.2070-2100.pr.txt")
 

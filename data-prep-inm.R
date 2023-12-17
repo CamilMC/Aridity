@@ -1132,7 +1132,7 @@ write.table(nov.rsds.df, file = "/bettik/crapartc/Averages/rsds/inm.hist.1985-20
 
 list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/rsds/rsds_Amon_INM-CM4-8_historical_r1i1p1f1_gr1_195001-199912.nc", bands = seq(from = 432, to = 600, by = 12)), raster::stack("/bettik/crapartc/CMIP6/rsds/rsds_Amon_INM-CM4-8_historical_r1i1p1f1_gr1_200001-201412.nc", bands = c(12, to = 192, by = 12)))
 
-dec.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1631, to = 1980, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+dec.rsds.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 dec.rsds.df <- as.data.frame(dec.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
 write.table(dec.rsds.df, file = "/bettik/crapartc/Averages/rsds/inm.hist.1985-2015.dec.rsds.txt")
 

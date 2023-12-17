@@ -12,14 +12,13 @@ bibliography: AI.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, error = FALSE, fig.align = "center", collapse = T)
 ```
 
 ```{r libraries}
 library(raster)
 library(dplyr)
 library(ggplot2)
-library(plyr)
 library(viridisLite)
 library(sf)
 library(stringr)
@@ -32,13 +31,13 @@ cmcc.df <- as.data.frame(ex_raster, xy = T)
 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 extent(land_mask) <- extent(cmcc)
-land_mask <-  projectRaster(cmcc)
+land_mask <-  projectRaster(from = land_mask, to = cmcc)
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
 ipcc_regions <- shapefile("Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
-ipcc_regions.raster <- ipcc_regions %>% rasterize(ex_raster)
+ipcc_regions.raster <- ipcc_regions %>% rasterize(cmcc)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
-
+#ipcc_regions.sf <- st_as_sf(ipcc_regions.raster)
 ```
 
 ```{r awi-annual-dfs}
@@ -51,18 +50,46 @@ merge(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2030-2060.ts.txt"), by
 merge(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2070-2100.ts.txt"), by = c("lon", "lat")) %>%
 setNames(c("lon", "lat", "hist_1850_1880", "hist_1985_2015","ssp245_2030_2060","ssp245_2070_2100","ssp370_2030_2060","ssp370_2070_2100","ssp585_2030_2060","ssp585_2070_2100"))
 
+awi_land <- merge(awi_annual, land_mask.df, by = c("lon", "lat")) 
+awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon", "lat"))
+ggplot(awi_ipcc)+geom_raster(aes(x=lon, y =lat, fill = ssp245_2070_2100 - hist_1985_2015))+
 
-ggplot(awi_annual, aes(x = hist_1850_1880))+geom_point(aes(y = hist_1985_2015, col = "now"), size = 0.5, alpha = 0.5) + 
-    geom_point(aes(y = ssp245_2070_2100, col = "ssp245"), size = 0.5, alpha = 0.5) + 
-    geom_point(aes(y = ssp370_2070_2100, col = "ssp370"), size = 0.5, alpha = 0.5) + 
-    geom_point(aes(y = ssp585_2070_2100, col = "ssp245"), size = 0.5, alpha = 0.5) + 
-    scale_color_viridis_d()
+awi_regions <- awi_ipcc %>% group_by(Name, Acronym, Continent) %>% 
+  summarise(hist_1850_1880 = mean(hist_1850_1880, na.rm = T), hist_1985_2015 = mean(hist_1985_2015, na.rm = T), ssp245_2030_2060 = mean(ssp245_2030_2060, na.rm = T), ssp245_2070_2100 = mean(ssp245_2070_2100, na.rm = T), ssp370_2030_2060 = mean(ssp370_2030_2060, na.rm = T), ssp370_2070_2100 = mean(ssp370_2070_2100, na.rm = T), ssp585_2030_2060 = mean(ssp585_2030_2060, na.rm = T), ssp585_2070_2100 = mean(ssp585_2070_2100, na.rm = T)) %>%
+  as.data.frame()
+head(awi_regions)
 
+ggplot(data = awi_regions, aes(x = hist_1985_2015)) + geom_point(aes(y = ssp245_2070_2100, col = Continent))+
+  geom_abline(slope = 1, intercept = 0)
 
-awi_land <- merge(awi_annual, land_mask.df, by = c("lon","lat")) 
-awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon","lat"))
+write.table(awi_ipcc, "/bettik/crapartc/Averages/ts/awi.ts_ipcc.txt")
 
-write.table(awi_ipcc, "Averages/ts/awi.ts_ipcc.txt")
+```
+
+```{r awi-annual-long}
+awi_annual <- rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1850-1880.ts.txt"), model = "historical", period = "1850_1880"),mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1985-2015.ts.txt"), model = "historical", period = "1985_2015")) %>%
+rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp245.2030-2060.ts.txt"), model = "SSP245", period = "2030_2060")) %>%
+rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp245.2070-2100.ts.txt"), model = "SSP245", period = "2070_2100")) %>%
+rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp370.2030-2060.ts.txt"), model = "SSP370", period = "2030_2060")) %>%
+rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp370.2070-2100.ts.txt"), model = "SSP370", period = "2070_2100")) %>%
+rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2030-2060.ts.txt"), model = "SSP585", period = "2030_2060")) %>%
+rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2070-2100.ts.txt"), model = "SSP585", period = "2070_2100"))
+
+ggplot(awi_annual)+geom_boxplot(aes(x = period, y = ts, col = model))+scale_color_viridis_d()
+
+awi_land <- merge(awi_annual, land_mask.df, by = c("lon", "lat")) 
+awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon", "lat"))
+ggplot(awi_ipcc)+geom_raster(aes(x=lon, y =lat, fill = ssp245_2070_2100 - hist_1985_2015))+
+
+awi_regions <- awi_ipcc %>% group_by(Name, Acronym, Continent) %>% 
+  summarise(hist_1850_1880 = mean(hist_1850_1880, na.rm = T), hist_1985_2015 = mean(hist_1985_2015, na.rm = T), ssp245_2030_2060 = mean(ssp245_2030_2060, na.rm = T), ssp245_2070_2100 = mean(ssp245_2070_2100, na.rm = T), ssp370_2030_2060 = mean(ssp370_2030_2060, na.rm = T), ssp370_2070_2100 = mean(ssp370_2070_2100, na.rm = T), ssp585_2030_2060 = mean(ssp585_2030_2060, na.rm = T), ssp585_2070_2100 = mean(ssp585_2070_2100, na.rm = T)) %>%
+  as.data.frame()
+head(awi_regions)
+
+ggplot(data = awi_regions, aes(x = hist_1985_2015)) + geom_point(aes(y = ssp245_2070_2100, col = Continent))+
+  geom_abline(slope = 1, intercept = 0)
+
+write.table(awi_ipcc, "/bettik/crapartc/Averages/ts/awi.ts_ipcc.txt")
 
 ```
 
