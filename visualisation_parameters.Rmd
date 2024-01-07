@@ -1,0 +1,83 @@
+---
+title: "Visualisation awi"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+date: "2023-12-17"
+bibliography: AI.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
+```
+
+```{r libraries}
+library(raster)
+library(dplyr)
+library(ggplot2)
+library(viridisLite)
+library(sf)
+library(stringr)
+```
+
+```{r awi_future, eval = F}
+awi.ts_ipcc <- read.table("CMIP6/awi.ts_ipcc.txt")
+
+ggplot(subset(awi.ts_ipcc, Acronym %in% c("WCE", "MED")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
+      facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
+      labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+ggplot(subset(awi.ts_ipcc, Acronym %in% c("WAF")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
+      facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
+       labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100" & lm != 0))+
+  geom_raster(aes(x = lon, y = lat, fill = ts-273))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100"))+
+  geom_raster(aes(x = lon, y = lat, fill = ts-273))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100" & lm > 0 & lm < 1))+
+  geom_raster(aes(x = lon, y = lat, fill = ts-273))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r all_future}
+ts.all_annual <- read.table("CMIP6/ts.all_annual.txt")
+
+ggplot(subset(ts.all_annual, period = "1985_2015"))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
+     scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+
+ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("WCE","WAF")))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
+    facet_grid(rows = vars(Name))+
+     scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+
+```
+
+```{r diff-models-present, fig.dim = c(10,30)}
+
+ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("NES","MED","SAH","WSAF","ESAF")))+
+    geom_boxplot(aes(x=source, y = ts-273, col = source))+
+    facet_grid(rows = vars(Name))+
+    scale_color_viridis_d(option = "A", end = 0.8)+
+    labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+```
