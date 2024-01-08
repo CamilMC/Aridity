@@ -23,9 +23,40 @@ library(sf)
 library(stringr)
 ```
 
-```{r awi_future, eval = F}
+```{r data}
 awi.ts_ipcc <- read.table("CMIP6/awi.ts_ipcc.txt")
+world.df <- readRDS("Worldclim/world.df.rds")
+ts.all_annual <- read.table("CMIP6/ts.all_annual.txt")
 
+
+```
+
+
+# Worldclim: réanalyse pour la période 1970-2000
+
+```{r worldclim}
+cmcc <- raster("CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
+crs(cmcc) <- "EPSG:4326"
+cmcc.df <- as.data.frame(cmcc, xy = T)
+
+wdc.t<- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>%
+  setNames(c("lon","lat","ts"))
+
+land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
+extent(land_mask) <- extent(cmcc)
+land_mask <-  projectRaster(from = land_mask, to = cmcc)
+land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
+
+ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
+ipcc_regions.raster <- ipcc_regions %>% rasterize(cmcc)
+ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+
+wdt <- wdc.t %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+
+```
+
+
+```{r awi_future, eval = F}
 ggplot(subset(awi.ts_ipcc, Acronym %in% c("WCE", "MED")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
       facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
       labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
@@ -57,12 +88,22 @@ ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100" & lm > 0 & 
 ```
 
 ```{r all_future}
-ts.all_annual <- read.table("CMIP6/ts.all_annual.txt")
 
-ggplot(subset(ts.all_annual, period = "1985_2015"))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
+
+# ggplot(subset(ts.all_annual, period == "1850_1880" & source == "AWI" & lm != 0))+
+#   geom_raster(aes(x=lon, y = lat, fill = Acronym), alpha = 0.5)+
+#   scale_fill_viridis_d()
+
+ggplot(subset(ts.all_annual, period == "1985_2015"))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
      scale_color_viridis_d(option = "A", end = 0.8)+
      labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
+
+
+ggplot()+geom_boxplot(data = subset(ts.all_annual, period == "1985_2015"), aes(x=source, y = ts-273, col = source))+
+    geom_boxplot(data = world.df, aes(x="Worldclim", y = temp, col = "Worldclim"))+
+     scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
 ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("WCE","WAF")))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
     facet_grid(rows = vars(Name))+
@@ -74,10 +115,61 @@ ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("WCE"
 
 ```{r diff-models-present, fig.dim = c(10,30)}
 
-ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("NES","MED","SAH","WSAF","ESAF")))+
+ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("NES")))+
+    geom_boxplot(aes(x=source, y = ts-273, col = source))+
+  #  facet_grid(rows = vars(Name))+
+    scale_color_viridis_d(option = "A", end = 0.8)+
+    labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("MED","SAH")))+
     geom_boxplot(aes(x=source, y = ts-273, col = source))+
     facet_grid(rows = vars(Name))+
     scale_color_viridis_d(option = "A", end = 0.8)+
     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
+ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("WSAF","ESAF")))+
+    geom_boxplot(aes(x=source, y = ts-273, col = source))+
+    facet_grid(rows = vars(Name))+
+    scale_color_viridis_d(option = "A", end = 0.8)+
+    labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+```
+
+```{r temporal-diff}
+ggplot(dplyr::filter(ts.all_annual, Acronym %in% c("WCE","WAF")))+geom_boxplot(aes(x=period, y = ts-273, col = source))+
+    facet_grid(rows = vars(source))+
+     scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+
+ggplot(ts.all_annual)+geom_boxplot(aes(x = period, y = ts-273, col = model))+
+   scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+ggplot(ts.all_annual)+geom_boxplot(aes(x = source, y = ts-273, col = period))+
+      scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+for(i in unique(ts.all_annual$Acronym)){
+  ggplot(filter(ts.all_annual, Acronym == i))+geom_boxplot(aes(x = period, y = ts-273, col = model))+
+    scale_color_viridis_d(option = "A", end = 0.8)+
+    facet_grid(rows = vars(source))+
+     labs(x = i, y = "Average annual temperature, °C") + theme_minimal()
+}
+```
+
+```{r compare-worldclim}
+ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000"), aes(x = source, y = ts-273, col = source))+
+  geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
+   scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+for(i in c("EAO", "SAO", "SOO",  "EAN",  "WAF", "SAH", "MED", "WCE",  "NEU",  "ARO",  "CAF",  "WSAF", "SEA", "SIO",  "SAS",  "EAS",  "ECA",  "ESB",  "RAR",  "NAU",  "CAU",  "SAU",  "RFE", "NPO",  "EPO",  "EAU",  "SPO",  "NZ", "ESAF", "SEAF", "NEAF", "ARP",  "MDG",  "WCA",  "EEU",  "EIO",  "ARS",  "WSB",  "TIB",  "BOB")){
+  g <- ggplot()+
+    geom_boxplot(data = filter(ts.all_annual, Acronym == i & period == "1970_2000"), aes(x = source, y = ts-273, col = source))+
+    geom_boxplot(data = filter(wdt, Acronym == i), aes(x = "Worldclim", y = ts, col ="Worldclim"))+
+    scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = i, y = "Average annual temperature, °C") + theme_minimal()
+  print(g)
+}
 ```
