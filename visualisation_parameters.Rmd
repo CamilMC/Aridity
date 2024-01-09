@@ -27,8 +27,6 @@ library(stringr)
 awi.ts_ipcc <- read.table("CMIP6/awi.ts_ipcc.txt")
 world.df <- readRDS("Worldclim/world.df.rds")
 ts.all_annual <- read.table("CMIP6/ts.all_annual.txt")
-
-
 ```
 
 
@@ -39,8 +37,17 @@ cmcc <- raster("CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-2014
 crs(cmcc) <- "EPSG:4326"
 cmcc.df <- as.data.frame(cmcc, xy = T)
 
-wdc.t<- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>%
-  setNames(c("lon","lat","ts"))
+wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") 
+crs(wdct) <- "EPSG:4326"
+extent(wdct) <- extent(cmcc)
+wdctt <- wdct %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","ts"))
+
+ggplot(wdctt)+
+  geom_raster(aes(x = lon, y = lat, fill = ts))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
 extent(land_mask) <- extent(cmcc)
@@ -51,7 +58,14 @@ ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTrans
 ipcc_regions.raster <- ipcc_regions %>% rasterize(cmcc)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
-wdt <- wdc.t %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+wdcttt <- wdctt %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+
+ggplot(wdcttt)+
+  geom_raster(aes(x = lon, y = lat, fill = ts))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ```
 
@@ -156,15 +170,40 @@ for(i in unique(ts.all_annual$Acronym)){
     facet_grid(rows = vars(source))+
      labs(x = i, y = "Average annual temperature, °C") + theme_minimal()
 }
-```
 
-```{r compare-worldclim}
-ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000"), aes(x = source, y = ts-273, col = source))+
+
+ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm == 1), aes(x = source, y = ts-273, col = source))+
   geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
    scale_color_viridis_d(option = "A", end = 0.8)+
      labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
-for(i in c("EAO", "SAO", "SOO",  "EAN",  "WAF", "SAH", "MED", "WCE",  "NEU",  "ARO",  "CAF",  "WSAF", "SEA", "SIO",  "SAS",  "EAS",  "ECA",  "ESB",  "RAR",  "NAU",  "CAU",  "SAU",  "RFE", "NPO",  "EPO",  "EAU",  "SPO",  "NZ", "ESAF", "SEAF", "NEAF", "ARP",  "MDG",  "WCA",  "EEU",  "EIO",  "ARS",  "WSB",  "TIB",  "BOB")){
+ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm == 0), aes(x = source, y = ts-273, col = source))+
+  geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
+   scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm != 0 & lm != 1), aes(x = source, y = ts-273, col = source))+
+  geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
+   scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+ggplot(subset(ts.all_annual, period == "1970_2000" & source == "CNRM"))+
+  geom_raster(aes(x = lon, y = lat, fill = ts-273))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+
+```
+
+```{r compare-worldclim}
+ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm != 0), aes(x = source, y = ts-273, col = source))+
+  geom_boxplot(data = wdcttt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
+   scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+
+for(i in c( "MED", "WCE",  "NEU")){
   g <- ggplot()+
     geom_boxplot(data = filter(ts.all_annual, Acronym == i & period == "1970_2000"), aes(x = source, y = ts-273, col = source))+
     geom_boxplot(data = filter(wdt, Acronym == i), aes(x = "Worldclim", y = ts, col ="Worldclim"))+
