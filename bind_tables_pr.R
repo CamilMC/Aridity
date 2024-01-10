@@ -153,7 +153,7 @@ awi_monthly <- mutate(read.table("/bettik/crapartc/Averages/pr/awi.hist.1850-188
 awim_land <- merge(awi_monthly, land_mask.df, by = c("lon", "lat")) 
 awim_ipcc <- merge(awim_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(filter(awim_ipcc, lm == 1), "Aridity/CMIP6/awim.pr_ipcc.txt")
+write.table(awim_ipcc, "Aridity/CMIP6/awim.pr_ipcc.txt")
 
 # BCC  ---- 
 
@@ -171,7 +171,7 @@ bcc_annual <- rbind(mutate(read.table("/bettik/crapartc/Averages/pr/bcc.hist.185
 bcc_land <- merge(bcc_annual, land_mask.df, by = c("lon", "lat")) 
 bcc_ipcc <- merge(bcc_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(bcc_ipcc, "Aridity/CMIP6/bcc.pr_ipcc.txt")
+write.table(filter(bcc_ipcc, lm == 1), "Aridity/CMIP6/bcc.pr_ipcc.txt")
 
 ## Monthly ----
 
@@ -288,6 +288,8 @@ bccm_land <- merge(bcc_monthly, land_mask.df, by = c("lon", "lat"))
 bccm_ipcc <- merge(bccm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(bccm_ipcc, "Aridity/CMIP6/bccm.pr_ipcc.txt")
+
+# CAMS ---- 
 
 ## Annual ----
 
@@ -427,7 +429,8 @@ write.table(camsm_ipcc, "Aridity/CMIP6/camsm.pr_ipcc.txt")
 
 ## Annual ----
 
-cesm_annual <- rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880"), mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.pr.txt"), model = "historical", period = "1970_2000")) %>%
+cesm_annual <- mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880") %>% 
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.pr.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1985-2015.pr.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.ssp245.2030-2060.pr.txt"), model = "SSP245", period = "2030_2060")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.ssp245.2070-2100.pr.txt"), model = "SSP245", period = "2070_2100")) %>%

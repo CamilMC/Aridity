@@ -28,7 +28,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1850-1880.
 
 mar.ts.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 351, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1850-1880.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1850-1880.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 352, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -66,6 +66,66 @@ dec.ts.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)
 dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1850-1880.dec.ts.txt")
 
+## historical 1970-2000 ----
+
+list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
+
+### annual mean --------------
+ts.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.ts.txt")
+
+### mensual mean ---------
+
+jan.ts.stack <- raster::stack(list.nf, bands = seq(from = 1441, to = 1801, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jan.ts.df <- as.data.frame(jan.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(jan.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.jan.ts.txt")
+
+fev.ts.stack <- raster::stack(list.nf, bands = seq(from = 1442, to = 1802, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+fev.ts.df <- as.data.frame(fev.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.fev.ts.txt")
+
+mar.ts.stack <- raster::stack(list.nf, bands = seq(from = 1443, to = 1803, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.mar.ts.txt")
+
+avr.ts.stack <- raster::stack(list.nf, bands = seq(from = 1444, to = 1804, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(avr.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.avr.ts.txt")
+
+may.ts.stack <- raster::stack(list.nf, bands = seq(from = 1445, to = 1805, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+may.ts.df <- as.data.frame(may.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(may.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.may.ts.txt")
+
+jun.ts.stack <- raster::stack(list.nf, bands = seq(from = 1446, to = 1806, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jun.ts.df <- as.data.frame(jun.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(jun.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.jun.ts.txt")
+
+jul.ts.stack <- raster::stack(list.nf, bands = seq(from = 1447, to = 1807, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jul.ts.df <- as.data.frame(jul.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(jul.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.jul.ts.txt")
+
+agu.ts.stack <- raster::stack(list.nf, bands = seq(from = 1448, to = 1808, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+agu.ts.df <- as.data.frame(agu.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(agu.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.agu.ts.txt")
+
+sep.ts.stack <- raster::stack(list.nf, bands = seq(from = 1449, to = 1809, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+sep.ts.df <- as.data.frame(sep.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(sep.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.sep.ts.txt")
+
+oct.ts.stack <- raster::stack(list.nf, bands = seq(from = 1450, to = 1810, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+oct.ts.df <- as.data.frame(oct.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(oct.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.oct.ts.txt")
+
+nov.ts.stack <- raster::stack(list.nf, bands = seq(from = 1451, to = 1811, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+nov.ts.df <- as.data.frame(nov.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(nov.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.nov.ts.txt")
+
+dec.ts.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1812, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
+write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1970-2000.dec.ts.txt")
+
+
 ## historical 1985-2015 =========
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -86,7 +146,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1985-2015.
 
 mar.ts.stack <- raster::stack(list.nf, bands = seq(from = 1623, to = 1971, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1985-2015.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.hist.1985-2015.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands = seq(from = 1624, to = 1971, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -146,7 +206,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp245.2030-206
 
 mar.ts.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp245.2030-2060.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp245.2030-2060.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -206,7 +266,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp245.2070-210
 
 mar.ts.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp245.2070-2100.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp245.2070-2100.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -264,7 +324,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2030-206
 
 mar.ts.stack <- raster::stack(list.nf, bands =  seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2030-2060.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2030-2060.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands =  seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -305,7 +365,7 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2030-206
 
 ## SSP370 2070-2100 ----
 
-List.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_ssp370_r1i1p1f1_gn_206501-210012.nc"
+list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_ssp370_r1i1p1f1_gn_206501-210012.nc"
 
 ### annual mean ----
 ts.stack <- raster::stack(list.nf, bands = c(61:421)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
@@ -323,7 +383,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2070-210
 
 mar.ts.stack <- raster::stack(list.nf, bands =  seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2070-2100.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp370.2070-2100.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands =  seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -382,7 +442,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2030-206
 
 mar.ts.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2030-2060.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2030-2060.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -422,7 +482,7 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2030-206
 
 ## SSP585 2070-2100 ----
 
-List.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_ssp585_r1i1p1f1_gn_201501-210012.nc"
+list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_ssp585_r1i1p1f1_gn_201501-210012.nc"
 
 ### annual mean ----
 ts.stack <- raster::stack(list.nf, bands = c(61:432)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
@@ -440,7 +500,7 @@ write.table(fev.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2070-210
 
 mar.ts.stack <- raster::stack(list.nf, bands =  seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.ts.df <- as.data.frame(mar.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
-write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2070-2100.fev.ts.txt")
+write.table(mar.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2070-2100.mar.ts.txt")
 
 avr.ts.stack <- raster::stack(list.nf, bands =  seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.ts.df <- as.data.frame(avr.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -502,7 +562,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 351, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 352, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -540,6 +600,69 @@ dec.pr.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)
 dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.dec.pr.txt")
 
+
+## historical 1970-2000 ----
+
+list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
+
+### annual mean ----- 
+
+pr.stack <- raster::stack(list.nf, bands = c(1:360)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+pr.df <- as.data.frame(pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.pr.txt")
+
+### mensual mean ----- 
+
+jan.pr.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 349, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jan.pr.df <- as.data.frame(jan.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(jan.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.jan.pr.txt")
+
+fev.pr.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 350, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+fev.pr.df <- as.data.frame(fev.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.fev.pr.txt")
+
+mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 351, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.mar.pr.txt")
+
+avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 352, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(avr.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.avr.pr.txt")
+
+may.pr.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 353, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+may.pr.df <- as.data.frame(may.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(may.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.may.pr.txt")
+
+jun.pr.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 354, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jun.pr.df <- as.data.frame(jun.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(jun.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.jun.pr.txt")
+
+jul.pr.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 355, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jul.pr.df <- as.data.frame(jul.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(jul.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.jul.pr.txt")
+
+agu.pr.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 356, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+agu.pr.df <- as.data.frame(agu.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(agu.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.agu.pr.txt")
+
+sep.pr.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 357, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+sep.pr.df <- as.data.frame(sep.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(sep.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.sep.pr.txt")
+
+oct.pr.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 358, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+oct.pr.df <- as.data.frame(oct.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(oct.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.oct.pr.txt")
+
+nov.pr.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 359, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+nov.pr.df <- as.data.frame(nov.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(nov.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.nov.pr.txt")
+
+dec.pr.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.dec.pr.txt")
+
+
+
 ## historical 1985-2015 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -560,7 +683,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1985-2015.
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 1623, to = 1971, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1985-2015.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.hist.1985-2015.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 1624, to = 1972, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -618,7 +741,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp245.2030-206
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp245.2030-2060.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp245.2030-2060.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -676,7 +799,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp245.2070-210
 
 mar.pr.stack <- raster::stack(list.nf, bands =  seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp245.2070-2100.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp245.2070-2100.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands =  seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -735,7 +858,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp370.2030-206
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp370.2030-2060.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp370.2030-2060.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -793,7 +916,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp370.2070-210
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp370.2070-2100.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp370.2070-2100.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -851,7 +974,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2030-206
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2030-2060.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2030-2060.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -909,7 +1032,7 @@ write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2070-210
 
 mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2070-2100.fev.pr.txt")
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2070-2100.mar.pr.txt")
 
 avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
@@ -968,7 +1091,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1850-1
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 351, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1850-1880.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1850-1880.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 352, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
@@ -1006,6 +1129,64 @@ dec.rsds.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 1
 dec.rsds.df <- as.data.frame(dec.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
 write.table(dec.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1850-1880.dec.rsds.txt")
 
+## historical 1970-2000 ----
+
+list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
+
+rsds.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+rsds.df <- as.data.frame(rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.rsds.txt")
+
+### mensual mean
+jan.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1441, to = 1801, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jan.rsds.df <- as.data.frame(jan.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(jan.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.jan.rsds.txt")
+
+fev.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1442, to = 1802, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+fev.rsds.df <- as.data.frame(fev.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.fev.rsds.txt")
+
+mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1443, to = 1803, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.mar.rsds.txt")
+
+avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1444, to = 1804, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(avr.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.avr.rsds.txt")
+
+may.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1445, to = 1805, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+may.rsds.df <- as.data.frame(may.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(may.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.may.rsds.txt")
+
+jun.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1446, to = 1806, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jun.rsds.df <- as.data.frame(jun.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(jun.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.jun.rsds.txt")
+
+jul.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1447, to = 1807, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jul.rsds.df <- as.data.frame(jul.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(jul.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.jul.rsds.txt")
+
+agu.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1448, to = 1808, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+agu.rsds.df <- as.data.frame(agu.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(agu.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.agu.rsds.txt")
+
+sep.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1449, to = 1809, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+sep.rsds.df <- as.data.frame(sep.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(sep.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.sep.rsds.txt")
+
+oct.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1450, to = 1810, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+oct.rsds.df <- as.data.frame(oct.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(oct.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.oct.rsds.txt")
+
+nov.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1451, to = 1811, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+nov.rsds.df <- as.data.frame(nov.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(nov.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.nov.rsds.txt")
+
+dec.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1812, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+dec.rsds.df <- as.data.frame(dec.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
+write.table(dec.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1970-2000.dec.rsds.txt")
+
+
 ## historical 1985-2015 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -1026,7 +1207,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1985-2
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1622, to = 1971, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1985-2015.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.hist.1985-2015.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 1623, to = 1972, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
@@ -1084,7 +1265,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp245.2030
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp245.2030-2060.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp245.2030-2060.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
@@ -1142,7 +1323,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp245.2070
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp245.2070-2100.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp245.2070-2100.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
@@ -1200,7 +1381,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp370.2030
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp370.2030-2060.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp370.2030-2060.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
@@ -1258,7 +1439,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp370.2070
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds*"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp370.2070-2100.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp370.2070-2100.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds*"))
@@ -1316,7 +1497,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2030
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds*"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2030-2060.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2030-2060.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds*"))
@@ -1374,7 +1555,7 @@ write.table(fev.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2070
 
 mar.rsds.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.rsds.df <- as.data.frame(mar.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds*"))
-write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2070-2100.fev.rsds.txt")
+write.table(mar.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2070-2100.mar.rsds.txt")
 
 avr.rsds.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.rsds.df <- as.data.frame(avr.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds*"))
@@ -1434,7 +1615,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 351, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1850-1880.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1850-1880.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 352, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1472,6 +1653,65 @@ dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by 
 dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1850-1880.dec.sfcWind.txt")
 
+## historical 1970-2000 ----
+
+list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
+
+### annual mean
+sfcWind.stack <- raster::stack(list.nf, bands = c(1441:1812) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.sfcWind.txt")
+
+### mensual mean
+jan.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1441, to = 1801, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jan.sfcWind.df <- as.data.frame(jan.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(jan.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.jan.sfcWind.txt")
+
+fev.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1442, to = 1802, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+fev.sfcWind.df <- as.data.frame(fev.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.fev.sfcWind.txt")
+
+mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1443, to = 1803, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.mar.sfcWind.txt")
+
+avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1444, to = 1804, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(avr.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.avr.sfcWind.txt")
+
+may.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1445, to = 1805, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+may.sfcWind.df <- as.data.frame(may.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(may.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.may.sfcWind.txt")
+
+jun.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1446, to = 1806, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jun.sfcWind.df <- as.data.frame(jun.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(jun.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.jun.sfcWind.txt")
+
+jul.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1447, to = 1807, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jul.sfcWind.df <- as.data.frame(jul.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(jul.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.jul.sfcWind.txt")
+
+agu.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1448, to = 1808, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+agu.sfcWind.df <- as.data.frame(agu.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(agu.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.agu.sfcWind.txt")
+
+sep.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1449, to = 1809, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+sep.sfcWind.df <- as.data.frame(sep.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(sep.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.sep.sfcWind.txt")
+
+oct.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1450, to = 1810, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+oct.sfcWind.df <- as.data.frame(oct.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(oct.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.oct.sfcWind.txt")
+
+nov.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1451, to = 1811, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+nov.sfcWind.df <- as.data.frame(nov.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(nov.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.nov.sfcWind.txt")
+
+dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1812, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
+write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.dec.sfcWind.txt")
+
+
 ## historical 1985-2015 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -1492,7 +1732,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1623, to = 1971, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1985-2015.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1985-2015.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1624, to = 1972, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1550,7 +1790,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp24
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp245.2030-2060.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp245.2030-2060.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1608,7 +1848,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp24
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp245.2070-2100.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp245.2070-2100.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1666,7 +1906,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp37
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp370.2030-2060.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp370.2030-2060.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1724,7 +1964,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp37
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp370.2070-2100.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp370.2070-2100.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1782,7 +2022,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp58
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 183, to = 531, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp585.2030-2060.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp585.2030-2060.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 184, to = 532, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
@@ -1840,7 +2080,7 @@ write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp58
 
 mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 63, to = 423, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
-write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp585.2070-2100.fev.sfcWind.txt")
+write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp585.2070-2100.mar.sfcWind.txt")
 
 avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 64, to = 424, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
