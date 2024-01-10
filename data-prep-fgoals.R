@@ -600,6 +600,67 @@ dec.pr.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)
 dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1850-1880.dec.pr.txt")
 
+
+## historical 1970-2000 ----
+
+list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_185001-201412.nc"
+
+### annual mean ----- 
+
+pr.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+pr.df <- as.data.frame(pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.pr.txt")
+
+### mensual mean ----- 
+
+jan.pr.stack <- raster::stack(list.nf, bands = seq(from = 1441, to = 1801, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jan.pr.df <- as.data.frame(jan.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(jan.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.jan.pr.txt")
+
+fev.pr.stack <- raster::stack(list.nf, bands = seq(from = 1442, to = 1802, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+fev.pr.df <- as.data.frame(fev.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(fev.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.fev.pr.txt")
+
+mar.pr.stack <- raster::stack(list.nf, bands = seq(from = 1443, to = 1803, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+mar.pr.df <- as.data.frame(mar.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(mar.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.mar.pr.txt")
+
+avr.pr.stack <- raster::stack(list.nf, bands = seq(from = 1444, to = 1804, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+avr.pr.df <- as.data.frame(avr.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(avr.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.avr.pr.txt")
+
+may.pr.stack <- raster::stack(list.nf, bands = seq(from = 1445, to = 1805, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+may.pr.df <- as.data.frame(may.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(may.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.may.pr.txt")
+
+jun.pr.stack <- raster::stack(list.nf, bands = seq(from = 1446, to = 1806, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jun.pr.df <- as.data.frame(jun.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(jun.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.jun.pr.txt")
+
+jul.pr.stack <- raster::stack(list.nf, bands = seq(from = 1447, to = 1807, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+jul.pr.df <- as.data.frame(jul.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(jul.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.jul.pr.txt")
+
+agu.pr.stack <- raster::stack(list.nf, bands = seq(from = 1448, to = 1808, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+agu.pr.df <- as.data.frame(agu.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(agu.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.agu.pr.txt")
+
+sep.pr.stack <- raster::stack(list.nf, bands = seq(from = 1449, to = 1809, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+sep.pr.df <- as.data.frame(sep.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(sep.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.sep.pr.txt")
+
+oct.pr.stack <- raster::stack(list.nf, bands = seq(from = 1450, to = 1810, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+oct.pr.df <- as.data.frame(oct.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(oct.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.oct.pr.txt")
+
+nov.pr.stack <- raster::stack(list.nf, bands = seq(from = 1451, to = 1811, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+nov.pr.df <- as.data.frame(nov.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(nov.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.nov.pr.txt")
+
+dec.pr.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1821, by = 12)) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
+dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.hist.1970-2000.dec.pr.txt")
+
 ## historical 1985-2015 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_185001-201412.nc"
