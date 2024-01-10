@@ -8,7 +8,6 @@ library(stringr)
 # Masks ---- 
 cmcc <- raster("/bettik/crapartc/CMIP6/pr/pr_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
 crs(cmcc) <- "EPSG:4326"
-cmcc.df <- as.data.frame(ex_raster, xy = T)
 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 extent(land_mask) <- extent(cmcc)
@@ -154,7 +153,7 @@ awi_monthly <- mutate(read.table("/bettik/crapartc/Averages/pr/awi.hist.1850-188
 awim_land <- merge(awi_monthly, land_mask.df, by = c("lon", "lat")) 
 awim_ipcc <- merge(awim_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(awim_ipcc, "Aridity/CMIP6/awim.pr_ipcc.txt")
+write.table(filter(awim_ipcc, lm == 1), "Aridity/CMIP6/awim.pr_ipcc.txt")
 
 # BCC  ---- 
 
