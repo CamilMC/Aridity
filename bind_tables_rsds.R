@@ -8,7 +8,6 @@ library(stringr)
 # Masks ---- 
 cmcc <- raster("/bettik/crapartc/CMIP6/rsds/rsds_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
 crs(cmcc) <- "EPSG:4326"
-cmcc.df <- as.data.frame(ex_raster, xy = T)
 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 extent(land_mask) <- extent(cmcc)
