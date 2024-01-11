@@ -1384,16 +1384,28 @@ write.table(filter(all_annual, lm == 1), "Aridity/ts.all_annual.txt")
 
 # ALL ts MONTHLY ----
 
-all_monthly <- mutate(read.table("Aridity/CMIP6/awim.ts_ipcc.txt"), source = "AWI") %>%
-  rbind(mutate(read.table("Aridity/CMIP6/bccm.ts_ipcc.txt"), source = "BCC")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/camsm.ts_ipcc.txt"), source = "CAMS")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/cesmm.ts_ipcc.txt"), source = "CESM")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/cmccm.ts_ipcc.txt"), source = "CMCC")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/cnrmm.ts_ipcc.txt"), source = "CNRM")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/fgoalsm.ts_ipcc.txt"), source = "FGOALS")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/inmm.ts_ipcc.txt"), source = "INM")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/mpim.ts_ipcc.txt"), source = "MPI")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/mrim.ts_ipcc.txt"), source = "MRI")) %>%
-  filter(lm == 1)
+all_monthly <- mutate(filter(read.table("Aridity/CMIP6/awim.ts_ipcc.txt"), lm == 1), source = "AWI") %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.ts_ipcc.txt"),lm == 1), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/camsm.ts_ipcc.txt"), lm == 1), source = "CAMS")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/cesmm.ts_ipcc.txt"), lm == 1), source = "CESM")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/cmccm.ts_ipcc.txt"), lm == 1), source = "CMCC")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.ts_ipcc.txt"), lm == 1), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/fgoalsm.ts_ipcc.txt"), lm == 1), source = "FGOALS")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.ts_ipcc.txt"), lm == 1), source = "INM")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.ts_ipcc.txt"), lm == 1), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.ts_ipcc.txt"), lm == 1), source = "MRI")) 
 
 write.table(all_monthly, "Aridity/ts.all_monthly.txt")
+
+all_january <- mutate(filter(read.table("Aridity/CMIP6/awim.ts_ipcc.txt"), lm == 1, month == 1), source = "AWI") %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.ts_ipcc.txt"),lm == 1, month == 1), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/camsm.ts_ipcc.txt"), lm == 1, month == 1), source = "CAMS")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/cesmm.ts_ipcc.txt"), lm == 1, month == 1), source = "CESM")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/cmccm.ts_ipcc.txt"), lm == 1, month == 1), source = "CMCC")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.ts_ipcc.txt"), lm == 1, month == 1), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/fgoalsm.ts_ipcc.txt"), lm == 1, month == 1), source = "FGOALS")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.ts_ipcc.txt"), lm == 1, month == 1), source = "INM")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.ts_ipcc.txt"), lm == 1, month == 1), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.ts_ipcc.txt"), lm == 1, month == 1), source = "MRI")) 
+
+write.table(all_january, "Aridity/ts.all_january.txt")

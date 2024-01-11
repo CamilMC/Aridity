@@ -1065,7 +1065,7 @@ list.nf <- list.files(path="/bettik/crapartc/CMIP6/rsds", pattern = "rsds_Amon_A
 
 ### annual mean
 rsds.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
-rsds.df <- as.data.frame(rsds.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+rsds.df <- as.data.frame(rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
 write.table(rsds.df, file = "/bettik/crapartc/Averages/rsds/awi.hist.1850-1880.rsds.txt")
 
 ### mensual mean
@@ -1124,7 +1124,7 @@ list.nf <- list.files(path="/bettik/crapartc/CMIP6/rsds", pattern = "rsds_Amon_A
 
 ### annual mean
 rsds.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% projectRaster(cmcc)
-rsds.df <- as.data.frame(rsds.stack, xy = T) %>% setNames(c("lon","lat","pr"))
+rsds.df <- as.data.frame(rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
 write.table(rsds.df, file = "/bettik/crapartc/Averages/rsds/awi.hist.1970-2000.rsds.txt")
 
 ### mensual mean
