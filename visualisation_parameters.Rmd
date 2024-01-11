@@ -24,9 +24,11 @@ library(stringr)
 ```
 
 ```{r data}
-awi.ts_ipcc <- read.table("CMIP6/awi.ts_ipcc.txt")
 world.df <- readRDS("Worldclim/world.df.rds")
-ts.all_annual <- read.table("CMIP6/ts.all_annual.txt")
+ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
+pr.all_annual <- read.table("CMIP6/pr/pr.all_annual.txt")
+rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt")
+sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
 ```
 
 
@@ -42,10 +44,49 @@ crs(wdct) <- "EPSG:4326"
 extent(wdct) <- extent(cmcc)
 wdctt <- wdct %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","ts"))
 
+wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") 
+crs(wdcp) <- "EPSG:4326"
+extent(wdcp) <- extent(cmcc)
+wdcpp <- wdcp %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
+
+list.wind <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_wind", full.names = TRUE)
+wdcw <- raster::stack(list.wind) %>% mean(na.rm = T)
+crs(wdcw) <- "EPSG:4326"
+extent(wdcw) <- extent(cmcc)
+wdcww <- wdcw %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
+
+list.rsds <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE)
+wdcr <- raster::stack(list.rsds) %>% mean(na.rm = T)
+crs(wdcr) <- "EPSG:4326"
+extent(wdcr) <- extent(cmcc)
+wdcrr <- wdcr %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
+
+
 ggplot(wdctt)+
   geom_raster(aes(x = lon, y = lat, fill = ts))+
   scale_fill_distiller(type = "div", palette = 7, direction = -1)+
   labs(fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(wdcpp)+
+  geom_raster(aes(x = lon, y = lat, fill = pr))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(wdcww)+
+  geom_raster(aes(x = lon, y = lat, fill = sfcWind))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual wind speed, m/s")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(wdcrr)+
+  geom_raster(aes(x = lon, y = lat, fill = rsds))+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  labs(fill = "Average annual irradiation")+
   theme_void()+
   theme(legend.position = "bottom")
 
