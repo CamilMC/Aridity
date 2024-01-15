@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.alig
 
 ```{r libraries}
 library(raster)
+library(plyr)
 library(dplyr)
 library(ggplot2)
 library(viridisLite)
@@ -27,15 +28,44 @@ library(stringr)
 world.df <- readRDS("Worldclim/world.df.rds")
 ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
 pr.all_annual <- read.table("CMIP6/pr/pr.all_annual.txt")
-rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt")
+rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt") # units: W/m2
 sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
 ```
 
+```{r data-month}
+ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% rename(ts_01 = ts)
+ts_february <- read.table("CMIP6/ts/ts.all_february.txt") %>% select(!month) %>% rename(ts_02 = ts)
+ts_march <- read.table("CMIP6/ts/ts.all_march.txt") %>% select(!month) %>% rename(ts_03 = ts)
+ts_april <- read.table("CMIP6/ts/ts.all_april.txt") %>% select(!month) %>% rename(ts_04 = ts)
+ts_may <- read.table("CMIP6/ts/ts.all_may.txt") %>% select(!month) %>% rename(ts_05 = ts)
+ts_june <- read.table("CMIP6/ts/ts.all_june.txt") %>% select(!month) %>% rename(ts_06 = ts)
+ts_july <- read.table("CMIP6/ts/ts.all_july.txt") %>% select(!month) %>% rename(ts_07 = ts)
+ts_august <- read.table("CMIP6/ts/ts.all_august.txt") %>% select(!month) %>% rename(ts_08 = ts)
+ts_september <- read.table("CMIP6/ts/ts.all_september.txt") %>% select(!month) %>% rename(ts_09 = ts)
+ts_october <- read.table("CMIP6/ts/ts.all_october.txt") %>% select(!month) %>% rename(ts_10 = ts)
+ts_november <- read.table("CMIP6/ts/ts.all_november.txt") %>% select(!month) %>% rename(ts_11 = ts)
+ts_december <- read.table("CMIP6/ts/ts.all_december.txt") %>% select(!month) %>% rename(ts_12 = ts)
 
-# Worldclim: réanalyse pour la période 1970-2000
+ts_month <- ts_january %>% 
+  merge(ts_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_march, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_april, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_may, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_june, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_july, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_august, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_september, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_october, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_november, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_december, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))
+
+ts_month <- ts_month %>% rowwise() %>% mutate(ts_min = min(ts_01, ts_02, ts_03, ts_04, ts_05, ts_06, ts_07, ts_08, ts_09, ts_10, ts_11, ts_12)) %>% as.data.frame()
+```
+
+# Worldclim: réanalyse pour la période 1970-2000 -----
 
 ```{r worldclim}
-cmcc <- raster("CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
+cmcc <- raster("CMIP6/historical/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
 crs(cmcc) <- "EPSG:4326"
 cmcc.df <- as.data.frame(cmcc, xy = T)
 
@@ -55,12 +85,16 @@ crs(wdcw) <- "EPSG:4326"
 extent(wdcw) <- extent(cmcc)
 wdcww <- wdcw %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
 
-list.rsds <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE)
+list.rsds <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE) # unit: kJ/m2/day
 wdcr <- raster::stack(list.rsds) %>% mean(na.rm = T)
 crs(wdcr) <- "EPSG:4326"
 extent(wdcr) <- extent(cmcc)
 wdcrr <- wdcr %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
 
+elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
+crs(elev) <- "EPSG:4326"
+extent(elev) <- extent(cmcc)
+elevation <- elev %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
 
 ggplot(wdctt)+
   geom_raster(aes(x = lon, y = lat, fill = ts))+
@@ -103,13 +137,40 @@ wdcttt <- wdctt %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regi
 
 ggplot(wdcttt)+
   geom_raster(aes(x = lon, y = lat, fill = ts))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, na.value = "white")+
   labs(fill = "Average annual surface temperature, °C")+
   theme_void()+
   theme(legend.position = "bottom")
 
+wdcppp <- wdcpp %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+
+ggplot(wdcppp)+
+  geom_raster(aes(x = lon, y = lat, fill = pr))+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+wdcwww <- wdcww %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+
+ggplot(wdcwww)+
+  geom_raster(aes(x = lon, y = lat, fill = sfcWind))+
+  scale_fill_distiller(type = "seq", palette = 3, direction = 1, na.value = "white")+
+  labs(fill = "Average annual wind speed, m/s")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+wdcrrr <- wdcrr %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+
+ggplot(wdcrrr)+
+  geom_raster(aes(x = lon, y = lat, fill = rsds))+
+  scale_fill_distiller(type = "seq", palette = 7, direction = 1, na.value = "white")+
+  labs(fill = "Average annual irradiation")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
+# Boxplots of ts, pr, rsds and sfcWind from CMIP6 compared to Worldclim -----
 
 ```{r awi_future, eval = F}
 ggplot(subset(awi.ts_ipcc, Acronym %in% c("WCE", "MED")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
@@ -143,113 +204,331 @@ ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100" & lm > 0 & 
 ```
 
 ```{r all_future}
-
-
-# ggplot(subset(ts.all_annual, period == "1850_1880" & source == "AWI" & lm != 0))+
-#   geom_raster(aes(x=lon, y = lat, fill = Acronym), alpha = 0.5)+
-#   scale_fill_viridis_d()
-
-ggplot(subset(ts.all_annual, period == "1985_2015"))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
+ggplot()+geom_boxplot(data = subset(ts.all_annual, period == "1970_2000"), aes(x=source, y = ts-273, col = source))+
+    geom_boxplot(data = wdcttt, aes(x="Worldclim", y = ts, col = "Worldclim"))+
      scale_color_viridis_d(option = "A", end = 0.8)+
      labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
-
-
-ggplot()+geom_boxplot(data = subset(ts.all_annual, period == "1985_2015"), aes(x=source, y = ts-273, col = source))+
-    geom_boxplot(data = world.df, aes(x="Worldclim", y = temp, col = "Worldclim"))+
+ggplot()+geom_boxplot(data = subset(pr.all_annual, period == "1970_2000"), aes(x=source, y = pr*60*60*24*365, col = source))+ # conversion from kg/m2/s to mm/year
+    geom_boxplot(data = wdcppp, aes(x="Worldclim", y = pr, col = "Worldclim"))+
      scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+     labs(x = "", y = "Average annual precipitation, mm") + theme_minimal()
 
-ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("WCE","WAF")))+geom_boxplot(aes(x=source, y = ts-273, col = source))+
-    facet_grid(rows = vars(Name))+
+ggplot()+geom_boxplot(data = subset(rsds.all_annual, period == "1970_2000"), aes(x=source, y = rsds, col = source))+
+    geom_boxplot(data = wdcrrr, aes(x="Worldclim", y = rsds*1000/86400, col = "Worldclim"))+ # conversion from kJ/m2/day to W/m2 (1 J = 1 W.s)
      scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+     labs(x = "", y = "Average annual precipitation, kJ/m2/d") + theme_minimal()
 
+ggplot()+geom_boxplot(data = subset(sfcWind.all_annual, period == "1970_2000"), aes(x=source, y = sfcWind, col = source))+
+    geom_boxplot(data = wdcwww, aes(x="Worldclim", y = sfcWind, col = "Worldclim"))+
+     scale_color_viridis_d(option = "A", end = 0.8)+
+     labs(x = "", y = "Average annual wind speed, m/s") + theme_minimal()
 
 ```
 
-```{r diff-models-present, fig.dim = c(10,30)}
+```{r merge}
+clim <- ts.all_annual %>% 
+  merge(ts_month, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elevation, by = c("lon","lat"))
+write.table(clim, "clim.txt")
 
-ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("NES")))+
-    geom_boxplot(aes(x=source, y = ts-273, col = source))+
-  #  facet_grid(rows = vars(Name))+
-    scale_color_viridis_d(option = "A", end = 0.8)+
-    labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+# as minimum temperature we use the minimum monthly average
+```
 
-ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("MED","SAH")))+
-    geom_boxplot(aes(x=source, y = ts-273, col = source))+
-    facet_grid(rows = vars(Name))+
-    scale_color_viridis_d(option = "A", end = 0.8)+
-    labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+```{r aridity-index}
+clim$AIm <- with(clim,pr*60*60*24*365/(ts-273.15+10)) # pr in mm/y
+breaks.martonne <- c(0,5,10,20,"30","40",Inf)
+cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
+col.martonne <- c("Desert" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Temperate" = colorvec[4], "Humid"= colorvec[5],"Forest"= colorvec[6])
+clim$cat.martonne <- clim$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-ggplot(dplyr::filter(ts.all_annual, period == "1985_2015" & Acronym %in% c("WSAF","ESAF")))+
-    geom_boxplot(aes(x=source, y = ts-273, col = source))+
-    facet_grid(rows = vars(Name))+
-    scale_color_viridis_d(option = "A", end = 0.8)+
-    labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+clim$P <- with(clim, 101.3 * ((293-0.0065*z)/293)^(5.26))
+clim$es <- with(clim, ifelse((ts-273.15) > 0, 0.61078*exp(17.27*(ts-273.15)/((ts-273.15)+237.3)),  0.61078*exp(21.875*(ts-273.15)/((ts-273.15)+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+clim$delta <- with(clim, 4098*es/((ts-273.15)+237.3)^2) #slope vapor pressure
+clim$gamma <- with(clim, 0.00163*P/(2.501-52.6361e-3*(ts-273.15))) #psychrometric constant
+clim$ea <- with(clim, with(clim, ifelse((ts_min-273.15) > 0, 0.61078*exp(17.27*(ts_min-273.15)/((ts_min-273.15)+237.3)),  0.61078*exp(21.875*(ts_min-273.15)/((ts_min-273.15)+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+clim$ET0 <-with(clim, ((0.408*delta*(rsds*86400*1e-6)+gamma*900/((ts-273.15)+273)*sfcWind*(es-ea))/(delta+gamma*(1+0.34*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Irradiation is in W/m2 and is converted to MJ/m2/day
+clim$AIu <- with(clim, pr*60*60*24*365/(ET0*365))
+
+breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+
+clim$cat.AIu <- clim$AIu %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+clim_sum <- clim %>% group_by(lon, lat, model, period) %>% dplyr::summarise(ts = mean(ts, na.rm = T), pr = mean(pr, na.rm = T), AIm = mean(AIm, na.rm = T), AIu = mean(AIu, na.rm = T))
+clim_sum$cat.AIu <- clim_sum$AIu %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+write.table(clim_sum, "clim_sum.txt")
+```
+
+
+```{r plot}
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "CNRM" & AIm >= 0), aes(x=lon, y = lat,  fill = cat.martonne))+
+  geom_raster(data = subset(clim, period == "1970_2000" & source == "CNRM" & AIm < 0), aes(x=lon, y = lat), fill = "gray60")+
+    scale_fill_manual(values = col.martonne)+
+         theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "CNRM"), aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+         theme_void()+
+   theme(legend.position = "bottom")
 
 ```
 
-```{r temporal-diff}
-ggplot(dplyr::filter(ts.all_annual, Acronym %in% c("WCE","WAF")))+geom_boxplot(aes(x=period, y = ts-273, col = source))+
-    facet_grid(rows = vars(source))+
-     scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+# Plots for AI -----
 
+```{r mean-by-period-SSP245}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Historical, 1850-1880", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
 
-ggplot(ts.all_annual)+geom_boxplot(aes(x = period, y = ts-273, col = model))+
-   scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Historical, 1970-2000", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
 
-ggplot(ts.all_annual)+geom_boxplot(aes(x = source, y = ts-273, col = period))+
-      scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+# ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+#     scale_fill_manual(values = col.cat)+
+#     labs(title = "Historical, 1985-2015", fill = "")+
+#     theme_void()
 
-for(i in unique(ts.all_annual$Acronym)){
-  ggplot(filter(ts.all_annual, Acronym == i))+geom_boxplot(aes(x = period, y = ts-273, col = model))+
-    scale_color_viridis_d(option = "A", end = 0.8)+
-    facet_grid(rows = vars(source))+
-     labs(x = i, y = "Average annual temperature, °C") + theme_minimal()
-}
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "SSP245, 2030-2060", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "SSP245, 2070-2100", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+```{r mean-by-period-SSP370}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Historical, 1850-1880", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
 
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Historical, 1970-2000", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
 
-ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm == 1), aes(x = source, y = ts-273, col = source))+
-  geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
-   scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+# ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+#     scale_fill_manual(values = col.cat)+
+#     labs(title = "Historical, 1985-2015", fill = "")+
+#     theme_void()
 
-ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm == 0), aes(x = source, y = ts-273, col = source))+
-  geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
-   scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "SSP370, 2030-2060", fill = "")+
+    theme_void()
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "SSP370, 2070-2100", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+```{r mean-by-period-SSP585}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Historical, 1850-1880", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
 
-ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm != 0 & lm != 1), aes(x = source, y = ts-273, col = source))+
-  geom_boxplot(data = wdt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
-   scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Historical, 1970-2000", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
 
-ggplot(subset(ts.all_annual, period == "1970_2000" & source == "CNRM"))+
-  geom_raster(aes(x = lon, y = lat, fill = ts-273))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
-  labs(fill = "Average annual surface temperature, °C")+
+# ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+#     scale_fill_manual(values = col.cat)+
+#     labs(title = "Historical, 1985-2015", fill = "")+
+#     theme_void()
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "SSP585, 2030-2060", fill = "")+
+    theme_void()
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "SSP585, 2070-2100", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+
+# Plots for ts ----
+
+```{r mean-by-period-SSP245-ts}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "SSP245, 2030-2060", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "SSP245, 2030-2060", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+
+```{r mean-by-period-SSP370-ts}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "SSP370, 2030-2060", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "SSP370, 2030-2060", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+
+```{r mean-by-period-SSP585-ts}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "SSP585, 2030-2060", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+    labs(title = "SSP585, 2030-2060", fill = "Average annual surface temperature, °C")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+
+# Plots for pr ----
+
+```{r mean-by-period-SSP245-pr}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") 
+  
 
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
 
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat, fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "SSP245, 2030-2060", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "SSP245, 2070-21000", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
 ```
 
-```{r compare-worldclim}
-ggplot()+geom_boxplot(data = filter(ts.all_annual, period == "1970_2000" & lm != 0), aes(x = source, y = ts-273, col = source))+
-  geom_boxplot(data = wdcttt, aes(x = "Worldclim", y = ts, col ="Worldclim"))+
-   scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+```{r mean-by-period-SSP370-pr}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+  
 
-for(i in c( "MED", "WCE",  "NEU")){
-  g <- ggplot()+
-    geom_boxplot(data = filter(ts.all_annual, Acronym == i & period == "1970_2000"), aes(x = source, y = ts-273, col = source))+
-    geom_boxplot(data = filter(wdt, Acronym == i), aes(x = "Worldclim", y = ts, col ="Worldclim"))+
-    scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = i, y = "Average annual temperature, °C") + theme_minimal()
-  print(g)
-}
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat, fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "SSP370, 2030-2060", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "SSP370, 2070-21000", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+```
+
+```{r mean-by-period-SSP585-pr}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+  
+
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat, fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "SSP585, 2030-2060", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
+    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  labs(title = "SSP585, 2070-21000", fill = "Average annual precipitation, mm")+
+  theme_void()+
+  theme(legend.position = "bottom") 
 ```
