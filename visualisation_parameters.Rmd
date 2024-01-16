@@ -62,6 +62,22 @@ ts_month <- ts_january %>%
 ts_month <- ts_month %>% rowwise() %>% mutate(ts_min = min(ts_01, ts_02, ts_03, ts_04, ts_05, ts_06, ts_07, ts_08, ts_09, ts_10, ts_11, ts_12)) %>% as.data.frame()
 ```
 
+```{r proba-models}
+v<-NULL
+v2<-NULL
+for (N in 10:100) {
+  v<-c(v,sum(sapply(floor(2*N/3):N,function(i) choose(N,i)*(1/2)^N*2)))# proba d'avoir 2/3 de même signe à partir de N modèles, lorsque N change
+  v2<-c(v2,sum(sapply(floor(2*N/3):N,function(i) choose(N,i)*(1/2)^N)))# proba d'avoir 2/3 de signe >0 à partir de N modèles, lorsque N change
+}
+
+
+plot(10:100,v,type="l",ylab="Proba(>2/3 models...)",xlab="Nb of models")
+lines(10:100,v2,col="red")
+
+legend("topright",c("même signe","signe >0"),col=c("black","red"),lty=1)
+
+```
+
 # Worldclim: réanalyse pour la période 1970-2000 -----
 
 ```{r worldclim}
@@ -95,34 +111,6 @@ elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif")
 crs(elev) <- "EPSG:4326"
 extent(elev) <- extent(cmcc)
 elevation <- elev %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
-
-ggplot(wdctt)+
-  geom_raster(aes(x = lon, y = lat, fill = ts))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
-  labs(fill = "Average annual surface temperature, °C")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-ggplot(wdcpp)+
-  geom_raster(aes(x = lon, y = lat, fill = pr))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
-  labs(fill = "Average annual precipitation, mm")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-ggplot(wdcww)+
-  geom_raster(aes(x = lon, y = lat, fill = sfcWind))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
-  labs(fill = "Average annual wind speed, m/s")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-ggplot(wdcrr)+
-  geom_raster(aes(x = lon, y = lat, fill = rsds))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1)+
-  labs(fill = "Average annual irradiation")+
-  theme_void()+
-  theme(legend.position = "bottom")
 
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
 extent(land_mask) <- extent(cmcc)
@@ -172,7 +160,7 @@ ggplot(wdcrrr)+
 
 # Boxplots of ts, pr, rsds and sfcWind from CMIP6 compared to Worldclim -----
 
-```{r awi_future, eval = F}
+```{r test-awi_future, eval = F}
 ggplot(subset(awi.ts_ipcc, Acronym %in% c("WCE", "MED")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
       facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
       labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
@@ -233,17 +221,15 @@ clim <- ts.all_annual %>%
   merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elevation, by = c("lon","lat"))
-write.table(clim, "clim.txt")
-
 # as minimum temperature we use the minimum monthly average
 ```
 
 ```{r aridity-index}
-clim$AIm <- with(clim,pr*60*60*24*365/(ts-273.15+10)) # pr in mm/y
+clim$AIm <- with(clim,pr*60*60*24*365/(ts-273.15+10)) # pr in mm/y, ts in Ceslsius
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
 col.martonne <- c("Desert" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Temperate" = colorvec[4], "Humid"= colorvec[5],"Forest"= colorvec[6])
-clim$cat.martonne <- clim$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+clim$cat.AIm <- clim$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
 clim$P <- with(clim, 101.3 * ((293-0.0065*z)/293)^(5.26))
 clim$es <- with(clim, ifelse((ts-273.15) > 0, 0.61078*exp(17.27*(ts-273.15)/((ts-273.15)+237.3)),  0.61078*exp(21.875*(ts-273.15)/((ts-273.15)+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
@@ -260,17 +246,20 @@ col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorve
 clim$cat.AIu <- clim$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
+
 clim_sum <- clim %>% group_by(lon, lat, model, period) %>% dplyr::summarise(ts = mean(ts, na.rm = T), pr = mean(pr, na.rm = T), AIm = mean(AIm, na.rm = T), AIu = mean(AIu, na.rm = T))
 clim_sum$cat.AIu <- clim_sum$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+clim_sum$cat.AIm <- clim_sum$AIm %>% cut(breaks = breaks.martonne) %>% 
+  revalue(cat.martonne)
 write.table(clim_sum, "clim_sum.txt")
 ```
 
 
 ```{r plot}
 
-ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "CNRM" & AIm >= 0), aes(x=lon, y = lat,  fill = cat.martonne))+
-  geom_raster(data = subset(clim, period == "1970_2000" & source == "CNRM" & AIm < 0), aes(x=lon, y = lat), fill = "gray60")+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm >= 0), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm < 0), aes(x=lon, y = lat), fill = "gray60")+
     scale_fill_manual(values = col.martonne)+
          theme_void()+
    theme(legend.position = "bottom")
@@ -334,7 +323,9 @@ ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
     scale_fill_manual(values = col.cat)+
     labs(title = "SSP370, 2030-2060", fill = "")+
-    theme_void()
+    theme_void()+
+   theme(legend.position = "bottom")
+
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
     scale_fill_manual(values = col.cat)+
     labs(title = "SSP370, 2070-2100", fill = "")+
@@ -532,3 +523,60 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geo
   theme_void()+
   theme(legend.position = "bottom") 
 ```
+
+# Plots AI martonne
+
+```{r mean-by-period-SSP370}
+ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = "Historical, 1850-1880", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = "Historical, 1970-2000", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+# ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+#     scale_fill_manual(values = col.cat)+
+#     labs(title = "Historical, 1985-2015", fill = "")+
+#     theme_void()
+
+ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = "SSP370, 2030-2060", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+
+ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = "SSP370, 2070-2100", fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+```
+
+```{r plot-historical-AIm-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP370-AIm-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & model = "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+``` 
