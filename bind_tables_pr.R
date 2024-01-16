@@ -292,6 +292,9 @@ bccm_ipcc <- merge(bccm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(bccm_ipcc, "Aridity/CMIP6/bccm.pr_ipcc.txt")
 
+
+# CAMS ----
+
 ## Annual ----
 
 cams_annual <- mutate(read.table("/bettik/crapartc/Averages/pr/cams.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880") %>% 
@@ -430,7 +433,8 @@ write.table(camsm_ipcc, "Aridity/CMIP6/camsm.pr_ipcc.txt")
 
 ## Annual ----
 
-cesm_annual <- rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880"), mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.pr.txt"), model = "historical", period = "1970_2000")) %>%
+cesm_annual <- mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880") %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1970-2000.pr.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.hist.1985-2015.pr.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.ssp245.2030-2060.pr.txt"), model = "SSP245", period = "2030_2060")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/cesm.ssp245.2070-2100.pr.txt"), model = "SSP245", period = "2070_2100")) %>%
@@ -965,7 +969,7 @@ fgoalsm_ipcc <- merge(fgoalsm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(fgoalsm_ipcc, "Aridity/CMIP6/fgoalsm.pr_ipcc.txt")
 
-# INM
+# INM -------
 
 ## Annual
 inm_annual <- mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880") %>%
