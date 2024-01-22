@@ -593,9 +593,6 @@ col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorve
 ```{r PM-perso-civ} 
 unesco.civ <- civ %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
 
-unesco.civ$tmax <- apply(dplyr::select(civ, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
-unesco.civ$tmin <- apply(dplyr::select(civ, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
-
 unesco.civ$es <- with(unesco.civ, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
 unesco.civ$delta <- with(unesco.civ, 4098*es/(temp+237.3)^2) #slope vapor pressure
 unesco.civ$gamma <- with(unesco.civ, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant

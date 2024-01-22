@@ -16,10 +16,14 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.alig
 
 ```{r libraries}
 library(raster)
+
 library(plyr)
 library(dplyr)
+
 library(ggplot2)
 library(viridisLite)
+library(colorspace)
+
 library(sf)
 library(stringr)
 ```
@@ -33,18 +37,18 @@ sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
 ```
 
 ```{r data-month}
-ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% rename(ts_01 = ts)
-ts_february <- read.table("CMIP6/ts/ts.all_february.txt") %>% select(!month) %>% rename(ts_02 = ts)
-ts_march <- read.table("CMIP6/ts/ts.all_march.txt") %>% select(!month) %>% rename(ts_03 = ts)
-ts_april <- read.table("CMIP6/ts/ts.all_april.txt") %>% select(!month) %>% rename(ts_04 = ts)
-ts_may <- read.table("CMIP6/ts/ts.all_may.txt") %>% select(!month) %>% rename(ts_05 = ts)
-ts_june <- read.table("CMIP6/ts/ts.all_june.txt") %>% select(!month) %>% rename(ts_06 = ts)
-ts_july <- read.table("CMIP6/ts/ts.all_july.txt") %>% select(!month) %>% rename(ts_07 = ts)
-ts_august <- read.table("CMIP6/ts/ts.all_august.txt") %>% select(!month) %>% rename(ts_08 = ts)
-ts_september <- read.table("CMIP6/ts/ts.all_september.txt") %>% select(!month) %>% rename(ts_09 = ts)
-ts_october <- read.table("CMIP6/ts/ts.all_october.txt") %>% select(!month) %>% rename(ts_10 = ts)
-ts_november <- read.table("CMIP6/ts/ts.all_november.txt") %>% select(!month) %>% rename(ts_11 = ts)
-ts_december <- read.table("CMIP6/ts/ts.all_december.txt") %>% select(!month) %>% rename(ts_12 = ts)
+ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% dplyr::rename(ts_01 = ts)
+ts_february <- read.table("CMIP6/ts/ts.all_february.txt") %>% select(!month) %>% dplyr::rename(ts_02 = ts)
+ts_march <- read.table("CMIP6/ts/ts.all_march.txt") %>% select(!month) %>% dplyr::rename(ts_03 = ts)
+ts_april <- read.table("CMIP6/ts/ts.all_april.txt") %>% select(!month) %>% dplyr::rename(ts_04 = ts)
+ts_may <- read.table("CMIP6/ts/ts.all_may.txt") %>% select(!month) %>% dplyr::rename(ts_05 = ts)
+ts_june <- read.table("CMIP6/ts/ts.all_june.txt") %>% select(!month) %>% dplyr::rename(ts_06 = ts)
+ts_july <- read.table("CMIP6/ts/ts.all_july.txt") %>% select(!month) %>% dplyr::rename(ts_07 = ts)
+ts_august <- read.table("CMIP6/ts/ts.all_august.txt") %>% select(!month) %>% dplyr::rename(ts_08 = ts)
+ts_september <- read.table("CMIP6/ts/ts.all_september.txt") %>% select(!month) %>% dplyr::rename(ts_09 = ts)
+ts_october <- read.table("CMIP6/ts/ts.all_october.txt") %>% select(!month) %>% dplyr::rename(ts_10 = ts)
+ts_november <- read.table("CMIP6/ts/ts.all_november.txt") %>% select(!month) %>% dplyr::rename(ts_11 = ts)
+ts_december <- read.table("CMIP6/ts/ts.all_december.txt") %>% select(!month) %>% dplyr::rename(ts_12 = ts)
 
 ts_month <- ts_january %>% 
   merge(ts_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
@@ -59,7 +63,7 @@ ts_month <- ts_january %>%
     merge(ts_november, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
     merge(ts_december, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))
 
-ts_month <- ts_month %>% rowwise() %>% mutate(ts_min = min(ts_01, ts_02, ts_03, ts_04, ts_05, ts_06, ts_07, ts_08, ts_09, ts_10, ts_11, ts_12)) %>% as.data.frame()
+ts_month$ts_min <- apply(select(ts_month,c("ts_01", "ts_02", "ts_03", "ts_04", "ts_05", "ts_06", "ts_07", "ts_08", "ts_09", "ts_10", "ts_11", "ts_12")), 1, FUN = min, na.rm = T)
 ```
 
 ```{r proba-models}
@@ -268,6 +272,10 @@ ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "CN
     scale_fill_manual(values = col.cat)+
          theme_void()+
    theme(legend.position = "bottom")
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "CNRM"), aes(x=lon, y = lat,  fill = AIu))+
+    #scale_fill_manual(values = col.cat)+
+         theme_void()+
+   theme(legend.position = "bottom")
 
 ```
 
@@ -363,6 +371,104 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geo
 
 # Plots for ts ----
 
+## By source
+
+```{r plot-1850_1880-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
+g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-historical-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP245-2030-2060-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP245-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP370-2030-2060-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP370-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+```{r plot-SSP585-2030-2060-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP585-ts-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+## Multimodel average
+
 ```{r mean-by-period-SSP245-ts}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
@@ -442,6 +548,104 @@ scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,3
 ```
 
 # Plots for pr ----
+
+## By source
+
+```{r plot-1850_1880-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
+g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-historical-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+```{r plot-SSP245-2030-2060-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+  labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP245-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP370-2030-2060-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+        scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP370-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+```{r plot-SSP585-2030-2060-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+        scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP585-pr-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+## Multimodal average
 
 ```{r mean-by-period-SSP245-pr}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
@@ -526,6 +730,34 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geo
 
 # Plots AI martonne
 
+## By source
+
+```{r plot-historical-AIm-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r plot-SSP370-AIm-by-model}
+for(i in unique(clim$source)){
+plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+g <- ggplot(data = filter(clim, period == "2070_2100" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne, na.value = "gray")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+``` 
+
+## Multimodel average 
+
 ```{r mean-by-period-SSP370}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
     scale_fill_manual(values = col.martonne, na.value = "gray")+
@@ -557,26 +789,3 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
    theme(legend.position = "bottom")
 ```
 
-```{r plot-historical-AIm-by-model}
-for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
-    scale_fill_manual(values = col.martonne, na.value = "gray")+
-    labs(title = plottitle, fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
-```
-
-```{r plot-SSP370-AIm-by-model}
-for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & model = "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
-    scale_fill_manual(values = col.martonne, na.value = "gray")+
-    labs(title = plottitle, fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
-``` 
