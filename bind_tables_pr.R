@@ -8,7 +8,6 @@ library(stringr)
 # Masks ---- 
 cmcc <- raster("/bettik/crapartc/CMIP6/pr/pr_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
 crs(cmcc) <- "EPSG:4326"
-cmcc.df <- as.data.frame(ex_raster, xy = T)
 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 extent(land_mask) <- extent(cmcc)
@@ -1053,6 +1052,7 @@ inm_monthly <- mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-188
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.jul.pr.txt"), model = "SSP585", period = "2030_2060", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.jul.pr.txt"), model = "SSP585", period = "2070_2100", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.agu.pr.txt"), model = "historical", period = "1850_1880", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.agu.pr.txt"), model = "historical", period = "1970_2000", month = 8)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.agu.pr.txt"), model = "historical", period = "1985_2015", month = 8)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.agu.pr.txt"), model = "SSP245", period = "2030_2060", month = 8)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.agu.pr.txt"), model = "SSP245", period = "2070_2100", month = 8)) %>%
@@ -1063,38 +1063,39 @@ inm_monthly <- mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-188
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.agu.pr.txt"), model = "historical", period = "1850_1880", month = 9)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.agu.pr.txt"), model = "historical", period = "1970_2000", month = 9)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.agu.pr.txt"), model = "historical", period = "1985_2015", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.agu.pr.txt"), model = "SSP245", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.agu.pr.txt"), model = "SSP245", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.agu.pr.txt"), model = "SSP370", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.agu.pr.txt"), model = "SSP370", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.agu.pr.txt"), model = "SSP585", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.agu.pr.txt"), model = "SSP585", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.sep.pr.txt"), model = "historical", period = "1850_1880", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.sep.pr.txt"), model = "historical", period = "1970_2000", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.sep.pr.txt"), model = "historical", period = "1985_2015", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.sep.pr.txt"), model = "SSP245", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.sep.pr.txt"), model = "SSP245", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.sep.pr.txt"), model = "SSP370", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.sep.pr.txt"), model = "SSP370", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.sep.pr.txt"), model = "SSP585", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.sep.pr.txt"), model = "SSP585", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.oct.pr.txt"), model = "historical", period = "1850_1880", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.oct.pr.txt"), model = "historical", period = "1985_2015", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.oct.pr.txt"), model = "SSP245", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.oct.pr.txt"), model = "SSP245", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.oct.pr.txt"), model = "SSP370", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.oct.pr.txt"), model = "SSP370", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.oct.pr.txt"), model = "SSP585", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.oct.pr.txt"), model = "SSP585", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.nov.pr.txt"), model = "historical", period = "1850_1880", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.nov.pr.txt"), model = "historical", period = "1970_2000", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.nov.pr.txt"), model = "historical", period = "1985_2015", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.nov.pr.txt"), model = "SSP245", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.nov.pr.txt"), model = "SSP245", period = "2070_2100", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.nov.pr.txt"), model = "SSP370", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.nov.pr.txt"), model = "SSP370", period = "2070_2100", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.nov.pr.txt"), model = "SSP585", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.nov.pr.txt"), model = "SSP585", period = "2070_2100", month = 12)) 
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.sep.pr.txt"), model = "SSP245", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.sep.pr.txt"), model = "SSP245", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.sep.pr.txt"), model = "SSP370", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.sep.pr.txt"), model = "SSP370", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.sep.pr.txt"), model = "SSP585", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.sep.pr.txt"), model = "SSP585", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.oct.pr.txt"), model = "historical", period = "1850_1880", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.oct.pr.txt"), model = "historical", period = "1970_2000", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.oct.pr.txt"), model = "historical", period = "1985_2015", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.oct.pr.txt"), model = "SSP245", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.oct.pr.txt"), model = "SSP245", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.oct.pr.txt"), model = "SSP370", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.oct.pr.txt"), model = "SSP370", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.oct.pr.txt"), model = "SSP585", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.oct.pr.txt"), model = "SSP585", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.nov.pr.txt"), model = "historical", period = "1850_1880", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.nov.pr.txt"), model = "historical", period = "1970_2000", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.nov.pr.txt"), model = "historical", period = "1985_2015", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.nov.pr.txt"), model = "SSP245", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.nov.pr.txt"), model = "SSP245", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.nov.pr.txt"), model = "SSP370", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.nov.pr.txt"), model = "SSP370", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.nov.pr.txt"), model = "SSP585", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.nov.pr.txt"), model = "SSP585", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1850-1880.dec.pr.txt"), model = "historical", period = "1850_1880", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1970-2000.dec.pr.txt"), model = "historical", period = "1970_2000", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.hist.1985-2015.dec.pr.txt"), model = "historical", period = "1985_2015", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2030-2060.dec.pr.txt"), model = "SSP245", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp245.2070-2100.dec.pr.txt"), model = "SSP245", period = "2070_2100", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2030-2060.dec.pr.txt"), model = "SSP370", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp370.2070-2100.dec.pr.txt"), model = "SSP370", period = "2070_2100", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2030-2060.dec.pr.txt"), model = "SSP585", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/pr/inm.ssp585.2070-2100.dec.pr.txt"), model = "SSP585", period = "2070_2100", month = 12)) 
 
 inmm_land <- merge(inm_monthly, land_mask.df, by = c("lon", "lat")) 
 inmm_ipcc <- merge(inmm_land, ipcc_regions.df, by = c("lon", "lat"))
@@ -1374,7 +1375,8 @@ write.table(mrim_ipcc, "Aridity/CMIP6/mrim.pr_ipcc.txt")
 
 # ALL pr ANNUAL ----- 
 
-all_annual <- rbind(mutate(read.table("Aridity/CMIP6/awi.pr_ipcc.txt"), source = "AWI"),mutate(read.table("Aridity/CMIP6/bcc.pr_ipcc.txt"), source = "BCC")) %>%
+all_annual <- mutate(read.table("Aridity/CMIP6/awi.pr_ipcc.txt"), source = "AWI") %>% 
+  rbind(mutate(read.table("Aridity/CMIP6/bcc.pr_ipcc.txt"), source = "BCC")) %>%
   rbind(mutate(read.table("Aridity/CMIP6/cams.pr_ipcc.txt"), source = "CAMS")) %>%
   rbind(mutate(read.table("Aridity/CMIP6/cesm.pr_ipcc.txt"), source = "CESM")) %>%
   rbind(mutate(read.table("Aridity/CMIP6/cmcc.pr_ipcc.txt"), source = "CMCC")) %>%
