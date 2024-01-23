@@ -6,16 +6,11 @@ library(stringr)
 
 
 # Masks ---- 
-cmcc <- raster("/bettik/crapartc/CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
-crs(cmcc) <- "EPSG:4326"
-
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
-extent(land_mask) <- extent(cmcc)
-land_mask <-  projectRaster(from = land_mask, to = cmcc)
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
 ipcc_regions <- shapefile("Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
-ipcc_regions.raster <- ipcc_regions %>% rasterize(cmcc)
+ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
 
@@ -31,8 +26,8 @@ awi_annual <- rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.185
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp370.2030-2060.ts.txt"), model = "SSP370", period = "2030_2060")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp370.2070-2100.ts.txt"), model = "SSP370", period = "2070_2100")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2030-2060.ts.txt"), model = "SSP585", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2070-2100.ts.txt"), model = "SSP585", period = "2070_2100"))
-
+  rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2070-2100.ts.txt"), model = "SSP585", period = "2070_2100")) %>%
+  
 awi_land <- merge(awi_annual, land_mask.df, by = c("lon", "lat")) 
 awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon", "lat"))
 
