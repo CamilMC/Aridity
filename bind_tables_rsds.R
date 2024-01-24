@@ -10,7 +10,7 @@ land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4")
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
 ipcc_regions <- shapefile("Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
-ipcc_regions.raster <- ipcc_regions %>% rasterize(cmcc)
+ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
 
@@ -32,8 +32,6 @@ awi_land <- merge(awi_annual, land_mask.df, by = c("lon", "lat"))
 awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(awi_ipcc, "Aridity/CMIP6/awi.rsds_ipcc.txt")
-
-
 ## Monthly ---- 
 
 awi_monthly <- mutate(read.table("/bettik/crapartc/Averages/rsds/awi.hist.1850-1880.jan.rsds.txt"), model = "historical", period = "1850_1880", month = 1) %>%
@@ -151,7 +149,6 @@ awim_ipcc <- merge(awim_land, ipcc_regions.df, by = c("lon", "lat"))
 write.table(awim_ipcc, "Aridity/CMIP6/awim.rsds_ipcc.txt")
 
 # BCC  ---- 
-
 ## Annual ---- 
 
 bcc_annual <- mutate(read.table("/bettik/crapartc/Averages/rsds/bcc.hist.1850-1880.rsds.txt"), model = "historical", period = "1850_1880") %>% 
@@ -419,8 +416,6 @@ camsm_land <- merge(cams_monthly, land_mask.df, by = c("lon", "lat"))
 camsm_ipcc <- merge(camsm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(camsm_ipcc, "Aridity/CMIP6/camsm.rsds_ipcc.txt")
-
-
 # CESM ----
 
 ## Annual ----
@@ -555,7 +550,6 @@ cesmm_ipcc <- merge(cesmm_land, ipcc_regions.df, by = c("lon", "lat"))
 write.table(cesmm_ipcc, "Aridity/CMIP6/cesmm.rsds_ipcc.txt")
 
 # CMCC ----
-
 ## Annual -----
 
 cmcc_annual <- mutate(read.table("/bettik/crapartc/Averages/rsds/cmcc.hist.1850-1880.rsds.txt"), model = "historical", period = "1850_1880") %>%
@@ -574,7 +568,6 @@ cmcc_ipcc <- merge(cmcc_land, ipcc_regions.df, by = c("lon", "lat"))
 write.table(cmcc_ipcc, "Aridity/CMIP6/cmcc.rsds_ipcc.txt")
 
 ## Monthly ---- 
-
 cmcc_monthly <- mutate(read.table("/bettik/crapartc/Averages/rsds/cmcc.hist.1850-1880.jan.rsds.txt"), model = "historical", period = "1850_1880", month = 1) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/rsds/cmcc.hist.1970-2000.jan.rsds.txt"), model = "historical", period = "1970_2000", month = 1)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/rsds/cmcc.hist.1985-2015.jan.rsds.txt"), model = "historical", period = "1985_2015", month = 1)) %>%
@@ -842,8 +835,6 @@ fgoals_land <- merge(fgoals_annual, land_mask.df, by = c("lon", "lat"))
 fgoals_ipcc <- merge(fgoals_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(fgoals_ipcc, "Aridity/CMIP6/fgoals.rsds_ipcc.txt")
-
-
 ## Monthly ---- 
 
 fgoals_monthly <- mutate(read.table("/bettik/crapartc/Averages/rsds/fgoals.hist.1850-1880.jan.rsds.txt"), model = "historical", period = "1850_1880", month = 1) %>%
@@ -1092,8 +1083,6 @@ inmm_land <- merge(inm_monthly, land_mask.df, by = c("lon", "lat"))
 inmm_ipcc <- merge(inmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(inmm_ipcc, "Aridity/CMIP6/inmm.rsds_ipcc.txt")
-
-
 # MPI ---- 
 
 ## Annual ----

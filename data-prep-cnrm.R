@@ -9,8 +9,6 @@ land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4")
 ## historical 1850-1880 ----------
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CNRM-CM6-1-HR_historical_r1i1p1f2_gr_185001-201412.nc"
-
-
 ### annual mean --------------
 ts.stack <- raster::stack(list.nf, bands = c(1:360)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -69,8 +67,6 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cnrm.hist.1850-1880.
 ## historical 1970-2000 ----------
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CNRM-CM6-1-HR_historical_r1i1p1f2_gr_185001-201412.nc"
-
-
 ### annual mean --------------
 ts.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -125,8 +121,6 @@ write.table(nov.ts.df, file = "/bettik/crapartc/Averages/ts/cnrm.hist.1970-2000.
 dec.ts.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1812, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cnrm.hist.1970-2000.dec.ts.txt")
-
-
 ## historical 1985-2015 =========
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CNRM-CM6-1-HR_historical_r1i1p1f2_gr_185001-201412.nc"
@@ -184,9 +178,6 @@ write.table(nov.ts.df, file = "/bettik/crapartc/Averages/ts/cnrm.hist.1985-2015.
 dec.ts.stack <- raster::stack(list.nf, bands = seq(from = 1632, to = 1979, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cnrm.hist.1985-2015.dec.ts.txt")
-
-
-
 ## SSP245 2030-2060 ========
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CNRM-CM6-1-HR_ssp245_r1i1p1f2_gr_201501-210012.nc"
@@ -540,12 +531,8 @@ dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cnrm.ssp585.2070-2100.dec.ts.txt")
 
 # Average-cnrm-precipitation -----   
-
 ## historical 1850-1880 ----
-
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CNRM-CM6-1-HR_historical_r1i1p1f2_gr_185001-201412.nc"
-
-
 ### annual mean ----- 
 
 pr.stack <- raster::stack(list.nf, bands = c(1:360)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -606,7 +593,6 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cnrm.hist.1850-1880.
 
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CNRM-CM6-1-HR_historical_r1i1p1f2_gr_185001-201412.nc"
 
-
 ### annual mean ----- 
 
 pr.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -662,7 +648,6 @@ write.table(nov.pr.df, file = "/bettik/crapartc/Averages/pr/cnrm.hist.1970-2000.
 dec.pr.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cnrm.hist.1970-2000.dec.pr.txt")
-
 
 ## historical 1985-2015 ----
 
