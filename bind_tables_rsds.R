@@ -6,12 +6,7 @@ library(stringr)
 
 
 # Masks ---- 
-cmcc <- raster("/bettik/crapartc/CMIP6/rsds/rsds_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
-crs(cmcc) <- "EPSG:4326"
-
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
-extent(land_mask) <- extent(cmcc)
-land_mask <-  projectRaster(from = land_mask, to = cmcc)
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
 ipcc_regions <- shapefile("Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
