@@ -26,18 +26,14 @@ library(colorspace)
 
 library(sf)
 library(stringr)
+
+colorvec <- viridis(n = 7, direction = -1)
 ```
 
 # Data
 
 
-```{r data}
-world.df <- readRDS("Worldclim/world.df.rds")
-ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
-pr.all_annual <- read.table("CMIP6/pr/pr.all_annual.txt")
-rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt") # units: W/m2
-sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
-```
+
 
 ```{r data-month}
 ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% dplyr::rename(ts_01 = ts)
@@ -54,7 +50,7 @@ ts_november <- read.table("CMIP6/ts/ts.all_november.txt") %>% select(!month) %>%
 ts_december <- read.table("CMIP6/ts/ts.all_december.txt") %>% select(!month) %>% dplyr::rename(ts_12 = ts)
 
 ts_month <- ts_january %>% 
-  merge(ts_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+    merge(ts_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
     merge(ts_march, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
     merge(ts_april, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
     merge(ts_may, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
@@ -69,6 +65,160 @@ ts_month <- ts_january %>%
 ts_month$ts_min <- apply(select(ts_month,c("ts_01", "ts_02", "ts_03", "ts_04", "ts_05", "ts_06", "ts_07", "ts_08", "ts_09", "ts_10", "ts_11", "ts_12")), 1, FUN = min, na.rm = T)
 
 write.table(ts_month, "CMIP6/ts/ts_month.txt")
+```
+
+```{r test-months}
+for(i in unique(ts.all_annual$model)){
+  df <- ts_january %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_01-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_february %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_02-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_march %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_03-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_april %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_04-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_may %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_05-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_june %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_06-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_july %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_07-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_august %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_08-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_september %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_09-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_october %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_10-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_november %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_11-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+
+for(i in unique(ts.all_annual$model)){
+  df <- ts_december %>% subset(model == i)
+for(j in unique(df$period)){
+g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_12-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = paste(i, j, sep = ","), fill = "")+
+    theme_void()+
+   theme(legend.position = "bottom")
+print(g)
+}
+}
+```
+
+```{r data}
+ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
+pr.all_annual <- read.table("CMIP6/pr/pr.all_annual.txt")
+rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt") # units: W/m2
+sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
+ts_month <- read.table("CMIP6/ts/ts_month.txt")
 ```
 
 ```{r proba-models}
@@ -110,27 +260,16 @@ ggplot(data = awi) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
 
 
 ```{r land-masks}
-
-
-
-cmcc2 <- cmcc
-crs(cmcc2) <- "EPSG:4326"
-plot(cmcc2)
-
-elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
-crs(elev) <- "EPSG:4326"
-extent(elev) <- extent(cmcc)
-elevation <- elev %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
-
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
-plot(land_mask)
-extent(land_mask) <- extent(cmcc)
-land_mask2 <-  projectRaster(from = land_mask, to = cmcc)
-plot(land_mask2)
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
+
+elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
+elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
+
+
 ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
-ipcc_regions.raster <- ipcc_regions %>% rasterize(cmcc)
+ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
 ```
@@ -138,31 +277,19 @@ ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lo
 # Worldclim: réanalyse pour la période 1970-2000 -----
 
 ```{r worldclim}
-cmcc <- raster("CMIP6/historical/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc")
-crs(cmcc) <- "EPSG:4326"
-cmcc.df <- as.data.frame(cmcc, xy = T)
-
 wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") 
-crs(wdct) <- "EPSG:4326"
-extent(wdct) <- extent(cmcc)
-wdctt <- wdct %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","ts"))
+wdctt <- wdct %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","ts"))
 
 wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") 
-crs(wdcp) <- "EPSG:4326"
-extent(wdcp) <- extent(cmcc)
-wdcpp <- wdcp %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
+wdcpp <- wdcp %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
 
 list.wind <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_wind", full.names = TRUE)
 wdcw <- raster::stack(list.wind) %>% mean(na.rm = T)
-crs(wdcw) <- "EPSG:4326"
-extent(wdcw) <- extent(cmcc)
-wdcww <- wdcw %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
+wdcww <- wdcw %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
 
 list.rsds <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE) # unit: kJ/m2/day
 wdcr <- raster::stack(list.rsds) %>% mean(na.rm = T)
-crs(wdcr) <- "EPSG:4326"
-extent(wdcr) <- extent(cmcc)
-wdcrr <- wdcr %>% projectRaster(to = cmcc) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
+wdcrr <- wdcr %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
 
 wdcttt <- wdctt %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
 
@@ -265,7 +392,7 @@ clim <- ts.all_annual %>%
   merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>% 
-  merge(elevation, by = c("lon","lat"))
+  merge(elev.df, by = c("lon","lat"))
 # as minimum temperature we use the minimum monthly average
 ```
 
@@ -285,7 +412,7 @@ clim$ET0 <-with(clim, ((0.408*delta*(rsds*86400*1e-6)+gamma*900/((ts-273.15)+273
 clim$AIu <- with(clim, pr*60*60*24*365/(ET0*365))
 
 breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+cat.unesco <- c("[-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
 
 clim$cat.AIu <- clim$AIu %>% cut(breaks = breaks.unesco) %>% 
