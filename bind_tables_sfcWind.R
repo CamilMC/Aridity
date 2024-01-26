@@ -3,8 +3,6 @@
 library(raster)
 library(dplyr)
 library(stringr)
-
-
 # Masks ---- 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
@@ -12,9 +10,6 @@ land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm"
 ipcc_regions <- shapefile("Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
 ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
-
-
-
 # AWI ---- 
 ## Annual ---- 
 
@@ -1357,7 +1352,8 @@ write.table(mrim_ipcc, "Aridity/CMIP6/mrim.sfcWind_ipcc.txt")
 
 # ALL sfcWind ANNUAL ----- 
 
-all_annual <- rbind(mutate(read.table("Aridity/CMIP6/awi.sfcWind_ipcc.txt"), source = "AWI"),mutate(read.table("Aridity/CMIP6/bcc.sfcWind_ipcc.txt"), source = "BCC")) %>%
+all_annual <- mutate(read.table("Aridity/CMIP6/awi.sfcWind_ipcc.txt"), source = "AWI") %>%
+  rbind(mutate(read.table("Aridity/CMIP6/bcc.sfcWind_ipcc.txt"), source = "BCC")) %>%
   rbind(mutate(read.table("Aridity/CMIP6/cams.sfcWind_ipcc.txt"), source = "CAMS")) %>%
   rbind(mutate(read.table("Aridity/CMIP6/cesm.sfcWind_ipcc.txt"), source = "CESM")) %>%
   rbind(mutate(read.table("Aridity/CMIP6/cmcc.sfcWind_ipcc.txt"), source = "CMCC")) %>%

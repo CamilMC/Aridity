@@ -15,19 +15,21 @@ ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lo
 
 ## Annual ---- 
 
-awi_annual <- rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1850-1880.ts.txt"), model = "historical", period = "1850_1880"), mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1970-2000.ts.txt"), model = "historical", period = "1970_2000")) %>%
+awi_annual <- mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1850-1880.ts.txt"), model = "historical", period = "1850_1880") %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1970-2000.ts.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1985-2015.ts.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp245.2030-2060.ts.txt"), model = "SSP245", period = "2030_2060")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp245.2070-2100.ts.txt"), model = "SSP245", period = "2070_2100")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp370.2030-2060.ts.txt"), model = "SSP370", period = "2030_2060")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp370.2070-2100.ts.txt"), model = "SSP370", period = "2070_2100")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2030-2060.ts.txt"), model = "SSP585", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2070-2100.ts.txt"), model = "SSP585", period = "2070_2100")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/ts/awi.ssp585.2070-2100.ts.txt"), model = "SSP585", period = "2070_2100"))
   
 awi_land <- merge(awi_annual, land_mask.df, by = c("lon", "lat")) 
 awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(awi_ipcc, "Aridity/CMIP6/awi.ts_ipcc.txt")
+
 ## Monthly ---- 
 
 awi_monthly <- mutate(read.table("/bettik/crapartc/Averages/ts/awi.hist.1850-1880.jan.ts.txt"), model = "historical", period = "1850_1880", month = 1) %>%

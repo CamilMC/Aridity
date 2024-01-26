@@ -69,7 +69,7 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cmcc.hist.1850-1880.
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc"
 
 ### annual mean --------------
-ts.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = TRUE)
+ts.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = TRUE) %>% raster::rotate() %>% projectRaster(land_mask)
 ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(ts.df, file = "/bettik/crapartc/Averages/ts/cmcc.hist.1970-2000.ts.txt")
 
@@ -122,8 +122,6 @@ write.table(nov.ts.df, file = "/bettik/crapartc/Averages/ts/cmcc.hist.1970-2000.
 dec.ts.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1812, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cmcc.hist.1970-2000.dec.ts.txt")
-
-
 ## historical 1985-2015 =========
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -1063,7 +1061,6 @@ dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"
 write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cmcc.ssp585.2070-2100.dec.pr.txt")
 
 # Average-cmcc-irradition -----   
-
 ## historical 1850-1880 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/rsds/rsds_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -1643,8 +1640,6 @@ write.table(nov.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cmcc.hist.
 dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cmcc.hist.1850-1880.dec.sfcWind.txt")
-
-
 ## historical 1970-2000 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_CMCC-CM2-SR5_historical_r1i1p1f1_gn_185001-201412.nc"
