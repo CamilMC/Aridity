@@ -23,11 +23,13 @@ library(dplyr)
 library(ggplot2)
 library(viridisLite)
 library(colorspace)
+library(RColorBrewer)
 
 library(sf)
 library(stringr)
 
-colorvec <- viridis(n = 8, direction = -1)
+display.brewer.pal(n = 11, name ="RdYlBu")
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 ```
 
 # Data
@@ -457,7 +459,10 @@ write.table(clim, "clim.txt")
 ```
 
 ```{r clim-summary}
-clim_sum <- clim %>% subset(source != "Wordlclim") %>% group_by(lon, lat, model, period) %>% dplyr::summarise(ts = mean(ts, na.rm = T), pr = mean(pr, na.rm = T), AIm = mean(AIm, na.rm = T), AIu = mean(AIu, na.rm = T))
+clim_sum <- clim %>% 
+  subset(source != "Wordlclim") %>%
+  group_by(lon, lat, model, period) %>% 
+  dplyr::summarise(ts = mean(ts, na.rm = T), pr = mean(pr, na.rm = T), AIm = mean(AIm, na.rm = T), AIu = mean(AIu, na.rm = T))
 
 breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
@@ -484,8 +489,8 @@ clim <- read.table("clim.txt")
 clim_sum <- read.table("clim_sum.txt")
 clim_med <- read.table("clim_med.txt")
 
-col.martonne <- c("Desert" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Temperate" = colorvec[4], "Humid"= colorvec[5],"Forest"= colorvec[6])
-col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
 ```
 
 ```{r plot}
@@ -623,7 +628,9 @@ ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
   scale_fill_manual(values = col.cat)+
   labs(title = "SSP585, 2030-2060", fill = "")+
-  theme_void()
+  theme_void()+
+  theme(legend.position = "bottom")
+
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
   scale_fill_manual(values = col.cat)+
   labs(title = "SSP585, 2070-2100", fill = "")+
@@ -1431,72 +1438,199 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 ```
 
 
-# Divergence CMIP6/Worldclim
+# One sample t test comparisaon with Worldclim
 
-```{r divergence-from-wdc}
-clim_sum_div <- subset(clim_sum, period == "1970_2000") %>% select(c("lon","lat","AIm","AIu"))
-wdc_div <- clim %>% subset(source == "Worldclim") %>% select(c("lon","lat","AIm","AIu"))
-div <- merge(clim_sum_div, wdc_div, by = c("lon","lat"))
+```{r ostt-function}
+ostt <- function(v){
+  x <- v[3:12]
+  y <- v[13]
+  p <- ifelse(is.na(y) == F,  t.test(x,mu = y ,na.action(na.omit))$p.value, NA)
+  return(p)
+} 
+```
 
-# AIm
-div$div.AIm <- with(div,abs((AIm.x-AIm.y)/AIm.y*100))
+```{r one-sample-t-test-AIu}
 
-ggplot(filter(div, AIm.y < 1000 & AIm.y > 0 & AIm.x < 1000 & AIm.x > 0)) + geom_boxplot(aes(x="CMIP6",y = AIm.x))+
-  geom_boxplot(aes(x="WDC",y = AIm.y))
+wAIu <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIu")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIu", timevar = "source")
 
-quantile(div$div.AIm, probs = seq (0,1,0.05), na.rm = T)
-  
-  
-ggplot() + geom_raster(data = subset(div, AIm.y > 0 & AIm.y < 200), aes(x=lon, y = lat,  fill = AIm.y))+
-  geom_raster(data = subset(div, AIm.y < 0), aes(x=lon, y = lat),  fill = "gray60")+
-  geom_raster(data = subset(div, AIm.y > 200), aes(x=lon, y = lat),  fill = "black")+
-  scale_fill_viridis_c(direction = -1)+
-  theme_void()+
-  theme(legend.position = "bottom")
+# sp <- sample_n(wAIu, 10)
+# apply(sp[,3:12], 1, hist)
 
-ggplot() + geom_raster(data = subset(div, div.AIm < 287.83), aes(x=lon, y = lat,  fill = div.AIm))+
-  geom_raster(data = subset(div, div.AIm > 287.38), aes(x=lon, y = lat),  fill = "black")+
-  scale_fill_viridis_c(direction = -1, name = "% difference between CMIP6 and WDC (< 300%)")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-div$uncertainty.AIm <- with(div, ifelse(div.AIm < 10, "in","out"))
-
-ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm >= 0), aes(x=lon, y = lat,  fill = cat.AIm))+
-  geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm < 0), aes(x=lon, y = lat), fill = "gray60")+
-  geom_point(data = filter(div, uncertainty.AIm == "in"), aes(x = lon, y = lat), col = "black", shape = "'")+
-  scale_fill_manual(values = col.martonne)+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-# AIu
-div$div.AIu <- with(div,abs((AIu.x-AIu.y)/AIu.y*100))
-
-ggplot(filter(div, AIu.y < 1000 & AIu.y > 0 & AIu.x < 1000 & AIu.x > 0)) + geom_boxplot(aes(x="CMIP6",y = AIu.x))+
-  geom_boxplot(aes(x="WDC",y = AIu.y))
-
-quantile(div$div.AIu, probs = seq (0,1,0.05), na.rm = T)
-  
-  
-ggplot() + geom_raster(data = subset(div, AIu.y > 0 & AIu.y < 200), aes(x=lon, y = lat,  fill = AIu.y))+
-  geom_raster(data = subset(div, AIu.y < 0), aes(x=lon, y = lat),  fill = "gray60")+
-  geom_raster(data = subset(div, AIu.y > 200), aes(x=lon, y = lat),  fill = "black")+
-  scale_fill_viridis_c(direction = -1)+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-ggplot() + geom_raster(data = subset(div, div.AIu < 287.83), aes(x=lon, y = lat,  fill = div.AIu))+
-  geom_raster(data = subset(div, div.AIu > 287.38), aes(x=lon, y = lat),  fill = "black")+
-  scale_fill_viridis_c(direction = -1, name = "% difference between CMIP6 and WDC (< 300%)")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-div$uncertainty.AIu <- with(div, ifelse(div.AIu < 10, "in","out"))
+wAIu$pval <- apply(wAIu, 1, ostt)
+table(wAIu$pval < 0.05)
 
 ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
-  geom_point(data = filter(div, uncertainty.AIu == "in"), aes(x = lon, y = lat), col = "black", shape = "'")+
+  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-AIm}
+
+wAIm <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIm")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIm", timevar = "source")
+
+wAIm$pval <- apply(wAIm, 1, ostt)
+table(wAIm$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_point(data = filter(wAIm, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
   scale_fill_manual(values = col.martonne)+
   theme_void()+
   theme(legend.position = "bottom")
+```
 
+```{r one-sample-t-test-ts}
+
+wts <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","ts")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source")
+
+wts$pval <- apply(wts, 1, ostt)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = ts-273.15))+
+  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-pr}
+
+wpr <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","pr")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "pr", timevar = "source")
+
+wpr$pval <- apply(wpr, 1, ostt)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  geom_point(data = filter(wpr, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+
+# Non parametric one sample wilcoxon test with Worldclim
+
+```{r ostt-function}
+oswt <- function(v){
+  x <- v[3:12]
+  y <- v[13]
+  p <- ifelse(is.na(y) == F,  wilcox.test(x,mu = y ,na.action(na.omit))$p.value, NA)
+  return(p)
+} 
+```
+
+```{r one-sample-t-test-AIu}
+
+wAIu <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIu")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIu", timevar = "source")
+
+wAIu$pval <- apply(wAIu, 1, oswt)
+table(wAIu$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-AIm}
+
+wAIm <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIm")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIm", timevar = "source")
+
+wAIm$pval <- apply(wAIm, 1, oswt)
+
+table(wAIm$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_point(data = filter(wAIm, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-ts}
+
+wts <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","ts")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source")
+
+wts$pval <- apply(wts, 1, oswt)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = ts-273.15))+
+  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-pr}
+
+wpr <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","pr")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "pr", timevar = "source")
+
+wpr$pval <- apply(wpr, 1, ostt)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  geom_point(data = filter(wpr, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+# Categorical comparison
+
+```{r comparison-categories-AIu}
+
+wcatAIu <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","cat.AIu")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "cat.AIu", timevar = "source")
+
+ccat <- function(v){
+  x <- v[3:12]  %>% t() %>% as.vector()
+  y <- v[[13]]  %>% as.character()
+  p <- sum(grepl(y, x) == TRUE)
+  return(p)
+} 
+
+wcatAIu$prop <- apply(wcatAIu, 1, ccat)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r comparison-categories-AIm}
+
+wcatAIm <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","cat.AIm")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "cat.AIm", timevar = "source")
+
+ccat <- function(v){
+  x <- v[3:12]  %>% t() %>% as.vector()
+  y <- v[[13]]  %>% as.character()
+  p <- sum(grepl(y, x) == TRUE)
+  return(p)
+} 
+
+wcatAIm$prop <- apply(wcatAIm, 1, ccat)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "gray70", shape = ".")+
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
