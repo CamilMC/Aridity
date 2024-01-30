@@ -69,8 +69,6 @@ write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/fgoals.hist.1850-188
 ## historical 1970-2000 ----------
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_185001-201412.nc"
-
-
 ### annual mean --------------
 ts.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 ts.df <- as.data.frame(ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
@@ -125,8 +123,6 @@ write.table(nov.ts.df, file = "/bettik/crapartc/Averages/ts/fgoals.hist.1970-200
 dec.ts.stack <- raster::stack(list.nf, bands = seq(from = 1452, to = 1812, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/fgoals.hist.1970-2000.dec.ts.txt")
-
-
 ## historical 1985-2015 =========
 
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_FGOALS-f3-L_historical_r1i1p1f1_gr_185001-201412.nc"
@@ -1010,10 +1006,10 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.ssp585.2030-2
 
 ## SSP585 2070-2100 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_FGOALS-f3-L_ssp585_r1i1p1f1_gr_201501-210012.nc"
+list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_FGOALS-f3-L_ssp585_r1i1p1f1_gr_201501-210012.nc" %>% raster()
 
 ### annual mean ----
-pr.stack <- raster::stack(list.nf, c(661:1020)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+pr.stack <- raster::stack(list.raster, c(661:1020)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 pr.df <- as.data.frame(pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(pr.df, file = "/bettik/crapartc/Averages/pr/fgoals.ssp585.2070-2100.pr.txt")
 
