@@ -288,6 +288,11 @@ ggplot(data = awi) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
 
 # Worldclim: réanalyse pour la période 1970-2000 -----
 
+```{r standalone-plots-wordlclim}
+world.df <- readRDS("Worldclim/world.df.rds")
+
+```
+
 ```{r land-masks}
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
@@ -302,7 +307,6 @@ ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
 ```
-
 
 ```{r worldclim}
 wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% 
@@ -1462,8 +1466,16 @@ wAIu$pval <- apply(wAIu, 1, ostt)
 table(wAIu$pval < 0.05)
 
 ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
-  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  geom_point(data = filter(wAIu, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
   scale_fill_manual(values = col.cat)+
+  labs(title = "CMIP6, T-test")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, T-test")+
   theme_void()+
   theme(legend.position = "bottom")
 ```
@@ -1488,15 +1500,39 @@ ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon
 
 wts <-  subset(clim, period == "1970_2000") %>% 
        select(c("lon","lat","source","ts")) %>%
-      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source")
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source") 
+
+wts$ts.CMIP6 <- rowMeans(dplyr::select(wts, c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI")), na.rm = T)
 
 wts$pval <- apply(wts, 1, ostt)
 
-ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = ts-273.15))+
+ggplot() + geom_raster(data =  wts, aes(x=lon, y = lat,  fill = mean(ts.CMIP6-273.15))+
   geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
   theme_void()+
   theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data =  subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = ts-273.15))+
+  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = wts, aes(x=lon, y = lat,  fill = ts.CMIP6-ts.Worldclim))+
+  geom_point(data = filter(wts, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, name = "Difference CMIP6 - Worldclim")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+for(i in c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI", "ts.CMIP6")){
+  plottitle <- paste("Difference", i, "and ts.Worldclim", sep = " ")
+  g <- ggplot(data = wts) + geom_raster(aes(x=lon, y = lat,  fill = wts[, i] - ts.Worldclim))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-35,25))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
 ```
 
 ```{r one-sample-t-test-pr}
@@ -1507,11 +1543,46 @@ wpr <-  subset(clim, period == "1970_2000") %>%
 
 wpr$pval <- apply(wpr, 1, ostt)
 
+wpr$pr.CMIP6 <- rowMeans(dplyr::select(wpr, c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI")), na.rm = T)
+
 ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-  geom_point(data = filter(wpr, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
-scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
   theme_void()+
   theme(legend.position = "bottom")
+
+for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI", "pr.CMIP6")){
+  plottitle <- paste("Difference", i, "and pr.Worldclim", sep = " ")
+  g <- ggplot(data = wpr) + geom_raster(aes(x=lon, y = lat,  fill = (wpr[, i] - pr.Worldclim)*60*60*24*365))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = F, mid = 0, name = "Difference in precipitations,\n mm/y")+
+  # scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, name = "Precipitations, mm/y")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+
+for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI", "pr.CMIP6")){
+  plottitle <- paste("Relative biais between", i, "and pr.Worldclim", sep = " ")
+  
+  df <- wpr
+  df$rbiais <- (df[, i] - df[,"pr.Worldclim"])/df[,"pr.Worldclim"] * 100
+  df$cat.rbiais <- cut(df$rbiais, breaks = c(-100, -50, -10, 0,10,50,100,200,500,1000,Inf))
+  
+  
+  g <- ggplot(data = df) + geom_raster(aes(x=lon, y = lat,  fill = cat.rbiais))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+    scale_fill_manual(values = c("#FDAE61","#FEE090","#FFFFBF","#E0F3F8","#ABD9E9","#74ADD1","#4575B4","#313695","#6959CD","#473C8B"))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   print(g)
+
+}
+
+kernel_test <- sample_n(wpr, 100)
 ```
 
 
@@ -1536,8 +1607,16 @@ wAIu$pval <- apply(wAIu, 1, oswt)
 table(wAIu$pval < 0.05)
 
 ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
-  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
   scale_fill_manual(values = col.cat)+
+  labs(title = "CMIP6, Wilcox")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, Wilcox")+
   theme_void()+
   theme(legend.position = "bottom")
 ```
@@ -1553,8 +1632,8 @@ wAIm$pval <- apply(wAIm, 1, oswt)
 table(wAIm$pval < 0.05)
 
 ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
-  geom_point(data = filter(wAIm, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
-  scale_fill_manual(values = col.martonne)+
+  geom_point(data = filter(wAIm, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.martonne, na.value = "gray70")+
   theme_void()+
   theme(legend.position = "bottom")
 ```
@@ -1568,7 +1647,7 @@ wts <-  subset(clim, period == "1970_2000") %>%
 wts$pval <- apply(wts, 1, oswt)
 
 ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = ts-273.15))+
-  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
   theme_void()+
   theme(legend.position = "bottom")
@@ -1583,7 +1662,13 @@ wpr <-  subset(clim, period == "1970_2000") %>%
 wpr$pval <- apply(wpr, 1, ostt)
 
 ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-  geom_point(data = filter(wpr, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
 scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
   theme_void()+
   theme(legend.position = "bottom")
@@ -1607,8 +1692,16 @@ ccat <- function(v){
 wcatAIu$prop <- apply(wcatAIu, 1, ccat)
 
 ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
-  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "black", shape = ".")+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
   scale_fill_manual(values = col.cat)+
+  labs(title = "CMIP6")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim")+
   theme_void()+
   theme(legend.position = "bottom")
 ```
