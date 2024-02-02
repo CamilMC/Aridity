@@ -35,7 +35,20 @@ colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 # Data
 
 
+```{r land-masks}
+land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
+land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
+
+elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
+elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
+
+
+ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
+ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
+ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+
+```
 
 ```{r data-month}
 ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% dplyr::rename(ts_01 = ts)
@@ -291,22 +304,62 @@ ggplot(data = awi) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
 ```{r standalone-plots-wordlclim}
 world.df <- readRDS("Worldclim/world.df.rds")
 
+world.df$P <-  with(world.df, 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
+
+world.df$tmax <- apply(dplyr::select(world.df, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+world.df$tmin <- apply(dplyr::select(world.df, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
+world.df$Rn <- apply(dplyr::select(world.df, c("srad_01", "srad_02", "srad_03", "srad_04", "srad_05", "srad_06", "srad_07", "srad_08", "srad_09", "srad_10", "srad_11", "srad_12")), 1, mean, na.rm = T)
+world.df$u2 <- apply(dplyr::select(world.df, c("u_01", "u_02", "u_03", "u_04", "u_05", "u_06", "u_07", "u_08", "u_09", "u_10", "u_11", "u_12")), 1, mean, na.rm = T)
+
+world.df$es <- with(world.df, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+world.df$delta <- with(world.df, 4098*es/(temp+237.3)^2) #slope vapor pressure
+world.df$gamma <- with(world.df, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+world.df$ea <- with(world.df, with(world.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+world.df$ET0 <-with(world.df, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+world.df$AIu <- with(world.df, pre/(ET0*365))
+
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+
+world.df$cat.AIu <- world.df$AIu %>% cut(breaks = breaks.unesco) %>% # otherwise regions in  which pre = 0 are excluded 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = world.df, aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, tmin is tmin")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+world.df$tmin <- apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
+world.df$es <- with(world.df, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+world.df$delta <- with(world.df, 4098*es/(temp+237.3)^2) #slope vapor pressure
+world.df$gamma <- with(world.df, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+world.df$ea <- with(world.df, with(world.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+world.df$ET0 <-with(world.df, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+world.df$AIu <- with(world.df, pre/(ET0*365))
+
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+
+world.df$cat.AIu <- world.df$AIu %>% cut(breaks = breaks.unesco) %>% # otherwise regions in  which pre = 0 are excluded 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = world.df, aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, tmin is min(tmean)")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, source =="Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, tmin is min(ts)")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
-```{r land-masks}
-land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
-land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
-
-elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
-elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
-
-
-ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
-ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
-ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
-
-```
 
 ```{r worldclim}
 wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% 
@@ -1444,6 +1497,15 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 
 # One sample t test comparisaon with Worldclim
 
+```{r data}
+clim <- read.table("clim.txt")
+clim_sum <- read.table("clim_sum.txt")
+clim_med <- read.table("clim_med.txt")
+
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+```
+
 ```{r ostt-function}
 ostt <- function(v){
   x <- v[3:12]
@@ -1502,18 +1564,18 @@ wts <-  subset(clim, period == "1970_2000") %>%
        select(c("lon","lat","source","ts")) %>%
       reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source") 
 
-wts$ts.CMIP6 <- rowMeans(dplyr::select(wts, c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI")), na.rm = T)
-
 wts$pval <- apply(wts, 1, ostt)
 
-ggplot() + geom_raster(data =  wts, aes(x=lon, y = lat,  fill = mean(ts.CMIP6-273.15))+
-  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+wts$ts.CMIP6 <- rowMeans(dplyr::select(wts, c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI")), na.rm = T)
+
+ggplot() + geom_raster(data =  wts, aes(x=lon, y = lat,  fill = ts.CMIP6-273.15))+
+  geom_point(data = filter(wts, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
   theme_void()+
   theme(legend.position = "bottom")
 
-ggplot() + geom_raster(data =  subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = ts-273.15))+
-  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ggplot() + geom_raster(data = wts, aes(x=lon, y = lat,  fill = ts.Worldclim-273.15))+
+  geom_point(data = filter(wts, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
   theme_void()+
   theme(legend.position = "bottom")
@@ -1533,6 +1595,43 @@ for(i in c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.F
     theme(legend.position = "bottom")
   print(g)
 }
+
+
+for(i in c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI", "ts.CMIP6")){
+  plottitle <- paste("Relative biais between", i, "and pr.Worldclim", sep = " ")
+  
+  df <- wts
+  df$rbiais <- (df[, i] - df[,"ts.Worldclim"])/df[,"ts.Worldclim"] * 100
+  df$cat.rbiais <- cut(df$rbiais, breaks = c(-100, -50, -10, 0,10,50,100,200,500,1000,Inf))
+  
+  
+  g <- ggplot(data = df) + geom_raster(aes(x=lon, y = lat,  fill = cat.rbiais))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+    scale_fill_manual(values = c("#FDAE61","#FEE090","#FFFFBF","#E0F3F8","#ABD9E9","#74ADD1","#4575B4","#313695","#6959CD","#473C8B"))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   print(g)
+
+}
+
+
+set.seed(1)
+kernel_test <- sample_n(wts, 5000)
+ggplot(kernel_test) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = ts.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
+set.seed(502)
+kernel_test <- sample_n(wts, 5000)
+ggplot(kernel_test) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = ts.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
 ```
 
 ```{r one-sample-t-test-pr}
@@ -1582,7 +1681,23 @@ for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.F
 
 }
 
-kernel_test <- sample_n(wpr, 100)
+
+set.seed(1)
+kernel_test <- sample_n(wpr, 5000)
+ggplot(kernel_test) + geom_density(aes(x = pr.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = pr.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
+set.seed(50)
+kernel_test <- sample_n(wpr, 5000)
+ggplot(kernel_test) + geom_density(aes(x = pr.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = pr.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
 ```
 
 
