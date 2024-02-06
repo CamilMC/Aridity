@@ -23,17 +23,32 @@ library(dplyr)
 library(ggplot2)
 library(viridisLite)
 library(colorspace)
+library(RColorBrewer)
 
 library(sf)
 library(stringr)
 
-colorvec <- viridis(n = 7, direction = -1)
+display.brewer.pal(n = 11, name ="RdYlBu")
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 ```
 
 # Data
 
 
+```{r land-masks}
+land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
+land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
+
+elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
+elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
+
+
+ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
+ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
+ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+
+```
 
 ```{r data-month}
 ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% dplyr::rename(ts_01 = ts)
@@ -50,17 +65,17 @@ ts_november <- read.table("CMIP6/ts/ts.all_november.txt") %>% select(!month) %>%
 ts_december <- read.table("CMIP6/ts/ts.all_december.txt") %>% select(!month) %>% dplyr::rename(ts_12 = ts)
 
 ts_month <- ts_january %>% 
-    merge(ts_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_march, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_april, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_may, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_june, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_july, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_august, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_september, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_october, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_november, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
-    merge(ts_december, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))
+  merge(ts_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_march, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_april, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_may, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_june, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_july, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_august, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_september, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_october, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_november, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(ts_december, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))
 
 ts_month$ts_min <- apply(select(ts_month,c("ts_01", "ts_02", "ts_03", "ts_04", "ts_05", "ts_06", "ts_07", "ts_08", "ts_09", "ts_10", "ts_11", "ts_12")), 1, FUN = min, na.rm = T)
 
@@ -70,146 +85,146 @@ write.table(ts_month, "CMIP6/ts/ts_month.txt")
 ```{r test-months}
 for(i in unique(ts.all_annual$model)){
   df <- ts_january %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_01-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_01-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_february %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_02-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_02-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_march %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_03-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_03-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_april %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_04-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_04-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_may %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_05-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_05-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_june %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_06-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_06-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_july %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_07-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_07-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_august %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_08-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_08-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_september %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_09-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_09-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_october %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_10-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_10-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_november %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_11-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_11-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 
 for(i in unique(ts.all_annual$model)){
   df <- ts_december %>% subset(model == i)
-for(j in unique(df$period)){
-g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_12-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = paste(i, j, sep = ","), fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = ts_12-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
 }
 ```
 
@@ -235,6 +250,31 @@ lines(10:100,v2,col="red")
 
 legend("topright",c("même signe","signe >0"),col=c("black","red"),lty=1)
 
+v<-NULL
+v2<-NULL
+for (N in 10:100) {
+  v<-c(v,sum(sapply(floor(3*N/4):N,function(i) choose(N,i)*(1/2)^N*2)))# proba d'avoir 3/4 de même signe à partir de N modèles, lorsque N change
+  v2<-c(v2,sum(sapply(floor(3*N/4):N,function(i) choose(N,i)*(1/2)^N)))# proba d'avoir 3/4 de signe >0 à partir de N modèles, lorsque N change
+}
+
+
+plot(10:100,v,type="l",ylab="Proba(>3/4 models...)",xlab="Nb of models")
+lines(10:100,v2,col="red")
+
+legend("topright",c("même signe","signe >0"),col=c("black","red"),lty=1)
+
+v<-NULL
+v2<-NULL
+for (N in 10:100) {
+  v<-c(v,sum(sapply(floor(4*N/5):N,function(i) choose(N,i)*(1/2)^N*2)))# proba d'avoir 4/5 de même signe à partir de N modèles, lorsque N change
+  v2<-c(v2,sum(sapply(floor(4*N/5):N,function(i) choose(N,i)*(1/2)^N)))# proba d'avoir 4/5 de signe >0 à partir de N modèles, lorsque N change
+}
+
+
+plot(10:100,v,type="l",ylab="Proba(>4/5 models...)",xlab="Nb of models")
+lines(10:100,v2,col="red")
+
+legend("topright",c("même signe","signe >0"),col=c("black","red"),lty=1)
 ```
 
 ```{r test-evsp}
@@ -252,92 +292,143 @@ awi$cat.AI <- awi$AI %>% cut(breaks = breaks.unesco) %>%
   revalue(cat.unesco)
 
 ggplot(data = awi) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-   scale_fill_manual(values = col.cat)+
-    labs(title = "Test ET0", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Test ET0", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
-
-```{r land-masks}
-land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
-land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
-
-
-elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
-elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
-
-
-ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
-ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
-ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
-
-```
 
 # Worldclim: réanalyse pour la période 1970-2000 -----
 
-```{r worldclim}
-wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") 
-wdctt <- wdct %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","ts"))
+```{r standalone-plots-wordlclim}
+world.df <- readRDS("Worldclim/world.df.rds")
 
-wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") 
-wdcpp <- wdcp %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
+world.df$P <-  with(world.df, 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
+
+world.df$tmax <- apply(dplyr::select(world.df, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+world.df$tmin <- apply(dplyr::select(world.df, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
+world.df$Rn <- apply(dplyr::select(world.df, c("srad_01", "srad_02", "srad_03", "srad_04", "srad_05", "srad_06", "srad_07", "srad_08", "srad_09", "srad_10", "srad_11", "srad_12")), 1, mean, na.rm = T)
+world.df$u2 <- apply(dplyr::select(world.df, c("u_01", "u_02", "u_03", "u_04", "u_05", "u_06", "u_07", "u_08", "u_09", "u_10", "u_11", "u_12")), 1, mean, na.rm = T)
+
+world.df$es <- with(world.df, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+world.df$delta <- with(world.df, 4098*es/(temp+237.3)^2) #slope vapor pressure
+world.df$gamma <- with(world.df, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+world.df$ea <- with(world.df, with(world.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+world.df$ET0 <-with(world.df, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+world.df$AIu <- with(world.df, pre/(ET0*365))
+
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+
+world.df$cat.AIu <- world.df$AIu %>% cut(breaks = breaks.unesco) %>% # otherwise regions in  which pre = 0 are excluded 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = world.df, aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, tmin is tmin")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+world.df$tmin <- apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
+world.df$es <- with(world.df, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+world.df$delta <- with(world.df, 4098*es/(temp+237.3)^2) #slope vapor pressure
+world.df$gamma <- with(world.df, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
+world.df$ea <- with(world.df, with(world.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
+world.df$ET0 <-with(world.df, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
+world.df$AIu <- with(world.df, pre/(ET0*365))
+
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+
+world.df$cat.AIu <- world.df$AIu %>% cut(breaks = breaks.unesco) %>% # otherwise regions in  which pre = 0 are excluded 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = world.df, aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, tmin is min(tmean)")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, source =="Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, tmin is min(ts)")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+
+
+```{r worldclim}
+wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% 
+  projectRaster(to = land_mask) %>% 
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","ts"))
+
+list.tavg <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tavg_", full.names = T) 
+wdctm <- raster::stack(list.tavg) %>% 
+  projectRaster(to = land_mask) %>% 
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","ts_01","ts_02","ts_03","ts_04","ts_05","ts_06","ts_07","ts_08","ts_09","ts_10","ts_11","ts_12"))
+
+wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") %>%
+  projectRaster(to = land_mask) %>% 
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
 
 list.wind <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_wind", full.names = TRUE)
-wdcw <- raster::stack(list.wind) %>% mean(na.rm = T)
-wdcww <- wdcw %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
+wdcw <- raster::stack(list.wind) %>% mean(na.rm = T) %>% 
+  projectRaster(to = land_mask) %>% 
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
 
 list.rsds <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE) # unit: kJ/m2/day
-wdcr <- raster::stack(list.rsds) %>% mean(na.rm = T)
-wdcrr <- wdcr %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
+wdcr <- raster::stack(list.rsds) %>% mean(na.rm = T) %>% 
+  projectRaster(to = land_mask) %>% 
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
 
-wdcttt <- wdctt %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+wdc <- wdct %>% 
+  merge(wdctm, by = c("lon", "lat")) %>%
+  merge(wdcp, by = c("lon", "lat")) %>%
+  merge(wdcr, by = c("lon", "lat")) %>%
+  merge(wdcw, by = c("lon", "lat")) %>%
+  mutate(model = "historical", period = "1970_2000", source = "Worldclim") %>%
+  merge(land_mask.df, by = c("lon", "lat")) %>%
+  merge(ipcc_regions.df, by = c("lon", "lat")) %>% 
+  filter(lm == 1)
 
-ggplot(wdcttt)+
-  geom_raster(aes(x = lon, y = lat, fill = ts))+
-  scale_fill_distiller(type = "div", palette = 7, direction = -1, na.value = "white")+
-  labs(fill = "Average annual surface temperature, °C")+
-  theme_void()+
-  theme(legend.position = "bottom")
+wdc$ts_min <- apply(select(wdc,c("ts_01", "ts_02", "ts_03", "ts_04", "ts_05", "ts_06", "ts_07", "ts_08", "ts_09", "ts_10", "ts_11", "ts_12")), 1, FUN = min, na.rm = T)
 
-wdcppp <- wdcpp %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
+# same units as cmip6
+wdc$ts <- wdc$ts+273.15
+wdc$ts_01 <- wdc$ts_01+273.15
+wdc$ts_02 <- wdc$ts_02+273.15
+wdc$ts_03 <- wdc$ts_03+273.15
+wdc$ts_04 <- wdc$ts_04+273.15
+wdc$ts_05 <- wdc$ts_05+273.15
+wdc$ts_06 <- wdc$ts_06+273.15
+wdc$ts_07 <- wdc$ts_07+273.15
+wdc$ts_08 <- wdc$ts_08+273.15
+wdc$ts_09 <- wdc$ts_09+273.15
+wdc$ts_10 <- wdc$ts_10+273.15
+wdc$ts_11 <- wdc$ts_11+273.15
+wdc$ts_12 <- wdc$ts_12+273.15
+wdc$ts_min <- wdc$ts_min+273.15
 
-ggplot(wdcppp)+
-  geom_raster(aes(x = lon, y = lat, fill = pr))+
-  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
-  labs(fill = "Average annual precipitation, mm")+
-  theme_void()+
-  theme(legend.position = "bottom")
+wdc$pr <- wdc$pr / (60*60*24*365)  # conversion from mm/year to kg/m2/s 
+wdc$rsds <-wdc$rsds * 1000/86400 # conversion from kJ/m2/day to W/m2 (1 J = 1 W.s)
 
-wdcwww <- wdcww %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
-
-ggplot(wdcwww)+
-  geom_raster(aes(x = lon, y = lat, fill = sfcWind))+
-  scale_fill_distiller(type = "seq", palette = 3, direction = 1, na.value = "white")+
-  labs(fill = "Average annual wind speed, m/s")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-wdcrrr <- wdcrr %>% merge(land_mask.df, by = c("lon","lat")) %>% merge(ipcc_regions.df, by = c("lon","lat"))
-
-ggplot(wdcrrr)+
-  geom_raster(aes(x = lon, y = lat, fill = rsds))+
-  scale_fill_distiller(type = "seq", palette = 7, direction = 1, na.value = "white")+
-  labs(fill = "Average annual irradiation")+
-  theme_void()+
-  theme(legend.position = "bottom")
+write.table(wdc,"wdc.txt")
 ```
 
 # Boxplots of ts, pr, rsds and sfcWind from CMIP6 compared to Worldclim -----
 
 ```{r test-awi_future, eval = F}
 ggplot(subset(awi.ts_ipcc, Acronym %in% c("WCE", "MED")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
-      facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
-      labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+  facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
+  labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
 ggplot(subset(awi.ts_ipcc, Acronym %in% c("WAF")))+geom_boxplot(aes(x=period, y = ts-273, col = model))+
-      facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
-       labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+  facet_grid(cols = vars(Name))+scale_color_viridis_d(option = "A", end = 0.8)+
+  labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
 ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100" & lm != 0))+
   geom_raster(aes(x = lon, y = lat, fill = ts-273))+
@@ -363,36 +454,40 @@ ggplot(subset(awi.ts_ipcc, model == "SSP585" & period == "2070_2100" & lm > 0 & 
 
 ```{r all_future}
 ggplot()+geom_boxplot(data = subset(ts.all_annual, period == "1970_2000"), aes(x=source, y = ts-273, col = source))+
-    geom_boxplot(data = wdcttt, aes(x="Worldclim", y = ts, col = "Worldclim"))+
-     scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
+  geom_boxplot(data = wdcttt, aes(x="Worldclim", y = ts, col = "Worldclim"))+
+  scale_color_viridis_d(option = "A", end = 0.8)+
+  labs(x = "", y = "Average annual temperature, °C") + theme_minimal()
 
-ggplot()+geom_boxplot(data = subset(pr.all_annual, period == "1970_2000"), aes(x=source, y = pr*60*60*24*365, col = source))+ # conversion from kg/m2/s to mm/year
-    geom_boxplot(data = wdcppp, aes(x="Worldclim", y = pr, col = "Worldclim"))+
-     scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual precipitation, mm") + theme_minimal()
+ggplot()+geom_boxplot(data = subset(pr.all_annual, period == "1970_2000"), aes(x=source, y = pr*60*60*24*365, col = source))+ #
+  geom_boxplot(data = wdcppp, aes(x="Worldclim", y = pr, col = "Worldclim"))+
+  scale_color_viridis_d(option = "A", end = 0.8)+
+  labs(x = "", y = "Average annual precipitation, mm") + theme_minimal()
 
 ggplot()+geom_boxplot(data = subset(rsds.all_annual, period == "1970_2000"), aes(x=source, y = rsds, col = source))+
-    geom_boxplot(data = wdcrrr, aes(x="Worldclim", y = rsds*1000/86400, col = "Worldclim"))+ # conversion from kJ/m2/day to W/m2 (1 J = 1 W.s)
-     scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual precipitation, kJ/m2/d") + theme_minimal()
+  geom_boxplot(data = wdcrrr, aes(x="Worldclim", y = rsds*1000/86400, col = "Worldclim"))+ 
+  scale_color_viridis_d(option = "A", end = 0.8)+
+  labs(x = "", y = "Average annual precipitation, kJ/m2/d") + theme_minimal()
 
 ggplot()+geom_boxplot(data = subset(sfcWind.all_annual, period == "1970_2000"), aes(x=source, y = sfcWind, col = source))+
-    geom_boxplot(data = wdcwww, aes(x="Worldclim", y = sfcWind, col = "Worldclim"))+
-     scale_color_viridis_d(option = "A", end = 0.8)+
-     labs(x = "", y = "Average annual wind speed, m/s") + theme_minimal()
+  geom_boxplot(data = wdcwww, aes(x="Worldclim", y = sfcWind, col = "Worldclim"))+
+  scale_color_viridis_d(option = "A", end = 0.8)+
+  labs(x = "", y = "Average annual wind speed, m/s") + theme_minimal()
 
 ```
 
 # Aridity index
 
 ```{r merge}
-clim <- ts.all_annual %>% 
+cmip6 <- ts.all_annual %>% 
   merge(ts_month, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source"))
+
+clim <- cmip6 %>%
+  rbind(select(wdc, names(cmip6))) %>%
   merge(elev.df, by = c("lon","lat"))
+
 # as minimum temperature we use the minimum monthly average
 ```
 
@@ -400,7 +495,7 @@ clim <- ts.all_annual %>%
 clim$AIm <- with(clim,pr*60*60*24*365/(ts-273.15+10)) # pr in mm/y, ts in Ceslsius
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
-col.martonne <- c("Desert" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Temperate" = colorvec[4], "Humid"= colorvec[5],"Forest"= colorvec[6])
+
 clim$cat.AIm <- clim$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
 clim$P <- with(clim, 101.3 * ((293-0.0065*z)/293)^(5.26))
@@ -411,22 +506,34 @@ clim$ea <- with(clim, with(clim, ifelse((ts_min-273.15) > 0, 0.61078*exp(17.27*(
 clim$ET0 <-with(clim, ((0.408*delta*(rsds*86400*1e-6)+gamma*900/((ts-273.15)+273)*sfcWind*(es-ea))/(delta+gamma*(1+0.34*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Irradiation is in W/m2 and is converted to MJ/m2/day
 clim$AIu <- with(clim, pr*60*60*24*365/(ET0*365))
 
-breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("[-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
-col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+
 
 clim$cat.AIu <- clim$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+write.table(clim, "clim.txt")
+```
 
+```{r clim-summary}
+clim_sum <- clim %>% 
+  subset(source != "Wordlclim") %>%
+  group_by(lon, lat, model, period) %>% 
+  dplyr::summarise(ts = mean(ts, na.rm = T), pr = mean(pr, na.rm = T), AIm = mean(AIm, na.rm = T), AIu = mean(AIu, na.rm = T))
 
-clim_sum <- clim %>% group_by(lon, lat, model, period) %>% dplyr::summarise(ts = mean(ts, na.rm = T), pr = mean(pr, na.rm = T), AIm = mean(AIm, na.rm = T), AIu = mean(AIu, na.rm = T))
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+
 clim_sum$cat.AIu <- clim_sum$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
-clim_sum$cat.AIm <- clim_sum$AIm %>% cut(breaks = breaks.martonne) %>% 
+
+cat.martonne <- c("(0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
+clim_sum$cat.AIm <- clim_sum$AIm %>% cut(breaks = c(0,5,10,20,"30","40",Inf)) %>% 
   revalue(cat.martonne)
+
 write.table(clim_sum, "clim_sum.txt")
 
-clim_med <- clim %>% group_by(lon, lat, model, period) %>% dplyr::summarise(ts = median(ts, na.rm = T), pr = median(pr, na.rm = T), AIm = median(AIm, na.rm = T), AIu = median(AIu, na.rm = T))
+clim_med <- clim %>% subset(source != "Wordlclim") %>% group_by(lon, lat, model, period) %>% dplyr::summarise(ts = median(ts, na.rm = T), pr = median(pr, na.rm = T), AIm = median(AIm, na.rm = T), AIu = median(AIu, na.rm = T))
 clim_med$cat.AIu <- clim_med$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 clim_med$cat.AIm <- clim_med$AIm %>% cut(breaks = breaks.martonne) %>% 
@@ -434,30 +541,37 @@ clim_med$cat.AIm <- clim_med$AIm %>% cut(breaks = breaks.martonne) %>%
 write.table(clim_med, "clim_med.txt")
 ```
 
+```{r load-clim-data}
+clim <- read.table("clim.txt")
+clim_sum <- read.table("clim_sum.txt")
+clim_med <- read.table("clim_med.txt")
+
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+```
 
 ```{r plot}
-
-ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm >= 0), aes(x=lon, y = lat,  fill = cat.AIm))+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm >= 0 & source != "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIm))+
   geom_raster(data = subset(clim_sum, period == "1970_2000" & AIm < 0), aes(x=lon, y = lat), fill = "gray60")+
-    scale_fill_manual(values = col.martonne)+
-         theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
 
-ggplot() + geom_raster(data = subset(clim_med, period == "1970_2000" & AIm >= 0), aes(x=lon, y = lat,  fill = cat.AIm))+
+ggplot() + geom_raster(data = subset(clim_med, period == "1970_2000" & AIm >= 0 & source != "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIm))+
   geom_raster(data = subset(clim_med, period == "1970_2000" & AIm < 0), aes(x=lon, y = lat), fill = "gray60")+
-    scale_fill_manual(values = col.martonne)+
-         theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
 
-ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-         theme_void()+
-   theme(legend.position = "bottom")
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000" & source != "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
 
-ggplot() + geom_raster(data = subset(clim_med, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-         theme_void()+
-   theme(legend.position = "bottom")
+ggplot() + geom_raster(data = subset(clim_med, period == "1970_2000" & source != "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
 # Plots for AI -----
@@ -465,16 +579,27 @@ ggplot() + geom_raster(data = subset(clim_med, period == "1970_2000"), aes(x=lon
 
 ## By source
 
+```{r AIm-by-source}
+for(i in unique(clim$source)){
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+    scale_fill_manual(values = col.martonne)+
+    labs(title = paste(i, "Historical, 1970-2000", sep = ","), fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+```
 
 ```{r AIu-by-source}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-   scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1970-2000", fill = "")+
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = paste(i, "Historical, 1970-2000", sep = ","), fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
@@ -482,16 +607,16 @@ print(g)
 
 ```{r mean-by-period-SSP245}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1850-1880", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Historical, 1850-1880", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1970-2000", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Historical, 1970-2000", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 # ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
 #     scale_fill_manual(values = col.cat)+
@@ -499,28 +624,28 @@ ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, 
 #     theme_void()
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "SSP245, 2030-2060", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "SSP245, 2030-2060", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "SSP245, 2070-2100", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "SSP245, 2070-2100", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 ```{r mean-by-period-SSP370}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1850-1880", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Historical, 1850-1880", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1970-2000", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Historical, 1970-2000", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 # ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
 #     scale_fill_manual(values = col.cat)+
@@ -528,29 +653,29 @@ ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, 
 #     theme_void()
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "SSP370, 2030-2060", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "SSP370, 2030-2060", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "SSP370, 2070-2100", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "SSP370, 2070-2100", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 ```{r mean-by-period-SSP585}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1850-1880", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Historical, 1850-1880", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Historical, 1970-2000", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Historical, 1970-2000", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 # ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
 #     scale_fill_manual(values = col.cat)+
@@ -558,235 +683,207 @@ ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, 
 #     theme_void()
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "SSP585, 2030-2060", fill = "")+
-    theme_void()
+  scale_fill_manual(values = col.cat)+
+  labs(title = "SSP585, 2030-2060", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "SSP585, 2070-2100", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.cat)+
+  labs(title = "SSP585, 2070-2100", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
 # Plots for ts ----
 
 ## By source
 
-```{r check-grid}
-
-list.table <- list.files(path = "CMIP6/ts/", pattern = "hist.1970-2000.ts.txt", full.names = T)
-
-for(i in list.table){
-g <- ggplot(data = read.table(i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = i, fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-print(g)
-}
-
-```
-
-```{r plot-1850_1880-ts-by-model}
-
-bcc <- read.table("CMIP6/ts/bcc.hist.1850-1880.ts.txt")
-
-ggplot(data = bcc) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = "BCC historical 1850-1880", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-
-bcc <- read.table("CMIP6/ts/bcc.hist.1970-2000.ts.txt")
-
-ggplot(data = bcc) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = "BCC historical 1970-2000", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-
-bcc <- read.table("CMIP6/ts/bcc.ssp245.2030-2060.ts.txt")
-
-ggplot(data = bcc) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
-    labs(title = "BCC SSP245", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
-```
 
 ```{r plot-1850_1880-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 
 ```
 
 ```{r plot-historical-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
+}
+```
+```{r plot-historical-1985-2015-ts-by-model}
+for(i in unique(clim$source)){
+  plottitle <- paste(i, "historical, 1985-2015", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1985_2015" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-2030-2060-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-2030-2060-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 ```{r plot-SSP585-2030-2060-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP585-ts-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 ## Multimodel average
 
 ```{r mean-by-period-SSP245-ts}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "SSP245, 2030-2060", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "SSP245, 2030-2060", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "SSP245, 2030-2060", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "SSP245, 2030-2060", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
 ```{r mean-by-period-SSP370-ts}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "SSP370, 2030-2060", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "SSP370, 2030-2060", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "SSP370, 2030-2060", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "SSP370, 2030-2060", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
 ```{r mean-by-period-SSP585-ts}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "Historical, 1850-1880", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "Historical, 1970-2000", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-    scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "SSP585, 2030-2060", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "SSP585, 2030-2060", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
-scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
-    labs(title = "SSP585, 2030-2060", fill = "Average annual surface temperature, °C")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,35))+
+  labs(title = "SSP585, 2030-2060", fill = "Average annual surface temperature, °C")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
 # Plots for pr ----
@@ -795,95 +892,95 @@ scale_fill_distiller(type = "div", palette = 7, direction = -1, limits = c(-60,3
 
 ```{r plot-1850_1880-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
     scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-historical-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
     scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 ```{r plot-SSP245-2030-2060-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
     scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
-  labs(title = plottitle, fill = "")+
+    labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
     scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-2030-2060-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-        scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+  plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
     scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 ```{r plot-SSP585-2030-2060-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-        scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
+  plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP585-pr-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
     scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
@@ -891,26 +988,26 @@ print(g)
 
 ```{r mean-by-period-SSP245-pr}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat, fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP245, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP245, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -918,26 +1015,26 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geo
 
 ```{r mean-by-period-SSP370-pr}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat, fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP370, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP370, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -945,26 +1042,26 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 
 ```{r mean-by-period-SSP585-pr}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat, fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP585, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,   fill = pr*60*60*24*365))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP585, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -977,96 +1074,96 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geo
 
 ```{r plot-1850_1880-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+  plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-historical-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-2030-2060-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+  plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
-  labs(title = plottitle, fill = "")+
+    labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+  plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-2030-2060-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
-        scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
+  plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+    scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+  plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 ```{r plot-SSP585-2030-2060-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
-        scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
+  plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+    scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP585-rsds-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
+  plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
@@ -1074,26 +1171,26 @@ print(g)
 
 ```{r mean-by-period-SSP245-rsds}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat, fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP245, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,   fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP245, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -1101,26 +1198,26 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geo
 
 ```{r mean-by-period-SSP370-rsds}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat, fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP370, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,   fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP370, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -1128,26 +1225,26 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 
 ```{r mean-by-period-SSP585-rsds}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat, fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP585, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,   fill = rsds*86400*1e-6))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP585, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -1160,96 +1257,96 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geo
 
 ```{r plot-1850_1880-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
-   # scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
+  plottitle <- paste(i, "historical, 1850-1880", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+    # scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-historical-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-2030-2060-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+  plottitle <- paste(i, "SSP245, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
-  labs(title = plottitle, fill = "")+
+    labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP245-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+  plottitle <- paste(i, "SSP245, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-2030-2060-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
-        scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
+  plottitle <- paste(i, "SSP370, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+    scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+  plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 ```{r plot-SSP585-2030-2060-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
-        scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
+  plottitle <- paste(i, "SSP585, 2030-2060", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2030_2060" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+    scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP585-sfcWind-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
+  plottitle <- paste(i, "SSP585, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & source == i & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
     scale_fill_continuous_sequential(palette = "Sunset", rev = T, limits = c(0,30))+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
@@ -1257,26 +1354,26 @@ print(g)
 
 ```{r mean-by-period-SSP245-sfcWind}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat, fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP245, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,   fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP245, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -1284,26 +1381,26 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geo
 
 ```{r mean-by-period-SSP370-sfcWind}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat, fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP370, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,   fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP370, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -1311,26 +1408,26 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 
 ```{r mean-by-period-SSP585-sfcWind}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1850-1880", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
-  
+
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,   fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "Historical, 1970-2000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat, fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP585, 2030-2060", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geom_raster(aes(x=lon, y = lat,   fill = sfcWind))+
-    scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
+  scale_fill_distiller(type = "seq", palette = 1, direction = 1, na.value = "white")+
   labs(title = "SSP585, 2070-21000", fill = "Average annual precipitation, mm")+
   theme_void()+
   theme(legend.position = "bottom") 
@@ -1342,25 +1439,25 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP585")) + geo
 
 ```{r plot-historical-AIm-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
     scale_fill_manual(values = col.martonne, na.value = "gray")+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ```
 
 ```{r plot-SSP370-AIm-by-model}
 for(i in unique(clim$source)){
-plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
-g <- ggplot(data = filter(clim, period == "2070_2100" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
+  plottitle <- paste(i, "SSP370, 2070-2100", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "2070_2100" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
     scale_fill_manual(values = col.martonne, na.value = "gray")+
     labs(title = plottitle, fill = "")+
     theme_void()+
-   theme(legend.position = "bottom")
-print(g)
+    theme(legend.position = "bottom")
+  print(g)
 }
 ``` 
 
@@ -1368,16 +1465,16 @@ print(g)
 
 ```{r mean-by-period-SSP370}
 ggplot(data = subset(clim_sum, period == "1850_1880")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
-    scale_fill_manual(values = col.martonne, na.value = "gray")+
-    labs(title = "Historical, 1850-1880", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.martonne, na.value = "gray")+
+  labs(title = "Historical, 1850-1880", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
-    scale_fill_manual(values = col.martonne, na.value = "gray")+
-    labs(title = "Historical, 1970-2000", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.martonne, na.value = "gray")+
+  labs(title = "Historical, 1970-2000", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 # ggplot(data = subset(clim_sum, period == "1985_2015")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
 #     scale_fill_manual(values = col.cat)+
@@ -1385,15 +1482,363 @@ ggplot(data = subset(clim_sum, period == "1970_2000")) + geom_raster(aes(x=lon, 
 #     theme_void()
 
 ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
-    scale_fill_manual(values = col.martonne, na.value = "gray")+
-    labs(title = "SSP370, 2030-2060", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.martonne, na.value = "gray")+
+  labs(title = "SSP370, 2030-2060", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIm))+
-    scale_fill_manual(values = col.martonne, na.value = "gray")+
-    labs(title = "SSP370, 2070-2100", fill = "")+
-    theme_void()+
-   theme(legend.position = "bottom")
+  scale_fill_manual(values = col.martonne, na.value = "gray")+
+  labs(title = "SSP370, 2070-2100", fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
 ```
 
+
+# One sample t test comparisaon with Worldclim
+
+```{r data}
+clim <- read.table("clim.txt")
+clim_sum <- read.table("clim_sum.txt")
+clim_med <- read.table("clim_med.txt")
+
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+```
+
+```{r ostt-function}
+ostt <- function(v){
+  x <- v[3:12]
+  y <- v[13]
+  p <- ifelse(is.na(y) == F,  t.test(x,mu = y ,na.action(na.omit))$p.value, NA)
+  return(p)
+} 
+```
+
+```{r one-sample-t-test-AIu}
+
+wAIu <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIu")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIu", timevar = "source")
+
+# sp <- sample_n(wAIu, 10)
+# apply(sp[,3:12], 1, hist)
+
+wAIu$pval <- apply(wAIu, 1, ostt)
+table(wAIu$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "CMIP6, T-test")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, T-test")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-AIm}
+
+wAIm <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIm")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIm", timevar = "source")
+
+wAIm$pval <- apply(wAIm, 1, ostt)
+table(wAIm$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_point(data = filter(wAIm, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-ts}
+
+wts <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","ts")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source") 
+
+wts$pval <- apply(wts, 1, ostt)
+
+wts$ts.CMIP6 <- rowMeans(dplyr::select(wts, c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI")), na.rm = T)
+
+ggplot() + geom_raster(data =  wts, aes(x=lon, y = lat,  fill = ts.CMIP6-273.15))+
+  geom_point(data = filter(wts, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = wts, aes(x=lon, y = lat,  fill = ts.Worldclim-273.15))+
+  geom_point(data = filter(wts, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = wts, aes(x=lon, y = lat,  fill = ts.CMIP6-ts.Worldclim))+
+  geom_point(data = filter(wts, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, name = "Difference CMIP6 - Worldclim")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+for(i in c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI", "ts.CMIP6")){
+  plottitle <- paste("Difference", i, "and ts.Worldclim", sep = " ")
+  g <- ggplot(data = wts) + geom_raster(aes(x=lon, y = lat,  fill = wts[, i] - ts.Worldclim))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-35,25))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+
+
+for(i in c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.FGOALS", "ts.INM", "ts.MPI", "ts.MRI", "ts.CMIP6")){
+  plottitle <- paste("Relative biais between", i, "and pr.Worldclim", sep = " ")
+  
+  df <- wts
+  df$rbiais <- (df[, i] - df[,"ts.Worldclim"])/df[,"ts.Worldclim"] * 100
+  df$cat.rbiais <- cut(df$rbiais, breaks = c(-100, -50, -10, 0,10,50,100,200,500,1000,Inf))
+  
+  
+  g <- ggplot(data = df) + geom_raster(aes(x=lon, y = lat,  fill = cat.rbiais))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+    scale_fill_manual(values = c("#FDAE61","#FEE090","#FFFFBF","#E0F3F8","#ABD9E9","#74ADD1","#4575B4","#313695","#6959CD","#473C8B"))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   print(g)
+
+}
+
+
+set.seed(1)
+kernel_test <- sample_n(wts, 5000)
+ggplot(kernel_test) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = ts.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
+set.seed(502)
+kernel_test <- sample_n(wts, 5000)
+ggplot(kernel_test) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = ts.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+```
+
+```{r one-sample-t-test-pr}
+
+wpr <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","pr")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "pr", timevar = "source")
+
+wpr$pval <- apply(wpr, 1, ostt)
+
+wpr$pr.CMIP6 <- rowMeans(dplyr::select(wpr, c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI")), na.rm = T)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI", "pr.CMIP6")){
+  plottitle <- paste("Difference", i, "and pr.Worldclim", sep = " ")
+  g <- ggplot(data = wpr) + geom_raster(aes(x=lon, y = lat,  fill = (wpr[, i] - pr.Worldclim)*60*60*24*365))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = F, mid = 0, name = "Difference in precipitations,\n mm/y")+
+  # scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, name = "Precipitations, mm/y")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+
+for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI", "pr.CMIP6")){
+  plottitle <- paste("Relative biais between", i, "and pr.Worldclim", sep = " ")
+  
+  df <- wpr
+  df$rbiais <- (df[, i] - df[,"pr.Worldclim"])/df[,"pr.Worldclim"] * 100
+  df$cat.rbiais <- cut(df$rbiais, breaks = c(-100, -50, -10, 0,10,50,100,200,500,1000,Inf))
+  
+  
+  g <- ggplot(data = df) + geom_raster(aes(x=lon, y = lat,  fill = cat.rbiais))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+    scale_fill_manual(values = c("#FDAE61","#FEE090","#FFFFBF","#E0F3F8","#ABD9E9","#74ADD1","#4575B4","#313695","#6959CD","#473C8B"))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   print(g)
+
+}
+
+
+set.seed(1)
+kernel_test <- sample_n(wpr, 5000)
+ggplot(kernel_test) + geom_density(aes(x = pr.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = pr.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
+set.seed(50)
+kernel_test <- sample_n(wpr, 5000)
+ggplot(kernel_test) + geom_density(aes(x = pr.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = pr.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
+```
+
+
+# Non parametric one sample wilcoxon test with Worldclim
+
+```{r ostt-function}
+oswt <- function(v){
+  x <- v[3:12]
+  y <- v[13]
+  p <- ifelse(is.na(y) == F,  wilcox.test(x,mu = y ,na.action(na.omit))$p.value, NA)
+  return(p)
+} 
+```
+
+```{r one-sample-t-test-AIu}
+
+wAIu <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIu")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIu", timevar = "source")
+
+wAIu$pval <- apply(wAIu, 1, oswt)
+table(wAIu$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "CMIP6, Wilcox")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wAIu, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim, Wilcox")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-AIm}
+
+wAIm <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","AIm")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "AIm", timevar = "source")
+
+wAIm$pval <- apply(wAIm, 1, oswt)
+
+table(wAIm$pval < 0.05)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_point(data = filter(wAIm, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.martonne, na.value = "gray70")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-ts}
+
+wts <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","ts")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source")
+
+wts$pval <- apply(wts, 1, oswt)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = ts-273.15))+
+  geom_point(data = filter(wts, pval < 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40), name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r one-sample-t-test-pr}
+
+wpr <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","pr")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "pr", timevar = "source")
+
+wpr$pval <- apply(wpr, 1, ostt)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = pr*60*60*24*365))+
+  geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Precipitations, mm/y")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+# Categorical comparison
+
+```{r comparison-categories-AIu}
+
+wcatAIu <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","cat.AIu")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "cat.AIu", timevar = "source")
+
+ccat <- function(v){
+  x <- v[3:12]  %>% t() %>% as.vector()
+  y <- v[[13]]  %>% as.character()
+  p <- sum(grepl(y, x) == TRUE)
+  return(p)
+} 
+
+wcatAIu$prop <- apply(wcatAIu, 1, ccat)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "CMIP6")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_manual(values = col.cat)+
+  labs(title = "Worldclim")+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r comparison-categories-AIm}
+
+wcatAIm <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","cat.AIm")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "cat.AIm", timevar = "source")
+
+ccat <- function(v){
+  x <- v[3:12]  %>% t() %>% as.vector()
+  y <- v[[13]]  %>% as.character()
+  p <- sum(grepl(y, x) == TRUE)
+  return(p)
+} 
+
+wcatAIm$prop <- apply(wcatAIm, 1, ccat)
+
+ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_point(data = filter(wcatAIu, prop > 8), aes(x = lon, y = lat), col = "gray70", shape = ".")+
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
