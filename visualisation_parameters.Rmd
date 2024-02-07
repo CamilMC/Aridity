@@ -28,7 +28,7 @@ library(RColorBrewer)
 library(sf)
 library(stringr)
 
-display.brewer.pal(n = 11, name ="RdYlBu")
+#display.brewer.pal(n = 11, name ="RdYlBu")
 colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 ```
 
@@ -227,6 +227,185 @@ for(i in unique(ts.all_annual$model)){
   }
 }
 ```
+
+```{r tas-month}
+tas_january <- read.table("CMIP6/tas/tas.all_january.txt") %>% select(!month) %>% dplyr::rename(tas_01 = tas)
+tas_february <- read.table("CMIP6/tas/tas.all_february.txt") %>% select(!month) %>% dplyr::rename(tas_02 = tas)
+tas_march <- read.table("CMIP6/tas/tas.all_march.txt") %>% select(!month) %>% dplyr::rename(tas_03 = tas)
+tas_april <- read.table("CMIP6/tas/tas.all_april.txt") %>% select(!month) %>% dplyr::rename(tas_04 = tas)
+tas_may <- read.table("CMIP6/tas/tas.all_may.txt") %>% select(!month) %>% dplyr::rename(tas_05 = tas)
+tas_june <- read.table("CMIP6/tas/tas.all_june.txt") %>% select(!month) %>% dplyr::rename(tas_06 = tas)
+tas_july <- read.table("CMIP6/tas/tas.all_july.txt") %>% select(!month) %>% dplyr::rename(tas_07 = tas)
+tas_august <- read.table("CMIP6/tas/tas.all_august.txt") %>% select(!month) %>% dplyr::rename(tas_08 = tas)
+tas_september <- read.table("CMIP6/tas/tas.all_september.txt") %>% select(!month) %>% dplyr::rename(tas_09 = tas)
+tas_october <- read.table("CMIP6/tas/tas.all_october.txt") %>% select(!month) %>% dplyr::rename(tas_10 = tas)
+tas_november <- read.table("CMIP6/tas/tas.all_november.txt") %>% select(!month) %>% dplyr::rename(tas_11 = tas)
+tas_december <- read.table("CMIP6/tas/tas.all_december.txt") %>% select(!month) %>% dplyr::rename(tas_12 = tas)
+
+tas_month <- tas_january %>% 
+  merge(tas_february, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_march, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_april, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_may, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_june, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_july, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_august, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_september, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_october, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_november, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source")) %>%
+  merge(tas_december, by =c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))
+
+tas_month$tas_min <- apply(select(tas_month,c("tas_01", "tas_02", "tas_03", "tas_04", "tas_05", "tas_06", "tas_07", "tas_08", "tas_09", "tas_10", "tas_11", "tas_12")), 1, FUN = min, na.rm = T)
+
+write.table(tas_month, "CMIP6/tas/tas_month.txt")
+```
+
+```{r test-months}
+for(i in unique(tas.all_annual$model)){
+  df <- tas_january %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_01-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_february %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_02-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_march %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_03-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_april %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_04-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_may %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_05-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_june %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_06-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_july %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_07-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_august %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_08-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_september %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_09-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_october %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_10-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_november %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_11-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+
+for(i in unique(tas.all_annual$model)){
+  df <- tas_december %>% subset(model == i)
+  for(j in unique(df$period)){
+    g <- ggplot(data = subset(df, period == j)) + geom_raster(aes(x=lon, y = lat,  fill = tas_12-273.15))+
+      scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+      labs(title = paste(i, j, sep = ","), fill = "")+
+      theme_void()+
+      theme(legend.position = "bottom")
+    print(g)
+  }
+}
+```
+
 
 ```{r data}
 ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
@@ -628,6 +807,7 @@ ggplot(data = subset(clim_sum, period == "2030_2060" & model == "SSP245")) + geo
   labs(title = "SSP245, 2030-2060", fill = "")+
   theme_void()+
   theme(legend.position = "bottom")
+
 ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP245")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AIu))+
   scale_fill_manual(values = col.cat)+
   labs(title = "SSP245, 2070-2100", fill = "")+
@@ -1500,7 +1680,7 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 ```{r data}
 clim <- read.table("clim.txt")
 clim_sum <- read.table("clim_sum.txt")
-clim_med <- read.table("clim_med.txt")
+#clim_med <- read.table("clim_med.txt")
 
 col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
 col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
@@ -1617,21 +1797,40 @@ for(i in c("ts.AWI", "ts.BCC", "ts.CAMS", "ts.CESM", "ts.CMCC", "ts.CNRM", "ts.F
 }
 
 
-set.seed(1)
-kernel_test <- sample_n(wts, 5000)
-ggplot(kernel_test) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+ggplot(wts) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
    geom_density(aes(x = ts.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
   scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
   labs(x = "pr", fill = "")+
   theme_minimal()
 
-set.seed(502)
-kernel_test <- sample_n(wts, 5000)
-ggplot(kernel_test) + geom_density(aes(x = ts.CMIP6, fill = "CMIP6"), alpha = 0.5) +
-   geom_density(aes(x = ts.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
-  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
-  labs(x = "pr", fill = "")+
-  theme_minimal()
+
+set.seed(1000)
+kernel_test_pixel <- sample_n(subset(wts, lat < 75 & lat > -75), 9)
+kernel_test_pixel$col <- colorvec[-c(6:7)]
+
+ggplot(kernel_test_pixel) + 
+  borders() +
+  geom_point(aes(x=lon, y = lat, col = col), size = 2) +
+  scale_color_identity()+
+  theme_bw()
+
+
+dplot <- function(x){
+  y <- t(x)
+  plot(density(as.numeric(y[3:12])-273.15), main = paste("lon = ", y[1], ", lat = ",y[2],sep = ""))
+  abline(v = as.numeric(y[13])-273.15, col = y[16])
+}
+
+par(mfrow = c(3,3))
+apply(kernel_test_pixel, 1, dplot)
+
+par(mfrow = c(1,1))
+corrplot::corrplot(cor(wts[3:13], use = "pairwise.complete.obs"), 
+                   method = "number", number.cex = 0.5, type = "lower", corrplot::COL2("RdYlBu",20), col.lim = c(0.7,1))
+
+par(mfrow = c(1,2))
+apply(wts[3:13]-273.15,2,mean, na.rm = T) %>% barplot()
+apply(wts[3:13], 2 ,function(x) (mean(x, na.rm = T) - mean(wts[,13], na.rm = T))/mean(wts[,13], na.rm = T)*100) %>% barplot()
 ```
 
 ```{r one-sample-t-test-pr}
@@ -1681,6 +1880,15 @@ for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.F
 
 }
 
+for(i in c("pr.AWI", "pr.BCC", "pr.CAMS", "pr.CESM", "pr.CMCC", "pr.CNRM", "pr.FGOALS", "pr.INM", "pr.MPI", "pr.MRI", "pr.CMIP6")){
+  
+gd <- ggplot(wpr) + geom_density(aes(x = wpr[,i], fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = wpr[,"pr.Worldclim"], fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "", title = i)+
+  theme_minimal()
+print(gd)
+}
 
 set.seed(1)
 kernel_test <- sample_n(wpr, 5000)
@@ -1698,8 +1906,242 @@ ggplot(kernel_test) + geom_density(aes(x = pr.CMIP6, fill = "CMIP6"), alpha = 0.
   labs(x = "pr", fill = "")+
   theme_minimal()
 
+
+
+
+
+set.seed(1000)
+kernel_test_pixel <- sample_n(subset(wpr, lat < 75 & lat > -75), 9)
+kernel_test_pixel$col <- colorvec[-c(6:7)]
+
+ggplot(kernel_test_pixel) + 
+  borders() +
+  geom_point(aes(x=lon, y = lat, col = col), size = 2) +
+  scale_color_identity()+
+  theme_bw()
+
+
+
+
+dplot <- function(x){
+  y <- t(x)
+  plot(density(as.numeric(y[3:12])*60*60*24*365), main = paste("lon = ", y[1], ", lat = ",y[2],sep = ""))
+  abline(v = as.numeric(y[13])*60*60*24*365, col = y[16])
+}
+
+par(mfrow = c(3,3))
+apply(kernel_test_pixel, 1, dplot)
+
+
+corrplot::corrplot(cor(wpr[3:13], use = "pairwise.complete.obs"), 
+                   method = "number", number.cex = 0.5, type = "lower", corrplot::COL2("RdYlBu",20), col.lim = c(0.7,1))
+
+apply(wpr[3:13]*60*60*24*365,2,mean, na.rm = T) %>% barplot()
+apply(wpr[3:13], 2 ,function(x) (mean(x, na.rm = T) - mean(wpr[,13], na.rm = T))/mean(wpr[,13], na.rm = T)*100) %>% barplot()
+
 ```
 
+```{r one-sample-t-test-sfcWind}
+
+wsw <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","sfcWind")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "sfcWind", timevar = "source") 
+
+wsw$pval <- apply(wsw, 1, ostt)
+
+wsw$sfcWind.CMIP6 <- rowMeans(dplyr::select(wsw, c("sfcWind.AWI", "sfcWind.BCC", "sfcWind.CAMS", "sfcWind.CESM", "sfcWind.CMCC", "sfcWind.CNRM", "sfcWind.FGOALS", "sfcWind.INM", "sfcWind.MPI", "sfcWind.MRI")), na.rm = T)
+
+ggplot() + geom_raster(data =  wsw, aes(x=lon, y = lat,  fill = sfcWind.CMIP6))+
+  geom_point(data = filter(wsw, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = wsw, aes(x=lon, y = lat,  fill = sfcWind.Worldclim))+
+  geom_point(data = filter(wsw, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+ scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, name = "Temperature, Celsius")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = wsw, aes(x=lon, y = lat,  fill = sfcWind.CMIP6-sfcWind.Worldclim))+
+  geom_point(data = filter(wsw, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, name = "Difference CMIP6 - Worldclim")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+for(i in c("sfcWind.AWI", "sfcWind.BCC", "sfcWind.CAMS", "sfcWind.CESM", "sfcWind.CMCC", "sfcWind.CNRM", "sfcWind.FGOALS", "sfcWind.INM", "sfcWind.MPI", "sfcWind.MRI", "sfcWind.CMIP6")){
+  plottitle <- paste("Difference", i, "and sfcWind.Worldclim", sep = " ")
+  g <- ggplot(data = wsw) + geom_raster(aes(x=lon, y = lat,  fill = wsw[, i] - sfcWind.Worldclim))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0)+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+
+
+for(i in c("sfcWind.AWI", "sfcWind.BCC", "sfcWind.CAMS", "sfcWind.CESM", "sfcWind.CMCC", "sfcWind.CNRM", "sfcWind.FGOALS", "sfcWind.INM", "sfcWind.MPI", "sfcWind.MRI", "sfcWind.CMIP6")){
+  plottitle <- paste("Relative biais between", i, "and sfcWind.Worldclim", sep = " ")
+  
+  df <- wsw
+  df$rbiais <- (df[, i] - df[,"sfcWind.Worldclim"])/df[,"sfcWind.Worldclim"] * 100
+  df$cat.rbiais <- cut(df$rbiais, breaks = c(-100, -50, -10, 0,10,50,100,200,500,1000,Inf))
+  
+  
+  g <- ggplot(data = df) + geom_raster(aes(x=lon, y = lat,  fill = cat.rbiais))+
+      geom_point(data = filter(wpr, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+    scale_fill_manual(values = c("#FDAE61","#FEE090","#FFFFBF","#E0F3F8","#ABD9E9","#74ADD1","#4575B4","#313695","#6959CD","#473C8B"))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   print(g)
+
+}
+
+
+ggplot(wsw) + geom_density(aes(x = sfcWind.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = sfcWind.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "pr", fill = "")+
+  theme_minimal()
+
+
+set.seed(1000)
+kernel_test_pixel <- sample_n(subset(wsw, lat < 75 & lat > -75), 9)
+kernel_test_pixel$col <- colorvec[-c(6:7)]
+
+ggplot(kernel_test_pixel) + 
+  borders() +
+  geom_point(aes(x=lon, y = lat, col = col), size = 2) +
+  scale_color_identity()+
+  theme_bw()
+
+
+dplot <- function(x){
+  y <- t(x)
+  plot(density(as.numeric(y[3:12])), main = paste("lon = ", y[1], ", lat = ",y[2],sep = ""))
+  abline(v = as.numeric(y[13]), col = y[16])
+}
+
+par(mfrow = c(3,3))
+apply(kernel_test_pixel, 1, dplot)
+
+par(mfrow = c(1,1))
+corrplot::corrplot(cor(wsw[3:13], use = "pairwise.complete.obs"), 
+                   method = "number", number.cex = 0.5, type = "lower", corrplot::COL2("RdYlBu",20), col.lim = c(-1,1))
+
+par(mfrow = c(1,2))
+apply(wsw[3:13],2,mean, na.rm = T) %>% barplot()
+apply(wsw[3:13], 2 ,function(x) (mean(x, na.rm = T) - mean(wsw[,13], na.rm = T))/mean(wsw[,13], na.rm = T)*100) %>% barplot()
+```
+```{r one-sample-t-test-rsds}
+
+wrsds <-  subset(clim, period == "1970_2000") %>% 
+       select(c("lon","lat","source","rsds")) %>%
+      reshape(direction = "wide", idvar = c("lon","lat"), v.names = "rsds", timevar = "source")
+
+wrsds$pval <- apply(wrsds, 1, ostt)
+
+wrsds$rsds.CMIP6 <- rowMeans(dplyr::select(wrsds, c("rsds.AWI", "rsds.BCC", "rsds.CAMS", "rsds.CESM", "rsds.CMCC", "rsds.CNRM", "rsds.FGOALS", "rsds.INM", "rsds.MPI", "rsds.MRI")), na.rm = T)
+
+ggplot() + geom_raster(data =  subset(clim_sum, period == "1970_2000"), aes(x=lon, y = lat,  fill = rsds))+
+  geom_point(data = filter(wrsds, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".")+
+  scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,8000), name = "Irradiation")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+for(i in c("rsds.AWI", "rsds.BCC", "rsds.CAMS", "rsds.CESM", "rsds.CMCC", "rsds.CNRM", "rsds.FGOALS", "rsds.INM", "rsds.MPI", "rsds.MRI", "rsds.CMIP6")){
+  plottitle <- paste("Difference", i, "and rsds.Worldclim", sep = " ")
+  g <- ggplot(data = wrsds) + geom_raster(aes(x=lon, y = lat,  fill = (wrsds[, i] - rsds.Worldclim)))+
+      geom_point(data = filter(wrsds, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = F, mid = 0, name = "Difference in irradiation")+
+  # scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, name = "Precipitations, mm/y")+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+
+for(i in c("rsds.AWI", "rsds.BCC", "rsds.CAMS", "rsds.CESM", "rsds.CMCC", "rsds.CNRM", "rsds.FGOALS", "rsds.INM", "rsds.MPI", "rsds.MRI", "rsds.CMIP6")){
+  plottitle <- paste("Relative biais between", i, "and rsds.Worldclim", sep = " ")
+  
+  df <- wrsds
+  df$rbiais <- (df[, i] - df[,"rsds.Worldclim"])/df[,"rsds.Worldclim"] * 100
+  df$cat.rbiais <- cut(df$rbiais, breaks = c(-100, -50, -10, 0,10,50,100,200,500,1000,Inf))
+  
+  
+  g <- ggplot(data = df) + geom_raster(aes(x=lon, y = lat,  fill = cat.rbiais))+
+      geom_point(data = filter(wrsds, pval > 0.05), aes(x = lon, y = lat), col = "black", shape = ".", alpha = 0.5)+
+    scale_fill_manual(values = c("#FDAE61","#FEE090","#FFFFBF","#E0F3F8","#ABD9E9","#74ADD1","#4575B4","#313695","#6959CD","#473C8B"))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   print(g)
+
+}
+
+for(i in c("rsds.AWI", "rsds.BCC", "rsds.CAMS", "rsds.CESM", "rsds.CMCC", "rsds.CNRM", "rsds.FGOALS", "rsds.INM", "rsds.MPI", "rsds.MRI", "rsds.CMIP6")){
+  
+gd <- ggplot(wrsds) + geom_density(aes(x = wrsds[,i], fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = wrsds[,"rsds.Worldclim"], fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "rsds", fill = "", title = i)+
+  theme_minimal()
+print(gd)
+}
+
+set.seed(1)
+kernel_test <- sample_n(wrsds, 5000)
+ggplot(kernel_test) + geom_density(aes(x = rsds.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = rsds.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "rsds", fill = "")+
+  theme_minimal()
+
+set.seed(50)
+kernel_test <- sample_n(wrsds, 5000)
+ggplot(kernel_test) + geom_density(aes(x = rsds.CMIP6, fill = "CMIP6"), alpha = 0.5) +
+   geom_density(aes(x = rsds.Worldclim, fill = "Worldclim"),  alpha = 0.5)+
+  scale_fill_manual(values = c("#ABD9E9","#FDAE61"))+
+  labs(x = "rsds", fill = "")+
+  theme_minimal()
+
+
+
+
+
+set.seed(1000)
+kernel_test_pixel <- sample_n(subset(wrsds, lat < 75 & lat > -75), 9)
+kernel_test_pixel$col <- colorvec[-c(6:7)]
+
+ggplot(kernel_test_pixel) + 
+  borders() +
+  geom_point(aes(x=lon, y = lat, col = col), size = 2) +
+  scale_color_identity()+
+  theme_bw()
+
+
+
+
+dplot <- function(x){
+  y <- t(x)
+  plot(density(as.numeric(y[3:12])*60*60*24*365), main = paste("lon = ", y[1], ", lat = ",y[2],sep = ""))
+  abline(v = as.numeric(y[13])*60*60*24*365, col = y[16])
+}
+
+par(mfrow = c(3,3))
+apply(kernel_test_pixel, 1, dplot)
+
+
+corrplot::corrplot(cor(wrsds[3:13], use = "pairwise.complete.obs"), 
+                   method = "number", number.cex = 0.5, type = "lower", corrplot::COL2("RdYlBu",20), col.lim = c(0.7,1))
+
+apply(wrsds[3:13]*60*60*24*365,2,mean, na.rm = T) %>% barplot()
+apply(wrsds[3:13], 2 ,function(x) (mean(x, na.rm = T) - mean(wrsds[,13], na.rm = T))/mean(wrsds[,13], na.rm = T)*100) %>% barplot()
+
+```
 
 # Non parametric one sample wilcoxon test with Worldclim
 
@@ -1755,7 +2197,7 @@ ggplot() + geom_raster(data = subset(clim_sum, period == "1970_2000"), aes(x=lon
 
 ```{r one-sample-t-test-ts}
 
-wts <-  subset(clim, period == "1970_2000") %>% 
+wts <- subset(clim, period == "1970_2000") %>% 
        select(c("lon","lat","source","ts")) %>%
       reshape(direction = "wide", idvar = c("lon","lat"), v.names = "ts", timevar = "source")
 
