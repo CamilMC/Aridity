@@ -1655,7 +1655,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.
 list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
 
 ### annual mean
-sfcWind.stack <- raster::stack(list.nf, bands = c(1441:1812) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sfcWind.stack <- raster::stack(list.nf, bands = c(1441:1812)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.hist.1970-2000.sfcWind.txt")
 
