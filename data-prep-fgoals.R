@@ -2109,7 +2109,7 @@ dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon",
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/fgoals.ssp585.2070-2100.dec.sfcWind.txt")
 
 
-# Average-fgoals-surface-temperature ----
+# Average-fgoals-2m-temperature ----
 
 ## historical 1850-1880 ----------
 

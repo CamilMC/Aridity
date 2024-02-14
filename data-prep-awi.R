@@ -2101,12 +2101,13 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/awi.ssp585
 
 list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_185*|tas_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_186*|tas_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_187*", full.names = T)
 
-### annual mean
+### annual mean ----- 
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% raster::rotate() %>% projectRaster(land_mask)
 tas.df <- as.data.frame(tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1850-1880.tas.txt")
 
-### mensual mean
+### mensual mean -----
+
 jan.tas.stack <- raster::stack(list.nf, bands = 1) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jan.tas.df <- as.data.frame(jan.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(jan.tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1850-1880.jan.tas.txt")
@@ -2159,12 +2160,14 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1850-1880
 
 list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_197*|tas_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_198*|tas_Amon_AWI-CM-1-1-MR_historical_r1i1p1f1_gn_199*", full.names = T)
 
-### annual mean
+### annual mean ----- 
+
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% raster::rotate() %>% projectRaster(land_mask)
 tas.df <- as.data.frame(tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1970-2000.tas.txt")
 
-### mensual mean
+### mensual mean ----- 
+
 jan.tas.stack <- raster::stack(list.nf, bands = 1) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jan.tas.df <- as.data.frame(jan.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(jan.tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1970-2000.jan.tas.txt")
@@ -2269,8 +2272,6 @@ write.table(nov.tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1985-2015
 dec.tas.stack <- raster::stack(list.nf, bands = 12) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/awi.hist.1985-2015.dec.tas.txt")
-
-
 ## SSP245 2030-2060 ----
 
 list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_AWI-CM-1-1-MR_ssp245_r1i1p1f1_gn_203*|tas_Amon_AWI-CM-1-1-MR_ssp245_r1i1p1f1_gn_204*|tas_Amon_AWI-CM-1-1-MR_ssp245_r1i1p1f1_gn_205*", full.names = T)
