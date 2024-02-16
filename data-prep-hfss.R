@@ -1,3 +1,8 @@
+library(dplyr)
+library(raster)
+
+land_mask <- raster("/home/crapartc/Aridity/Masks/land_sea_mask_1degree.nc4") 
+
 # AWI -----
 
 ## historical 1850-1880 ----
