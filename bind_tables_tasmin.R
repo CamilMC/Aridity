@@ -4,10 +4,10 @@ library(raster)
 library(dplyr)
 library(stringr)
 # Masks ---- 
-land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
+land_mask <- raster("/home/crapartc/Aridity/Masks/land_sea_mask_1degree.nc4") 
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
-ipcc_regions <- shapefile("Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
+ipcc_regions <- shapefile("/home/crapartc/Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
 ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 # AWI ---- 
@@ -27,7 +27,7 @@ awi_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/awi.hist.1850-
 awi_land <- merge(awi_annual, land_mask.df, by = c("lon", "lat")) 
 awi_ipcc <- merge(awi_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(awi_ipcc, "Aridity/CMIP6/awi.tasmin_ipcc.txt")
+write.table(awi_ipcc, "/home/crapartc/Aridity/CMIP6/awi.tasmin_ipcc.txt")
 
 ## Monthly ---- 
 
@@ -143,7 +143,7 @@ awi_monthly <- mutate(read.table("/bettik/crapartc/Averages/tasmin/awi.hist.1850
 awim_land <- merge(awi_monthly, land_mask.df, by = c("lon", "lat")) 
 awim_ipcc <- merge(awim_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(awim_ipcc, "Aridity/CMIP6/awim.tasmin_ipcc.txt")
+write.table(awim_ipcc, "/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt")
 
 # BCC  ---- 
 
@@ -162,7 +162,7 @@ bcc_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/bcc.hist.1850-
 bcc_land <- merge(bcc_annual, land_mask.df, by = c("lon", "lat")) 
 bcc_ipcc <- merge(bcc_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(bcc_ipcc, "Aridity/CMIP6/bcc.tasmin_ipcc.txt")
+write.table(bcc_ipcc, "/home/crapartc/Aridity/CMIP6/bcc.tasmin_ipcc.txt")
 
 ## Monthly ----
 
@@ -278,7 +278,7 @@ bcc_monthly <- mutate(read.table("/bettik/crapartc/Averages/tasmin/bcc.hist.1850
 bccm_land <- merge(bcc_monthly, land_mask.df, by = c("lon", "lat")) 
 bccm_ipcc <- merge(bccm_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(bccm_ipcc, "Aridity/CMIP6/bccm.tasmin_ipcc.txt")
+write.table(bccm_ipcc, "/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt")
 # CNRM ---- 
 
 ## Annual ---- 
@@ -296,7 +296,7 @@ cnrm_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/cnrm.hist.185
 cnrm_land <- merge(cnrm_annual, land_mask.df, by = c("lon", "lat")) 
 cnrm_ipcc <- merge(cnrm_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(cnrm_ipcc, "Aridity/CMIP6/cnrm.tasmin_ipcc.txt")
+write.table(cnrm_ipcc, "/home/crapartc/Aridity/CMIP6/cnrm.tasmin_ipcc.txt")
 
 ## Monthly -----
 
@@ -412,7 +412,7 @@ cnrm_monthly <- mutate(read.table("/bettik/crapartc/Averages/tasmin/cnrm.hist.18
 cnrmm_land <- merge(cnrm_monthly, land_mask.df, by = c("lon", "lat")) 
 cnrmm_ipcc <- merge(cnrmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(cnrmm_ipcc, "Aridity/CMIP6/cnrmm.tasmin_ipcc.txt")
+write.table(cnrmm_ipcc, "/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt")
 
 # INM -------
 
@@ -430,7 +430,7 @@ inm_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/inm.hist.1850-
 inm_land <- merge(inm_annual, land_mask.df, by = c("lon", "lat")) 
 inm_ipcc <- merge(inm_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(inm_ipcc, "Aridity/CMIP6/inm.tasmin_ipcc.txt")
+write.table(inm_ipcc, "/home/crapartc/Aridity/CMIP6/inm.tasmin_ipcc.txt")
 
 ## Monthly 
 
@@ -546,7 +546,7 @@ inm_monthly <- mutate(read.table("/bettik/crapartc/Averages/tasmin/inm.hist.1850
 inmm_land <- merge(inm_monthly, land_mask.df, by = c("lon", "lat")) 
 inmm_ipcc <- merge(inmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(inmm_ipcc, "Aridity/CMIP6/inmm.tasmin_ipcc.txt")
+write.table(inmm_ipcc, "/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt")
 # MPI ---- 
 ## Annual ----
 mpi_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/mpi.hist.1850-1880.tasmin.txt"), model = "historical", period = "1850_1880") %>%
@@ -562,7 +562,7 @@ mpi_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/mpi.hist.1850-
 mpi_land <- merge(mpi_annual, land_mask.df, by = c("lon", "lat")) 
 mpi_ipcc <- merge(mpi_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(mpi_ipcc, "Aridity/CMIP6/mpi.tasmin_ipcc.txt")
+write.table(mpi_ipcc, "/home/crapartc/Aridity/CMIP6/mpi.tasmin_ipcc.txt")
 
 ## Monthly ----
 
@@ -678,7 +678,7 @@ mpi_monthly <- mutate(read.table("/bettik/crapartc/Averages/tasmin/mpi.hist.1850
 mpim_land <- merge(mpi_monthly, land_mask.df, by = c("lon", "lat")) 
 mpim_ipcc <- merge(mpim_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(mpim_ipcc, "Aridity/CMIP6/mpim.tasmin_ipcc.txt")
+write.table(mpim_ipcc, "/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt")
 
 # MRI ---- 
 
@@ -697,7 +697,7 @@ mri_annual <- mutate(read.table("/bettik/crapartc/Averages/tasmin/mri.hist.1850-
 mri_land <- merge(mri_annual, land_mask.df, by = c("lon", "lat")) 
 mri_ipcc <- merge(mri_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(mri_ipcc, "Aridity/CMIP6/mri.tasmin_ipcc.txt")
+write.table(mri_ipcc, "/home/crapartc/Aridity/CMIP6/mri.tasmin_ipcc.txt")
 
 ## Monthly -----
 
@@ -813,125 +813,125 @@ mri_monthly <- mutate(read.table("/bettik/crapartc/Averages/tasmin/mri.hist.1850
 mrim_land <- merge(mri_monthly, land_mask.df, by = c("lon", "lat")) 
 mrim_ipcc <- merge(mrim_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(mrim_ipcc, "Aridity/CMIP6/mrim.tasmin_ipcc.txt")
+write.table(mrim_ipcc, "/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt")
 
 # ALL tasmin ANNUAL ----- 
 
-all_annual <- mutate(read.table("Aridity/CMIP6/awi.tasmin_ipcc.txt"), source = "AWI") %>% 
-  rbind(mutate(read.table("Aridity/CMIP6/bcc.tasmin_ipcc.txt"), source = "BCC")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/cnrm.tasmin_ipcc.txt"), source = "CNRM")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/inm.tasmin_ipcc.txt"), source = "INM")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/mpi.tasmin_ipcc.txt"), source = "MPI")) %>%
-  rbind(mutate(read.table("Aridity/CMIP6/mri.tasmin_ipcc.txt"), source = "MRI"))
+all_annual <- mutate(read.table("/home/crapartc/Aridity/CMIP6/awi.tasmin_ipcc.txt"), source = "AWI") %>% 
+  rbind(mutate(read.table("/home/crapartc/Aridity/CMIP6/bcc.tasmin_ipcc.txt"), source = "BCC")) %>%
+  rbind(mutate(read.table("/home/crapartc/Aridity/CMIP6/cnrm.tasmin_ipcc.txt"), source = "CNRM")) %>%
+  rbind(mutate(read.table("/home/crapartc/Aridity/CMIP6/inm.tasmin_ipcc.txt"), source = "INM")) %>%
+  rbind(mutate(read.table("/home/crapartc/Aridity/CMIP6/mpi.tasmin_ipcc.txt"), source = "MPI")) %>%
+  rbind(mutate(read.table("/home/crapartc/Aridity/CMIP6/mri.tasmin_ipcc.txt"), source = "MRI"))
 
-write.table(filter(all_annual, lm == 1), "Aridity/tasmin.all_annual.txt")
+write.table(filter(all_annual, lm == 1), "/home/crapartc/Aridity/tasmin.all_annual.txt")
 
 # ALL tasmin MONTHLY ----
 
-all_january <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 1), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 1), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 1), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 1), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 1), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 1), source = "MRI")) 
+all_january <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 1), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 1), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 1), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 1), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 1), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 1), source = "MRI")) 
 
-write.table(all_january, "Aridity/tasmin.all_january.txt")
+write.table(all_january, "/home/crapartc/Aridity/tasmin.all_january.txt")
 
-all_february <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 2), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 2), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 2), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 2), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 2), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 2), source = "MRI")) 
+all_february <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 2), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 2), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 2), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 2), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 2), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 2), source = "MRI")) 
 
-write.table(all_february, "Aridity/tasmin.all_february.txt")
+write.table(all_february, "/home/crapartc/Aridity/tasmin.all_february.txt")
 
-all_march <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 3), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 3), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 3), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 3), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 3), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 3), source = "MRI")) 
+all_march <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 3), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 3), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 3), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 3), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 3), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 3), source = "MRI")) 
 
-write.table(all_march, "Aridity/tasmin.all_march.txt")
+write.table(all_march, "/home/crapartc/Aridity/tasmin.all_march.txt")
 
-all_april <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 4), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 4), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 4), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 4), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 4), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 4), source = "MRI")) 
+all_april <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 4), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 4), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 4), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 4), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 4), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 4), source = "MRI")) 
 
-write.table(all_april, "Aridity/tasmin.all_atasminil.txt")
+write.table(all_april, "/home/crapartc/Aridity/tasmin.all_atasminil.txt")
 
-all_may <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 5), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 5), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 5), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 5), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 5), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 5), source = "MRI")) 
+all_may <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 5), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 5), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 5), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 5), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 5), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 5), source = "MRI")) 
 
-write.table(all_may, "Aridity/tasmin.all_may.txt")
+write.table(all_may, "/home/crapartc/Aridity/tasmin.all_may.txt")
 
-all_june <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 6), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 6), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 6), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 6), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 6), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 6), source = "MRI")) 
+all_june <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 6), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 6), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 6), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 6), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 6), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 6), source = "MRI")) 
 
-write.table(all_june, "Aridity/tasmin.all_june.txt")
+write.table(all_june, "/home/crapartc/Aridity/tasmin.all_june.txt")
 
-all_july <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 7), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 7), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 7), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 7), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 7), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 7), source = "MRI")) 
+all_july <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 7), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 7), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 7), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 7), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 7), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 7), source = "MRI")) 
 
-write.table(all_july, "Aridity/tasmin.all_july.txt")
+write.table(all_july, "/home/crapartc/Aridity/tasmin.all_july.txt")
 
-all_august <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 8), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 8), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 8), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 8), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 8), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 8), source = "MRI")) 
+all_august <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 8), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 8), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 8), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 8), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 8), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 8), source = "MRI")) 
 
-write.table(all_august, "Aridity/tasmin.all_august.txt")
+write.table(all_august, "/home/crapartc/Aridity/tasmin.all_august.txt")
 
-all_september <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 9), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 9), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 9), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 9), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 9), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 9), source = "MRI")) 
+all_september <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 9), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 9), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 9), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 9), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 9), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 9), source = "MRI")) 
 
-write.table(all_september, "Aridity/tasmin.all_september.txt")
+write.table(all_september, "/home/crapartc/Aridity/tasmin.all_september.txt")
 
-all_october <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 10), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 10), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 10), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 10), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 10), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 10), source = "MRI")) 
+all_october <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 10), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 10), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 10), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 10), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 10), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 10), source = "MRI")) 
 
-write.table(all_october, "Aridity/tasmin.all_october.txt")
+write.table(all_october, "/home/crapartc/Aridity/tasmin.all_october.txt")
 
-all_november <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 11), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 11), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 11), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 11), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 11), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 11), source = "MRI")) 
+all_november <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 11), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 11), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 11), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 11), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 11), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 11), source = "MRI")) 
 
-write.table(all_november, "Aridity/tasmin.all_november.txt")
+write.table(all_november, "/home/crapartc/Aridity/tasmin.all_november.txt")
 
-all_december <- mutate(filter(read.table("Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 12), source = "AWI") %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 12), source = "BCC")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 12), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 12), source = "INM")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 12), source = "MPI")) %>%
-  rbind(mutate(filter(read.table("Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 12), source = "MRI")) 
+all_december <- mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/awim.tasmin_ipcc.txt"), lm == 1, month == 12), source = "AWI") %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/bccm.tasmin_ipcc.txt"),lm == 1, month == 12), source = "BCC")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/cnrmm.tasmin_ipcc.txt"), lm == 1, month == 12), source = "CNRM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/inmm.tasmin_ipcc.txt"), lm == 1, month == 12), source = "INM")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mpim.tasmin_ipcc.txt"), lm == 1, month == 12), source = "MPI")) %>%
+  rbind(mutate(filter(read.table("/home/crapartc/Aridity/CMIP6/mrim.tasmin_ipcc.txt"), lm == 1, month == 12), source = "MRI")) 
 
-write.table(all_december, "Aridity/tasmin.all_december.txt")
+write.table(all_december, "/home/crapartc/Aridity/tasmin.all_december.txt")
