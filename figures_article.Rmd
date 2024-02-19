@@ -1,0 +1,106 @@
+---
+title: "article-figures"
+author: "Camille"
+date: "2024-02-15"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
+```
+
+```{r libraries}
+library(raster)
+
+library(plyr)
+library(dplyr)
+
+library(ggplot2)
+library(viridisLite)
+library(colorspace)
+library(RColorBrewer)
+
+library(sf)
+library(stringr)
+
+#display.brewer.pal(n = 11, name ="RdYlBu")
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+```
+
+```{r load-data}
+era5vA <- read.table("era5_AI.txt") %>%
+  mutate(tas = tas-273.15, pr = mpr * 60 * 60 * 24 * 365) %>% select(c("lon","lat","Continent","Type","Name","Acronym","lm","model","period","source","mpr","tas","sfcWind","Rn","ea","ET0","AI","cat.AI"))
+
+wdcvA <- read.table("wdc_AI.txt") %>% 
+ select(c("lon","lat","Continent","Type","Name","Acronym","lm","model","period","source","mpr","tas","sfcWind","Rn","ea","ET0","AI","cat.AI"))
+
+cmip6vA <- read.table("cmip6_AI.txt")
+
+cmip6vA <- cmpi6vA %>%
+   group_by(lon, lat, Name, Acronym) %>% 
+  dplyr::summarise(tas = mean(tas, na.rm = T) - 273.15, pr = mean(pr, na.rm = T) * 60 * 60 * 24 * 365,
+                   sfcWind = mean(sfcWind, na.rm = T), Rn = mean(Rn, na.rm = T),
+                   ea = mean(ea, na.rm = T), ET0 = mean(ET0, na.rm = T), AI = mean(AIu, na.rm = T))%>%
+  mutate(source = "CMIP6")
+
+breaks.unesco <- c(-1,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-1,0.03]" = "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+cmip6vA$cat.AI <-  cmip6vA$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+```
+
+
+# Comparison Wordlclim and ERA5
+
+```{r compare-by-region}
+
+
+calib <- rbind(cmip6vA, era5vA, wdcvA)
+
+
+
+table_calib <- calib %>%
+  group_by(Name, source) %>%
+  summarise(hyperarid = sum(cat.AIu == "Hyperarid"), 
+            arid = sum(cat.AIu == "Arid"), 
+            semi.arid = sum(cat.AIu == "Semi-arid"),
+            dry.subhumid = sum(cat.AIu == "Dry subhumid"),
+            humid = sum(cat.AIu == "Humid"),
+            na = sum(is.na(cat.AIu)),
+            total = n())
+
+ggplot(subset(table_calib, total > 10 & !is.na(hyperarid)), aes(x = Name))+
+  geom_col(aes(y = hyperarid, fill = "Hyperarid"))+
+  geom_col(aes(y = arid, fill = "Arid"))+
+  geom_col(aes(y = semi.arid, fill = "Semi-arid"))+
+  geom_col(aes(y = dry.subhumid, fill = "Dry subhumid"))+
+  scale_fill_manual(values = col.cat)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))+
+  facet_grid(rows = vars(source), cols = vars(Continent), switch = "y")+
+  labs(x = "IPCC Region", y = "Count", fill = "Aridity\ncategory")
+
+```
+
+```{r plot-compare}
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Wordclim, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "ERA5, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "CMIP6, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+```

@@ -30,6 +30,9 @@ library(stringr)
 
 #display.brewer.pal(n = 11, name ="RdYlBu")
 colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
 ```
 
 # Data
@@ -67,7 +70,7 @@ ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lo
 
 ```
 
-```{r data-month}
+```{r data-month, eval = F}
 ts_january <- read.table("CMIP6/ts/ts.all_january.txt") %>% select(!month) %>% dplyr::rename(ts_01 = ts)
 ts_february <- read.table("CMIP6/ts/ts.all_february.txt") %>% select(!month) %>% dplyr::rename(ts_02 = ts)
 ts_march <- read.table("CMIP6/ts/ts.all_march.txt") %>% select(!month) %>% dplyr::rename(ts_03 = ts)
@@ -245,7 +248,7 @@ for(i in unique(ts.all_annual$model)){
 }
 ```
 
-```{r tas-month}
+```{r tas-month, eval = F}
 tas_january <- read.table("CMIP6/tas/tas.all_january.txt") %>% select(!month) %>% dplyr::rename(tas_01 = tas)
 tas_february <- read.table("CMIP6/tas/tas.all_february.txt") %>% select(!month) %>% dplyr::rename(tas_02 = tas)
 tas_march <- read.table("CMIP6/tas/tas.all_march.txt") %>% select(!month) %>% dplyr::rename(tas_03 = tas)
@@ -498,127 +501,6 @@ ggplot(data = awi) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
 ```
 
 
-# Worldclim: réanalyse pour la période 1970-2000 -----
-
-```{r standalone-plots-wordlclim}
-world.df <- readRDS("Worldclim/world.df.rds")
-
-world.df$P <-  with(world.df, 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
-
-world.df$tmax <- apply(dplyr::select(world.df, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
-world.df$tmin <- apply(dplyr::select(world.df, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
-world.df$Rn <- apply(dplyr::select(world.df, c("srad_01", "srad_02", "srad_03", "srad_04", "srad_05", "srad_06", "srad_07", "srad_08", "srad_09", "srad_10", "srad_11", "srad_12")), 1, mean, na.rm = T)
-world.df$u2 <- apply(dplyr::select(world.df, c("u_01", "u_02", "u_03", "u_04", "u_05", "u_06", "u_07", "u_08", "u_09", "u_10", "u_11", "u_12")), 1, mean, na.rm = T)
-
-world.df$es <- with(world.df, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
-world.df$delta <- with(world.df, 4098*es/(temp+237.3)^2) #slope vapor pressure
-world.df$gamma <- with(world.df, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
-world.df$ea <- with(world.df, with(world.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
-world.df$ET0 <-with(world.df, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
-world.df$AIu <- with(world.df, pre/(ET0*365))
-
-breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
-
-world.df$cat.AIu <- world.df$AIu %>% cut(breaks = breaks.unesco) %>% # otherwise regions in  which pre = 0 are excluded 
-  revalue(cat.unesco)
-
-ggplot() + geom_raster(data = world.df, aes(x=lon, y = lat,  fill = cat.AIu))+
-  scale_fill_manual(values = col.cat)+
-  labs(title = "Worldclim, tmin is tmin")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-world.df$tmin <- apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
-world.df$es <- with(world.df, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
-world.df$delta <- with(world.df, 4098*es/(temp+237.3)^2) #slope vapor pressure
-world.df$gamma <- with(world.df, 0.00163*P/(2.501-52.6361e-3*temp)) #psychrometric constant
-world.df$ea <- with(world.df, with(world.df, ifelse(tmin > 0, 0.61078*exp(17.27*tmin/(tmin+237.3)),  0.61078*exp(21.875*tmin/(tmin+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
-world.df$ET0 <-with(world.df, (0.408*delta*Rn*1e-3+gamma*900/(temp+273)*u2*(es-ea)/(delta+gamma*(1+0.34*u2)))) # Evapotranspiration, G considered to be negligible. in mm/day
-world.df$AIu <- with(world.df, pre/(ET0*365))
-
-breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
-
-world.df$cat.AIu <- world.df$AIu %>% cut(breaks = breaks.unesco) %>% # otherwise regions in  which pre = 0 are excluded 
-  revalue(cat.unesco)
-
-ggplot() + geom_raster(data = world.df, aes(x=lon, y = lat,  fill = cat.AIu))+
-  scale_fill_manual(values = col.cat)+
-  labs(title = "Worldclim, tmin is min(tmean)")+
-  theme_void()+
-  theme(legend.position = "bottom")
-
-ggplot() + geom_raster(data = subset(clim, source =="Worldclim"), aes(x=lon, y = lat,  fill = cat.AIu))+
-  scale_fill_manual(values = col.cat)+
-  labs(title = "Worldclim, tmin is min(ts)")+
-  theme_void()+
-  theme(legend.position = "bottom")
-```
-
-
-
-```{r worldclim}
-wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% 
-  projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","tas"))
-
-list.tavg <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tavg_", full.names = T) 
-wdctm <- raster::stack(list.tavg) %>% 
-  projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","tas_01","tas_02","tas_03","tas_04","tas_05","tas_06","tas_07","tas_08","tas_09","tas_10","tas_11","tas_12"))
-
-wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") %>%
-  projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
-
-list.wind <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_wind", full.names = TRUE)
-wdcw <- raster::stack(list.wind) %>% mean(na.rm = T) %>% 
-  projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
-
-list.rsds <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE) # unit: kJ/m2/day
-wdcr <- raster::stack(list.rsds) %>% mean(na.rm = T) %>% 
-  projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","rsds"))
-
-wdc <- wdct %>% 
-  merge(wdctm, by = c("lon", "lat")) %>%
-  merge(wdcp, by = c("lon", "lat")) %>%
-  merge(wdcr, by = c("lon", "lat")) %>%
-  merge(wdcw, by = c("lon", "lat")) %>%
-  mutate(model = "historical", period = "1970_2000", source = "Worldclim") %>%
-  merge(land_mask.df, by = c("lon", "lat")) %>%
-  merge(ipcc_regions.df, by = c("lon", "lat")) %>% 
-  merge(elev.df, by = c("lon","lat")) %>%
-  filter(lm == 1)
-
-wdc$tas_min <- apply(select(wdc,c("tas_01", "tas_02", "tas_03", "tas_04", "tas_05", "tas_06", "tas_07", "tas_08", "tas_09", "tas_10", "tas_11", "tas_12")), 1, FUN = min, na.rm = T)
-
-# same units as cmip6
-wdc$tas <- wdc$tas+273.15
-wdc$tas_01 <- wdc$tas_01+273.15
-wdc$tas_02 <- wdc$tas_02+273.15
-wdc$tas_03 <- wdc$tas_03+273.15
-wdc$tas_04 <- wdc$tas_04+273.15
-wdc$tas_05 <- wdc$tas_05+273.15
-wdc$tas_06 <- wdc$tas_06+273.15
-wdc$tas_07 <- wdc$tas_07+273.15
-wdc$tas_08 <- wdc$tas_08+273.15
-wdc$tas_09 <- wdc$tas_09+273.15
-wdc$tas_10 <- wdc$tas_10+273.15
-wdc$tas_11 <- wdc$tas_11+273.15
-wdc$tas_12 <- wdc$tas_12+273.15
-wdc$tas_min <- wdc$tas_min+273.15
-
-wdc$pr <- wdc$pr / (60*60*24*365)  # conversion from mm/year to kg/m2/s 
-wdc$rsds <-wdc$rsds * 1000/86400 # conversion from kJ/m2/day to W/m2 (1 J = 1 W.s)
-
-write.table(wdc,"wdc.txt")
-```
-
 # Boxplots of ts, pr, rsds and sfcWind from CMIP6 compared to Worldclim -----
 
 ```{r all_future}
@@ -646,19 +528,44 @@ ggplot()+geom_boxplot(data = subset(sfcWind.all_annual, period == "1970_2000"), 
 
 # Aridity index
 
+```{r cmip6-data}
+tas.all_annual <- read.table("CMIP6/tas/tas.all_annual.txt")
+ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
+pr.all_annual <- read.table("CMIP6/pr/pr.all_annual.txt")
+rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt") # units: W/m2
+sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
+ts_month <- read.table("CMIP6/ts/ts_month.txt")
+tas_month <- read.table("CMIP6/tas/tas_month.txt")
+
+```
+
+```{r era5-wdc-data}
+era5 <- read.table("era5.txt")
+
+era5 <- mutate(era5, pr = mpr, Rn = - (msshf + mslhf), rsds = msnswrf)
+
+wdc <- read.table("wdc.txt")
+
+wdc <- mutate(wdc, 
+              Rn = rsds / 1000 * 60 * 60 *24, # conversion from kJ/m2/day to W/m2,
+              mpr = pr / (60*60*24*365), # conversion from mm/y to kg/m2/s
+              tas = tas + 273.15, # °C to K
+              tas_min = tmin + 274.15)
+
+              
+
+``` 
+
 ```{r merge}
-cmip6 <- ts.all_annual %>% 
-  merge(ts_month, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(tas.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+cmip6 <- tas.all_annual %>%
   merge(tas_month, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source"))
 
-wdc <- mutate(wdc, ts = NA, ts_01 = NA, ts_02 = NA, ts_03 = NA, ts_04 = NA, ts_05 = NA, ts_06 = NA,
-              ts_07 = NA, ts_08 = NA, ts_09 = NA, ts_10 = NA, ts_11 = NA, ts_12 = NA, ts_min = NA)
+cmip6$Rn <- cmip6$rsds
 
-era5 <- mutate(era5, ts = NA, ts_01 = NA, ts_02 = NA, ts_03 = NA, ts_04 = NA, ts_05 = NA , ts_06 = NA, ts_07 = NA, ts_08 = NA, ts_09 = NA, ts_10 = NA, ts_11 = NA, ts_12 = NA, ts_min = NA)
+vars <-  c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source","tas","tas_min","pr","Rn","sfcWind","z")
 
 clim <- cmip6 %>%
   rbind(select(wdc, names(cmip6))) %>%
@@ -672,28 +579,36 @@ clim <- cmip6 %>%
 ggplot(subset(clim, period == "1970_2000")) + geom_boxplot(aes(x= source, y = pr))
 ggplot(subset(clim, period == "1970_2000")) + geom_boxplot(aes(x= source, y = tas))
 ggplot(subset(clim, period == "1970_2000")) + geom_boxplot(aes(x= source, y = ts))
-ggplot(subset(clim, period == "1970_2000")) + geom_boxplot(aes(x= source, y = rsds))
+ggplot(subset(clim, period == "1970_2000")) + geom_boxplot(aes(x= source, y = Rn))
 ggplot(subset(clim, period == "1970_2000")) + geom_boxplot(aes(x= source, y = sfcWind))
+
+ggplot()+
+  geom_boxplot(data = subset(clim, period == "1970_2000" & source == "ERA5"), aes(x = "rsds ERA", y = rsds))+
+  geom_boxplot(data = subset(clim, period == "1970_2000" & source == "ERA5"), aes(x = "Rn ERA", y = Rn))+
+  geom_boxplot(data = subset(clim, period == "1970_2000" & source == "Worldclim"), aes(x = "rsds Worldclim", y = rsds))+
+  theme_minimal()
 ```
 
 
-```{r aridity-index-tas}
+```{r aridity-index-martonne}
 
-# Martonne
 clim$AIm <- with(clim,pr*60*60*24*365/(tas-273.15+10)) # pr in mm/y, tas in Ceslsius
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
 
 clim$cat.AIm <- clim$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
+```
 
-# Unesco
+```{r aridity-index-unesco}
+
+clim$Rn <- clim$Rn * 86400 * 1e-6 # conversion from W/m2 to MJ/m2/day.
 
 clim$P <- with(clim, 101.3 * ((293-0.0065*z)/293)^(5.26))
 clim$es <- with(clim, ifelse((tas-273.15) > 0, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)),  0.61078*exp(21.875*(tas-273.15)/((tas-273.15)+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
 clim$delta <- with(clim, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
 clim$gamma <- with(clim, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
 clim$ea <- with(clim, with(clim, ifelse((tas_min-273.15) > 0, 0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3)),  0.61078*exp(21.875*(tas_min-273.15)/((tas_min-273.15)+265.5))))) # actual vapor pressur; when relative humidity is not availabmle, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
-clim$ET0 <-with(clim, ((0.408*delta*(rsds*86400*1e-6)+gamma*900/((tas-273.15)+273)*sfcWind*(es-ea))/(delta+gamma*(1+0.34*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Irradiation is in W/m2 and is converted to MJ/m2/day
+clim$ET0 <-with(clim, ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
 clim$AIu <- with(clim, pr*60*60*24*365/(ET0*365))
 
 breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
@@ -702,7 +617,9 @@ cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" =
 # save
 clim$cat.AIu <- clim$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+```
 
+```{r save-wdc}
 write.table(clim, "clim.txt")
 ```
 
@@ -818,8 +735,8 @@ ref <- clim %>% subset(period == "1970_2000" & source %in% c("Worldclim", "ERA5"
      
 calib <- rbind(cmip6_ref, ref)
 
-breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+breaks.unesco <- c(-1,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-1,0.03]" = "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 
 calib$cat.AIu <-  calib$AIu %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
@@ -857,17 +774,71 @@ ggplot(subset(table_calib, total > 10 & !is.na(hyperarid)), aes(x = Name))+
   geom_col(aes(y = arid, fill = "Arid"))+
   geom_col(aes(y = semi.arid, fill = "Semi-arid"))+
   geom_col(aes(y = dry.subhumid, fill = "Dry subhumid"))+
-  geom_col(aes(y = humid, fill = "Humid"))+
   scale_fill_manual(values = col.cat)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))+
   facet_grid(rows = vars(source), switch = "y")+
   labs(x = "IPCC Region", y = "Count", fill = "Aridity\ncategory")
+```
+```{r heat-flux}
+cmip6_ref <- clim %>% filter(period == "1970_2000" & source != "Worldclim" & source != "ERA5") %>%
+   group_by(lon, lat, Name, Acronym) %>% 
+  dplyr::summarise(Rn = mean(Rn, na.rm = T)) %>%
+  mutate(source = "CMIP6")
 
+ref <- clim %>% subset(period == "1970_2000" & source %in% c("Worldclim", "ERA5")) %>% 
+       select(c("lon","lat", "Name","Acronym", "source","Rn"))
+     
+calib <- rbind(cmip6_ref, ref)
 
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = Rn))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black", limits = c(-10,30))+
+    labs(title = "Wordclim, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
 
+ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = Rn))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black", limits = c(-10,30))+
+    labs(title = "ERA5, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = Rn))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black", limits = c(-10,30))+
+    labs(title = "CMIP6, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
 ```
 
+```{r solar-radiation}
+cmip6_ref <- clim %>% filter(period == "1970_2000" & source != "Worldclim" & source != "ERA5") %>%
+   group_by(lon, lat, Name, Acronym) %>% 
+  dplyr::summarise(rsds = mean(rsds, na.rm = T)) %>%
+  mutate(source = "CMIP6")
+
+ref <- clim %>% subset(period == "1970_2000" & source %in% c("Worldclim", "ERA5")) %>% 
+       select(c("lon","lat", "Name","Acronym", "source","rsds"))
+     
+calib <- rbind(cmip6_ref, ref)
+
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = rsds))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black", limits = c(-10,450))+
+    labs(title = "Wordclim, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = rsds))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black", limits = c(-10,450))+
+    labs(title = "ERA5, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = rsds))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black", limits = c(-10,450))+
+    labs(title = "CMIP6, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+```
 # Plots for AI -----
 
 
@@ -1011,7 +982,17 @@ for(i in unique(clim$source)){
 ```{r plot-historical-ts-by-model}
 for(i in unique(clim$source)){
   plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
-  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = ts-273.15))+
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = tas-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = plottitle, fill = "")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  print(g)
+}
+
+for(i in c("Worldclim", "ERA5")){
+  plottitle <- paste(i, "historical, 1970-2000", sep = ", ")
+  g <- ggplot(data = filter(clim, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = tas-273.15))+
     scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
     labs(title = plottitle, fill = "")+
     theme_void()+

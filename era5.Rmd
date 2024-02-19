@@ -2,11 +2,35 @@
 title: "ERA5"
 author: "Camille"
 date: "2024-02-07"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+---
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
+```
+
+```{r libraries}
+library(raster)
+
+library(plyr)
+library(dplyr)
+
+library(ggplot2)
+library(viridisLite)
+library(colorspace)
+library(RColorBrewer)
+
+library(sf)
+library(stringr)
+
+#display.brewer.pal(n = 11, name ="RdYlBu")
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 ```
 
 Notes on ERA5
@@ -17,6 +41,14 @@ Surface solar radiation downwards: J/m2 --> x 86400 to obtain W/m2
 Evaporation and potential evaporation: m of water equivalent
 Precipitation: m of water per day -> x 1000 to obtain kg/m2/day
 
+https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels-monthly-means?tab=overview
+Mean surface sensible heat flux: transfer of heat between the Earth's surface and the atmosphere through the effects of turbulent air motion. ECWF convention for vertical fluxes is positive downwards. 
+
+# Data
+
+## Land mask
+
+### Land mask from IPCC
 
 ```{r land-masks}
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
@@ -33,45 +65,93 @@ ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
 ```
+### Comparison with ERA5
 
 ```{r land-mask-era5}
-lmera <- raster("ERA5/land-sea-mask.nc") %>% rotate() %>% projectRaster(land_mask)
+lmera <- raster("ERA5/land-sea-mask.nc") %>% rotate() 
 lmera.df <- as.data.frame(lmera, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
+
+ggplot() + geom_tile(data = subset(lmera.df, lm != 0), aes(x = lon, y = lat, fill = "ERA5"), alpha = 0.5) +
+  geom_tile(data = subset(land_mask.df, lm != 0), aes(x = lon, y = lat, fill = "IPCC"), alpha = 0.6) +
+  scale_fill_manual(values = c(colorvec[1], colorvec[5]))+
+  theme_void()+
+  theme(legend.position = "bottom")
+
 ```
 
-```{r load-rasters}
-pr <- raster("ERA5/total-precipitation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+## ERA5
 
+```{r load-rasters, eval = F}
+pr <- raster("ERA5/total-precipitation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 pr.df <- as.data.frame(pr, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(pr.df, "ERA5/pr.df.txt")
+write.table(pr.df, "ERA5/pr.df.txt") # in m of water equivalent 
+
+mpr <- raster("ERA5/mean_rates.nc", varname = "mtpr") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mpr.df <- as.data.frame(mpr, xy = T) %>% setNames(c("lon","lat","mpr"))
+write.table(mpr.df, "ERA5/mpr.df.txt")
 
 tas <- raster("ERA5/temperature-2m.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-
 tas.df <- as.data.frame(tas, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(tas.df, "ERA5/tas.df.txt")
 
-rsds <- raster("ERA5/surface-short-wave-solar-radiation-downwards.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+tdew <- raster("ERA5/2m-dewpoint.nc", varname = "d2m")  %>% stack() %>%  raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+tdew.df <- as.data.frame(tdew, xy = T) %>% setNames(c("lon","lat","tdew"))
+write.table(tdew.df, "ERA5/tdew.df.txt")
 
-rsds.df <- as.data.frame(rsds, xy = T) %>% setNames(c("lon","lat","rsds"))
-write.table(rsds.df, "ERA5/rsds.df.txt")
+ssrd <- raster("ERA5/surface-short-wave-solar-radiation-downwards.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+ssrd.df <- as.data.frame(ssrd, xy = T) %>% setNames(c("lon","lat","ssrd"))
+write.table(ssrd.df, "ERA5/ssrd.df.txt")
 
 wind <- raster("ERA5/wind10m.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-
 wind.df <- as.data.frame(wind, xy = T) %>% setNames(c("lon","lat","sfcWind")) # m/s
 write.table(wind.df, "ERA5/wind.df.txt")
 
+# Evaporation in m of water equivalent
 evaporation <- raster("ERA5/evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-
 evaporation.df <- as.data.frame(evaporation, xy = T) %>% setNames(c("lon","lat","evap"))
 write.table(evaporation.df, "ERA5/evaporation.df.txt")
 
-pot.evaporation <- raster("ERA5/potential-evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mevap <- raster("ERA5/mean_rates.nc", varname = "mer") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mevap.df <- as.data.frame(mevap, xy = T) %>% setNames(c("lon","lat","mevap"))
+write.table(mevap.df, "ERA5/mevap.df.txt")
 
+mpevap <- raster("ERA5/mean-potential-evaporation-rate.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mpevap.df <- as.data.frame(mpevap, xy = T) %>% setNames(c("lon","lat","mpevap"))
+write.table(mpevap.df, "ERA5/mpevap.df.txt")
+
+pot.evaporation <- raster("ERA5/potential-evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 pevap.df <- as.data.frame(pot.evaporation, xy = T) %>% setNames(c("lon","lat","pevap"))
 write.table(pevap.df, "ERA5/pevap.df.txt")
+
+slhf <- raster("ERA5/surface_latent_heat_flux.nc", varname = "slhf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+slhf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","slhf"))
+write.table(slhf.df, "ERA5/slhf.df.txt")
+
+
+sshf <- raster("ERA5/surface_sensible_heat_flux.nc", varname = "sshf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sshf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","sshf"))
+write.table(sshf.df, "ERA5/sshf.df.txt")
+
+mslhf <- raster("ERA5/mean_rates.nc", varname = "mslhf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mslhf.df <- as.data.frame(mslhf, xy = T) %>% setNames(c("lon","lat","mslhf"))
+write.table(mslhf.df, "ERA5/mslhf.df.txt")
+
+
+msshf <- raster("ERA5/mean_rates.nc", varname = "msshf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+msshf.df <- as.data.frame(msshf, xy = T) %>% setNames(c("lon","lat","msshf"))
+write.table(msshf.df, "ERA5/msshf.df.txt")
+
+msr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnswrf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+msr.df <- as.data.frame(msr, xy = T) %>% setNames(c("lon","lat","msr"))
+write.table(msr.df, "ERA5/msr.df.txt")
+
+
+mlr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnlwrf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mlr.df <- as.data.frame(mlr, xy = T) %>% setNames(c("lon","lat","mlr"))
+write.table(mlr.df, "ERA5/mlr.df.txt")
 ```
 
-```{r make-tas-min}
+```{r make-tas-min, eval = F}
 tas_jan <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 1, to = 349, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 
 tas_jan.df <- as.data.frame(tas_jan, xy = T) %>% setNames(c("lon","lat","tas_01"))
@@ -122,9 +202,7 @@ tas_dec.df <- as.data.frame(tas_dec, xy = T) %>% setNames(c("lon","lat","tas_12"
 
 ```
 
-```{r merge-tas-month }
-
-
+```{r merge-tas-month, eval = F}
 tas_month <- tas_jan.df %>% 
   merge(tas_fev.df, by =c("lon","lat")) %>%
   merge(tas_mar.df, by =c("lon","lat")) %>%
@@ -143,67 +221,444 @@ tas_month$tas_min <- apply(select(tas_month,c("tas_01", "tas_02", "tas_03", "tas
 write.table(tas_month, "ERA5/tas_month.txt")
 ```
 
-```{r merge-dfs}
+```{r merge-dfs, eval = F}
 pr.df <- read.table("ERA5/pr.df.txt")
+mpr.df <- read.table("ERA5/mpr.df.txt")
 tas.df <- read.table("ERA5/tas.df.txt")
 tas_month.df <- read.table("ERA5/tas_month.txt")
-rsds.df <- read.table("ERA5/rsds.df.txt")
+tdew.df <- read.table("ERA5/tdew.df.txt")
+ssrd.df <- read.table("ERA5/ssrd.df.txt")
 wind.df <- read.table("ERA5/wind.df.txt")
 evaporation.df <- read.table("ERA5/evaporation.df.txt")
+mevap.df <- read.table("ERA5/mevap.df.txt")
 pevap.df <- read.table("ERA5/pevap.df.txt")
+mpevap.df <- read.table("ERA5/mpevap.df.txt")
+slhf.df <- read.table("ERA5/slhf.df.txt")
+sshf.df <- read.table("ERA5/sshf.df.txt")
+mslhf.df <- read.table("ERA5/mslhf.df.txt")
+msshf.df <- read.table("ERA5/msshf.df.txt")
+msr.df <- read.table("ERA5/msr.df.txt")
+mlr.df <- read.table("ERA5/mlr.df.txt")
 
-era5 <- pr.df %>%
-  merge(tas.df, by = c("lon","lat")) %>%
-  merge(tas_month, by = c("lon","lat")) %>%
-  merge(rsds.df, by = c("lon","lat")) %>%
-  merge(wind.df, by = c("lon","lat")) %>%
-  merge(evaporation.df, by = c("lon","lat")) %>%
-  merge(pevap.df, by = c("lon","lat")) %>% 
-  merge(elev.df, by = c("lon","lat")) %>%
+era5 <- pr.df %>% # in m of water equivalent
+  merge(mpr.df, by = c("lon","lat")) %>% # in kg/m2/s
+  merge(tas.df, by = c("lon","lat")) %>% # in K
+  merge(tas_month.df, by = c("lon","lat")) %>% # in K
+  merge(tdew.df, by = c("lon","lat")) %>% # in K
+  merge(ssrd.df, by = c("lon","lat")) %>% # in J/m2
+  merge(wind.df, by = c("lon","lat")) %>% # in m/s
+  merge(evaporation.df, by = c("lon","lat")) %>% # in m of water equivalent
+  merge(mevap.df, by = c("lon","lat")) %>% # in kg/m2/s
+  merge(pevap.df, by = c("lon","lat")) %>% # in m of water equivalent
+  merge(mpevap.df, by = c("lon","lat")) %>% # in kg/m2/s 
+  merge(slhf.df, by = c("lon","lat")) %>% # in J/m2, accumulated over 1 day: divide by (60*60*24) to get W/m2
+  merge(sshf.df, by = c("lon","lat")) %>% # in J/m2, accumulated over 1 day: divide by (60*60*24) to get W/m2
+  merge(mslhf.df, by = c("lon","lat")) %>% # in W/m2
+  merge(msshf.df, by = c("lon","lat")) %>% # in W/m2
+  merge(msr.df, by = c("lon","lat")) %>% # in W/m2
+  merge(mlr.df, by = c("lon","lat")) %>% # in W/m2
+  merge(elev.df, by = c("lon","lat")) %>% # in m
   merge(ipcc_regions.df, by = c("lon","lat")) %>%
   merge(land_mask.df, by = c("lon","lat")) %>%
   filter(lm == 1) %>%
   mutate(model = "historical", period = "1970_2000", source = "ERA5")
 
-era5$pr <- era5$pr * 1000 / (60*60*24) # from m/day to mm/d to mm/s = kg/m2/s
-era5$rsds <- era5$rsds / (60*60*24) # from J/m2 to W/m2 (J/m2 accumulated over a month)
+
 
 write.table(era5, "era5.txt")
 ```
 
-```{r aridity-index}
+## Maps
+
+```{r load-data}
+era5 <- read.table("era5.txt")
+```
+
+```{r comparison-heat-fluxes-solar-radiation}
+ggplot(era5) + 
+  geom_boxplot(aes(x = "sshf", y = sshf, col = "sshf")) +
+  geom_boxplot(aes(x = "slhf", y = slhf, col = "slhf")) +
+  geom_boxplot(aes(x = "msshf", y = sshf, col = "msshf")) +
+  geom_boxplot(aes(x = "mslhf", y = slhf, col = "mslhf")) +
+  geom_boxplot(aes(x = "ssrd", y = ssrd, col = "ssrd")) +
+  theme_minimal()
+
+ggplot(era5) + 
+  geom_boxplot(aes(x = "sshf", y = sshf, col = "sshf")) +
+  geom_boxplot(aes(x = "msshf", y = sshf, col = "msshf")) +
+  theme_minimal()
+
+ggplot(era5)+geom_point(aes(x=sshf, y = msshf))+geom_abline(intercept = 0, slope = 1, col = "red")
+ggplot(era5)+geom_point(aes(x=sshf/(60*60*24), y = msshf), size = 0.5)+
+  geom_abline(intercept = 0, slope = 1, col = "red")
+
+ggplot(era5)+geom_raster(aes(x = lon, y = lat, fill = msshf - sshf/(60*60*24)))+ 
+  scale_fill_continuous_diverging() + theme_minimal() + theme(legend.position = "bottom")
+
+ggplot(era5)+geom_raster(aes(x = lon, y = lat, fill = mslhf - slhf/(60*60*24)))+ 
+  scale_fill_continuous_diverging() + theme_minimal() + theme(legend.position = "bottom")
+
+
+ggplot(era5)+geom_raster(aes(x = lon, y = lat, fill = mpr - pr))+ 
+  scale_fill_continuous_diverging() + theme_minimal() + theme(legend.position = "bottom")
+
+ggplot(era5)+geom_point(aes(x=msshf+mslhf, y = msr+mlr))
+
+ggplot(era5)+geom_raster(aes(x = lon, y = lat, fill = (mlr+msr)+(msshf+sshf)))+ 
+  scale_fill_continuous_diverging(guide = "legend", name = "Soil heat flux W/m2") + theme_minimal() + theme(legend.position = "bottom")
+
+```
+
+```{r variable-maps}
+
+par(mfcol = c(2,6))
+
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = tas-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(fill = "2m air temperature, °C")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = mpr*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,10000))+
+    labs(fill = "Mean precipitation rate, mm/y")+
+    theme_void()+
+    theme(legend.position = "bottom")
+ 
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = -mpevap*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(-100, 4500))+
+    labs(fill = "Mean potential\nevaporation rate, mm/y")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = -mevap*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T, limits = c(0,3000))+
+    labs(fill = "Mean evaporation rate, mm/y")+
+    theme_void()+
+    theme(legend.position = "bottom")
+ 
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = - msshf))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Mean surface sensible heat flux, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = - mslhf))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Mean surface latent heat flux, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = msr))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Mean net shortwave radiation, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = ssrd/(60*60*24)))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Downwards shortwave radiation, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+   
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = - mlr))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Mean net longwave radiation, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = - (msshf +mslhf)))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Mean surface heat flux, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill =  (msr +mlr)))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(fill = "Mean surface shortwave and longwave radiation, W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = msshf/mslhf))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-30,50), na.value = "black")+
+    labs(fill = "Bowen ratio (sensible/latent heat flux)")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  
+ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = mslhf/(mslhf+msshf)))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-1,3), na.value = "black")+
+    labs(fill = "Fraction évaporative (latent/(sensible + latent))")+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+
+```
+
+# De Martonne Aridity Index 
+
+```{r colors}
+#display.brewer.pal(n = 11, name ="RdYlBu")
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+```
+
+```{r aridity-index-martonne}
 
 # Martonne
-era5$AIm <- with(era5,pr*60*60*24*365/(tas-273.15+10)) # convert pr to mm/y, tas to Ceslsius
+era5$AIm <- with(era5,mpr*60*60*24*365/(tas-273.15+10)) # convert pr to mm/y, tas to Ceslsius
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
 
 era5$cat.AIm <- era5$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-# Unesco
+ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AIm))+
+  scale_fill_manual(values = col.martonne)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
 
+# FAO Aridity Index
+
+https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
+
+
+## Rn is latent + sensible heat flux
+
+```{r aridity-index-Rn-G}
+era5 <- read.table("era5.txt")
+
+era5$Rn <- with(era5, -(msshf + mslhf)) * 86400 * 1e-6 # Rn is actually Rn - G, the sum of sensible and latent heat fluxes. In W/m2, converted to MJ/m2/day
 era5$P <- with(era5, 101.3 * ((293-0.0065*z)/293)^(5.26))
-era5$es <- with(era5, ifelse((tas-273.15) > 0, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)),  0.61078*exp(21.875*(tas-273.15)/((tas-273.15)+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
+
+era5$ea <- with(era5, 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3))) # Tetens 1930
+
+era5$es <- with(era5, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
+
+
 era5$delta <- with(era5, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
+
 era5$gamma <- with(era5, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
-era5$ea <- with(era5, with(era5, ifelse((tas_min-273.15) > 0, 0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3)),  0.61078*exp(21.875*(tas_min-273.15)/((tas_min-273.15)+265.5))))) # actual vapor pressur; when relative humidity is not available, ea is obtained by estimating that when the air temp is close to Tmin, it is nearly saturated
-era5$ET0 <-with(era5, ((0.408*delta*(rsds*86400*1e-6)+gamma*900/((tas-273.15)+273)*sfcWind*(es-ea))/(delta+gamma*(1+0.34*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Irradiation is in W/m2 and is converted to MJ/m2/day
-era5$AIu <- with(era5, pr*60*60*24*365/(ET0*365))
 
-breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+                      
+era5$ET0 <-with(era5,               
+                ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
 
-# save
-era5$cat.AIu <- era5$AIu %>% cut(breaks = breaks.unesco) %>% 
+era5$AI <- with(era5, mpr*60*60*24/(ET0))
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+era5$cat.AI <- era5$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+
+write.table(era5, "era5_AI.txt")
+
+ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(era5, Name == "Mediterranean")) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = F, mid = 0, limits = c(0,4))+
+    theme_void()+
+    theme(legend.position = "bottom")
+```
+
+```{r by-param}
+eraplot <- function(var = "tas"){
+  if(var %in% c("tas","tdew","tas_min")){
+  g <- ggplot(era5) + geom_raster(data = era5, aes(x=lon, y = lat,  fill = era5[,var]-273.15))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, mid = 0, limits = c(-60,40))+
+    labs(title = var, fill = "°C")+
+    theme_void()+ theme(legend.position = "bottom")
+  }else if(var %in% c("mpr","mevap","mpevap")){
+  g <- ggplot(era5) + geom_raster(aes(x=lon, y = lat,  fill = era5[,var]*60*60*24*365))+
+    scale_fill_continuous_sequential(palette = "Purple-Blue", rev = T)+
+    labs(title = var, fill = "mm/y")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  }else if(var %in% c("ssrd","mslhf","msshf","msr","mlr")){
+  g <- ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = - era5[,var]))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, limits = c(-60,400), na.value = "black")+
+    labs(title = var, fill = "W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  }else if(var %in% c("Rn")){
+  g <- ggplot(data = era5) + geom_raster(aes(x=lon, y = lat,  fill = - era5[,var]))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black")+
+    labs(title = var, fill = "W/m2")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  }else if(var %in% c("ea","es")){
+      g <- ggplot(data = era5) + geom_raster(aes(x=lon, y = lat, fill = era5[,var]))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = T, na.value = "black")+
+    labs(title = var, fill = "kPa")+
+    theme_void()+
+    theme(legend.position = "bottom")
+  }
+  return(g)
+}
+
+cowplot::plot_grid(plotlist = list(
+    eraplot("tas"),
+    eraplot("mpr"),
+    eraplot("ea"),
+    eraplot("Rn")
+))
 
 ```
 
-```{r plot}
-ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AIu))+
+## Rn is latent + sensible heat flux, tmin used as tdew
+
+```{r aridity-index-Rn}
+era5 <- read.table("era5.txt")
+
+era5$Rn <- with(era5, -(msshf + mslhf)) * 86400 * 1e-6 # Rn is actually Rn - G, the sum of sensible and latent heat fluxes. In W/m2, converted to MJ/m2/day
+era5$P <- with(era5, 101.3 * ((293-0.0065*z)/293)^(5.26))
+
+era5$ea <- with(era5, 0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3))) # Tetens 1930
+
+era5$es <- with(era5, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
+
+
+era5$delta <- with(era5, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
+
+era5$gamma <- with(era5, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
+
+                      
+era5$ET0 <-with(era5,               
+                ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
+
+era5$AI <- with(era5, mpr*60*60*24/(ET0))
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+era5$cat.AI <- era5$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(era5, Name == "Mediterranean")) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = F, mid = 0, limits = c(0,10))+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+cowplot::plot_grid(plotlist = list(
+    eraplot("tas"),
+    eraplot("mpr"),
+    eraplot("ea"),
+    eraplot("Rn")
+))
+```
+ 
+ 
+## Rn is the sum of net shortwave and net longwave radiation
+ 
+```{r aridity-index-Rns}
+era5 <- read.table("era5.txt")
+
+era5$Rn <- with(era5, (msr + mlr)) * 86400 * 1e-6 # Rn is the sum of net shortwave and net longwave radiation. G considered insignificant. In W/m2, converted to MJ/m2/day
+
+
+era5$P <- with(era5, 101.3 * ((293-0.0065*z)/293)^(5.26))
+
+era5$ea <- with(era5, 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3))) # Tetens 1930
+era5$es <- with(era5, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
+
+era5$delta <- with(era5, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
+
+era5$gamma <- with(era5, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
+
+era5$ET0 <-with(era5,               
+                ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
+
+era5$AI <- with(era5, mpr*60*60*24/(ET0))
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+era5$cat.AI <- era5$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(era5, Name == "Mediterranean")) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
+    scale_fill_continuous_divergingx(palette = "RdYlBu", rev = F, mid = 0, limits = c(0,4))+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+cowplot::plot_grid(plotlist = list(
+    eraplot("tas"),
+    eraplot("mpr"),
+    eraplot("ea"),
+    eraplot("Rn")
+))
+
+```
+
+## Rn is only net downwards shortwave radiation
+ 
+```{r aridity-index-ssrd}
+era5 <- read.table("era5.txt")
+
+era5$Rn <- with(era5, ssrd / 86400 * 86400 * 1e-6) # Rn is the sum of net shortwave and net longwave radiation. G considered insignificant. From J/m2 to W/m2 to MJ/m2/day
+
+
+era5$P <- with(era5, 101.3 * ((293-0.0065*z)/293)^(5.26))
+
+era5$ea <- with(era5, 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3))) # Tetens 1930
+era5$es <- with(era5, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
+
+era5$delta <- with(era5, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
+
+era5$gamma <- with(era5, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
+
+era5$ET0 <-with(era5,               
+                ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
+
+era5$AI <- with(era5, mpr*60*60*24/(ET0))
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+era5$cat.AI <- era5$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
   theme_void()+
   theme(legend.position = "bottom")
 
 ```
 
+# AI computed from potential evaporation in ERA5 
+
+```{r aridity-index-mpevap}
+era5$AIpvp <- with(era5, - mpr/mpevap)
+
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+
+era5$cat.AIpvp <- era5$AIpvp %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AIpvp))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
