@@ -42,7 +42,7 @@ worldclim_global(var = "bio", res = 10, path = ".")
 
 ```
 
-```{r land-masks}
+```{r land-masks, eval = T}
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
 
@@ -56,44 +56,52 @@ ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 ```
 
-```{r create-wdc}
+```{r create-wdc, eval = T}
 wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% 
+#     aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>% setNames(c("lon","lat","tas"))
 
 list.tmin <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tmin_", full.names = T) 
-wdctmin <- raster::stack(list.tmin) %>% 
+wdctmin <- raster::stack(list.tmin) %>%
+ #    aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>%
   setNames(c("lon","lat","tmin_01","tmin_02","tmin_03","tmin_04","tmin_05","tmin_06","tmin_07","tmin_08","tmin_09","tmin_10","tmin_11","tmin_12"))
 
 list.tmax <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tmax_", full.names = T) 
 wdctmax <- raster::stack(list.tmax) %>% 
+ #    aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>%
   setNames(c("lon","lat","tmax_01","tmax_02","tmax_03","tmax_04","tmax_05","tmax_06","tmax_07","tmax_08","tmax_09","tmax_10","tmax_11","tmax_12"))
 
 list.tavg <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_tavg_", full.names = T) 
 wdctm <- raster::stack(list.tavg) %>% 
+#     aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>% setNames(c("lon","lat","tas_01","tas_02","tas_03","tas_04","tas_05","tas_06","tas_07","tas_08","tas_09","tas_10","tas_11","tas_12"))
 
 wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") %>%
-  projectRaster(to = land_mask) %>% 
+#     aggregate(fact = 4) %>%
+  projectRaster(to = land_mask) %>%
   as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
 
 list.wind <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_wind", full.names = TRUE)
-wdcw <- raster::stack(list.wind) %>% mean(na.rm = T) %>% 
+wdcw <- raster::stack(list.wind) %>% mean(na.rm = T) %>%
+#     aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
 
 list.srad <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE) # unit: kJ/m2/day. Consider that solar radiation constitute the only component of Rn (surface energy balance)
-wdcr <- raster::stack(list.srad) %>% mean(na.rm = T) %>% 
+wdcr <- raster::stack(list.srad) %>% mean(na.rm = T) %>%
+#   aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>% setNames(c("lon","lat","srad"))
 
 list.vapr <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_vapr", full.names = TRUE) # unit: kJ/m2/day. Consider that solar radiation constitute the only component of Rn (surface energy balance)
-wdcv <- raster::stack(list.vapr) %>% mean(na.rm = T) %>% 
+wdcv <- raster::stack(list.vapr) %>% mean(na.rm = T) %>%
+#   aggregate(fact = 4) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>% setNames(c("lon","lat","vapr"))
 
@@ -120,6 +128,10 @@ write.table(wdc,"wdc.txt")
 ```
 
 # Aridity
+
+```{r load-wdc, eval = F}
+wdc <- read.table("wdc.txt")
+```
 
 ```{r colors}
 #display.brewer.pal(n = 11, name ="RdYlBu")
@@ -179,7 +191,7 @@ cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "S
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-write.table(wdc, "wdc_AI.txt")
+
 
 ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
@@ -216,6 +228,8 @@ cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "S
 
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+
+write.table(wdc, "wdc_AI.txt")
 
 ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
  # geom_raster(data = subset(wdc, Rn < 0), aes(x=lon, y = lat), fill = "gray20")+

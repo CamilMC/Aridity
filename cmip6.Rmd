@@ -35,6 +35,21 @@ colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 
 # Data
 
+```{r land-masks}
+land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
+land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
+
+
+elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
+elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
+
+
+ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
+ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
+ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+
+```
+
 ```{r cmip6-data, eval = F}
 tas.all_annual <- read.table("CMIP6/tas/tas.all_annual.txt")
 ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
@@ -43,27 +58,37 @@ rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt") # units: W/m2
 sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
 ts_month <- read.table("CMIP6/ts/ts_month.txt")
 tas_month <- read.table("CMIP6/tas/tas_month.txt")
-# hfls.all_annual <- read.table("CMIP6/hlfs/hfls.all_annual.txt")
-# hfss.all_annual <- read.table("CMIP6/hfss/hfss.all_annual.txt")
-# tasmin.all_annual <- read.table("CMIP6/tasmin/tasmin.all_annual.txt")
+hfls.all_annual <- read.table("CMIP6/hfls/hfls.all_annual.txt")
+hfss.all_annual <- read.table("CMIP6/hfss/hfss.all_annual.txt")
+tasmin.all_annual <- read.table("CMIP6/tasmin/tasmin.all_annual.txt")
 ```
 
 ```{r make-cmip6, eval = F}
 cmip6 <- tas.all_annual %>%
   merge(tas_month, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-#  merge(tasmin.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(tasmin.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source"), all = T) %>%
   merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source"))# %>%
-  # merge(hfls.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  # merge(hfss.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source"))
+  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))%>%
+  merge(hfls.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(elev.df, by = c("lon","lat"))
 
 write.table(cmip6, "cmip6.txt")
 ```
 
 # Aridity Index
 
-```{r colors}
+```{r data-and-colors}
+
+cmip6 <- read.table("cmip6.txt")
+
+breaks.martonne <- c(0,5,10,20,"30","40",Inf)
+cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
+
+breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+
 #display.brewer.pal(n = 11, name ="RdYlBu")
 colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 
@@ -75,9 +100,8 @@ col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorve
 
 ```{r aridity-index-martonne}
 
-cmip6$AIm <- with(cmpi6,pr*60*60*24*365/(tas-273.15+10)) # pr in mm/y, tas in Ceslsius
-breaks.martonne <- c(0,5,10,20,"30","40",Inf)
-cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
+cmip6$AIm <- with(cmip6,pr*60*60*24*365/(tas-273.15+10)) # pr in mm/y, tas in Ceslsius
+
 
 cmip6$cat.AIm <- cmip6$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
@@ -110,30 +134,32 @@ cmip6$ET0 <-with(cmip6, ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcW
 
 cmip6$AI <- with(cmip6, pr*60*60*24*365/(ET0*365))
 
-breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
 
-cmip6$cat.AI <- cmip6$AIu %>% cut(breaks = breaks.unesco) %>% 
+
+cmip6$cat.AI <- cmip6$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-ggplot(data = subset(cmip6, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
+  labs(title = i)+
   theme_void()+
   theme(legend.position = "bottom")
-
-write.table(cmip6, "cmip6_AI.txt")
+plot(g)
+}
 ```
 
 ## With heat fluxes
 
 ```{r aridity-index-unesco}
-
 cmip6$Rn <- with(cmip6, hfls + hfss) * 86400 * 1e-6 # conversion from W/m2 to MJ/m2/day.
 
 cmip6$P <- with(cmip6, 101.3 * ((293-0.0065*z)/293)^(5.26))
 
 
-cmip6$ea <- with(cmip6, 0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3))) # Tetens 1930
+cmip6$ea <- with(cmip6, ifelse(is.na(tasmin) == T, 
+                           0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3)),
+                           0.61078*exp(17.27*(tasmin-273.15)/((tasmin-273.15)+237.3)))) # Tetens 1930
 
 cmip6$es <- with(cmip6, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
 
@@ -148,13 +174,17 @@ cmip6$AI <- with(cmip6, pr*60*60*24*365/(ET0*365))
 breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
 
-cmip6$cat.AI <- cmip6$AIu %>% cut(breaks = breaks.unesco) %>% 
+cmip6$cat.AI <- cmip6$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-ggplot(data = subset(cmip6, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
+  labs(title = i)+
   theme_void()+
   theme(legend.position = "bottom")
+print(g)
+}
 
 write.table(cmip6, "cmip6_AI.txt")
 ```
