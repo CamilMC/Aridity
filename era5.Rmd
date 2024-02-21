@@ -81,72 +81,129 @@ ggplot() + geom_tile(data = subset(lmera.df, lm != 0), aes(x = lon, y = lat, fil
 
 ## ERA5
 
-```{r load-rasters, eval = F}
-pr <- raster("ERA5/total-precipitation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-pr.df <- as.data.frame(pr, xy = T) %>% setNames(c("lon","lat","pr"))
-write.table(pr.df, "ERA5/pr.df.txt") # in m of water equivalent 
+```{r load-rasters, eval = T}
+# pr <- raster("ERA5/total-precipitation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>%
+#    aggregate(fact = 4, fun = mean) %>%
+#   projectRaster(land_mask)
+# pr.df <- as.data.frame(pr, xy = T) %>% setNames(c("lon","lat","pr"))
+# write.table(pr.df, "ERA5/pr.df.txt") # in m of water equivalent 
 
-mpr <- raster("ERA5/mean_rates.nc", varname = "mtpr") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mpr <- raster("ERA5/mean_rates.nc", varname = "mtpr") %>%
+  stack() %>% 
+  raster::mean(na.rm = T) %>% 
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+
 mpr.df <- as.data.frame(mpr, xy = T) %>% setNames(c("lon","lat","mpr"))
+
 write.table(mpr.df, "ERA5/mpr.df.txt")
 
-tas <- raster("ERA5/temperature-2m.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+
+
+tas <- raster("ERA5/temperature-2m.nc") %>%
+  stack() %>%
+  raster::mean(na.rm = T) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask)
+
 tas.df <- as.data.frame(tas, xy = T) %>% setNames(c("lon","lat","tas"))
+
 write.table(tas.df, "ERA5/tas.df.txt")
 
-tdew <- raster("ERA5/2m-dewpoint.nc", varname = "d2m")  %>% stack() %>%  raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+tdew <- raster("ERA5/2m-dewpoint.nc", varname = "d2m")  %>% 
+  stack() %>% 
+  raster::mean(na.rm = T) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask)
 tdew.df <- as.data.frame(tdew, xy = T) %>% setNames(c("lon","lat","tdew"))
 write.table(tdew.df, "ERA5/tdew.df.txt")
 
-ssrd <- raster("ERA5/surface-short-wave-solar-radiation-downwards.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+ssrd <- raster("ERA5/surface-short-wave-solar-radiation-downwards.nc") %>%
+  stack() %>%
+  raster::mean(na.rm = T) %>% 
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask)
 ssrd.df <- as.data.frame(ssrd, xy = T) %>% setNames(c("lon","lat","ssrd"))
 write.table(ssrd.df, "ERA5/ssrd.df.txt")
 
-wind <- raster("ERA5/wind10m.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-wind.df <- as.data.frame(wind, xy = T) %>% setNames(c("lon","lat","sfcWind")) # m/s
+wind <- raster("ERA5/wind10m.nc", varname = "si10") %>%
+  stack() %>%
+  raster::mean(na.rm = T) %>% 
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask)
+
+wind.df <- as.data.frame(wind, xy = T) %>% 
+  setNames(c("lon","lat","sfcWind")) # m/s
 write.table(wind.df, "ERA5/wind.df.txt")
 
 # Evaporation in m of water equivalent
-evaporation <- raster("ERA5/evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-evaporation.df <- as.data.frame(evaporation, xy = T) %>% setNames(c("lon","lat","evap"))
-write.table(evaporation.df, "ERA5/evaporation.df.txt")
+# evaporation <- raster("ERA5/evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# evaporation.df <- as.data.frame(evaporation, xy = T) %>% setNames(c("lon","lat","evap"))
+# write.table(evaporation.df, "ERA5/evaporation.df.txt")
 
-mevap <- raster("ERA5/mean_rates.nc", varname = "mer") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-mevap.df <- as.data.frame(mevap, xy = T) %>% setNames(c("lon","lat","mevap"))
-write.table(mevap.df, "ERA5/mevap.df.txt")
+# mevap <- raster("ERA5/mean_rates.nc", varname = "mer") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# mevap.df <- as.data.frame(mevap, xy = T) %>% setNames(c("lon","lat","mevap"))
+# write.table(mevap.df, "ERA5/mevap.df.txt")
 
-mpevap <- raster("ERA5/mean-potential-evaporation-rate.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-mpevap.df <- as.data.frame(mpevap, xy = T) %>% setNames(c("lon","lat","mpevap"))
-write.table(mpevap.df, "ERA5/mpevap.df.txt")
+# mpevap <- raster("ERA5/mean-potential-evaporation-rate.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# mpevap.df <- as.data.frame(mpevap, xy = T) %>% setNames(c("lon","lat","mpevap"))
+# write.table(mpevap.df, "ERA5/mpevap.df.txt")
 
-pot.evaporation <- raster("ERA5/potential-evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-pevap.df <- as.data.frame(pot.evaporation, xy = T) %>% setNames(c("lon","lat","pevap"))
-write.table(pevap.df, "ERA5/pevap.df.txt")
+# pot.evaporation <- raster("ERA5/potential-evaporation.nc") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# pevap.df <- as.data.frame(pot.evaporation, xy = T) %>% setNames(c("lon","lat","pevap"))
+# write.table(pevap.df, "ERA5/pevap.df.txt")
 
-slhf <- raster("ERA5/surface_latent_heat_flux.nc", varname = "slhf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-slhf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","slhf"))
-write.table(slhf.df, "ERA5/slhf.df.txt")
+# slhf <- raster("ERA5/surface_latent_heat_flux.nc", varname = "slhf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# slhf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","slhf"))
+# write.table(slhf.df, "ERA5/slhf.df.txt")
+# 
+# 
+# sshf <- raster("ERA5/surface_sensible_heat_flux.nc", varname = "sshf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# sshf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","sshf"))
+# write.table(sshf.df, "ERA5/sshf.df.txt")
 
+mslhf <- raster("ERA5/mean_rates.nc", varname = "mslhf") %>%
+  stack() %>%
+  raster::mean(na.rm = T) %>% 
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>% 
+  projectRaster(land_mask)
 
-sshf <- raster("ERA5/surface_sensible_heat_flux.nc", varname = "sshf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
-sshf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","sshf"))
-write.table(sshf.df, "ERA5/sshf.df.txt")
-
-mslhf <- raster("ERA5/mean_rates.nc", varname = "mslhf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 mslhf.df <- as.data.frame(mslhf, xy = T) %>% setNames(c("lon","lat","mslhf"))
 write.table(mslhf.df, "ERA5/mslhf.df.txt")
 
 
-msshf <- raster("ERA5/mean_rates.nc", varname = "msshf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+msshf <- raster("ERA5/mean_rates.nc", varname = "msshf") %>%
+  stack() %>%
+  raster::mean(na.rm = T) %>%
+  raster::rotate() %>% 
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask)
+
 msshf.df <- as.data.frame(msshf, xy = T) %>% setNames(c("lon","lat","msshf"))
 write.table(msshf.df, "ERA5/msshf.df.txt")
 
-msr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnswrf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+msr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnswrf") %>%
+  stack() %>% 
+  raster::mean(na.rm = T) %>%
+  raster::rotate() %>% 
+  aggregate(fact = 4, fun = mean) %>% 
+  projectRaster(land_mask)
 msr.df <- as.data.frame(msr, xy = T) %>% setNames(c("lon","lat","msr"))
 write.table(msr.df, "ERA5/msr.df.txt")
 
 
-mlr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnlwrf") %>% stack() %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mlr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnlwrf") %>%
+  stack() %>% 
+  raster::mean(na.rm = T) %>% 
+  raster::rotate() %>% 
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask)
+
 mlr.df <- as.data.frame(mlr, xy = T) %>% setNames(c("lon","lat","mlr"))
 write.table(mlr.df, "ERA5/mlr.df.txt")
 ```
@@ -207,7 +264,7 @@ tas_month <- tas_jan.df %>%
   merge(tas_fev.df, by =c("lon","lat")) %>%
   merge(tas_mar.df, by =c("lon","lat")) %>%
   merge(tas_apr.df, by =c("lon","lat")) %>%
-  merge(tas_may.df, by =c("lon","lat")) %>%n
+  merge(tas_may.df, by =c("lon","lat")) %>%
   merge(tas_jun.df, by =c("lon","lat")) %>%
   merge(tas_jul.df, by =c("lon","lat")) %>%
   merge(tas_aug.df, by =c("lon","lat")) %>%
@@ -221,38 +278,37 @@ tas_month$tas_min <- apply(select(tas_month,c("tas_01", "tas_02", "tas_03", "tas
 write.table(tas_month, "ERA5/tas_month.txt")
 ```
 
-```{r merge-dfs, eval = F}
-pr.df <- read.table("ERA5/pr.df.txt")
+```{r merge-dfs, eval = T}
+# pr.df <- read.table("ERA5/pr.df.txt")
 mpr.df <- read.table("ERA5/mpr.df.txt")
 tas.df <- read.table("ERA5/tas.df.txt")
-tas_month.df <- read.table("ERA5/tas_month.txt")
+#tas_month.df <- read.table("ERA5/tas_month.txt")
 tdew.df <- read.table("ERA5/tdew.df.txt")
 ssrd.df <- read.table("ERA5/ssrd.df.txt")
 wind.df <- read.table("ERA5/wind.df.txt")
-evaporation.df <- read.table("ERA5/evaporation.df.txt")
-mevap.df <- read.table("ERA5/mevap.df.txt")
-pevap.df <- read.table("ERA5/pevap.df.txt")
-mpevap.df <- read.table("ERA5/mpevap.df.txt")
-slhf.df <- read.table("ERA5/slhf.df.txt")
-sshf.df <- read.table("ERA5/sshf.df.txt")
+#evaporation.df <- read.table("ERA5/evaporation.df.txt")
+#mevap.df <- read.table("ERA5/mevap.df.txt")
+#pevap.df <- read.table("ERA5/pevap.df.txt")
+#mpevap.df <- read.table("ERA5/mpevap.df.txt")
+#slhf.df <- read.table("ERA5/slhf.df.txt")
+#sshf.df <- read.table("ERA5/sshf.df.txt")
 mslhf.df <- read.table("ERA5/mslhf.df.txt")
 msshf.df <- read.table("ERA5/msshf.df.txt")
 msr.df <- read.table("ERA5/msr.df.txt")
 mlr.df <- read.table("ERA5/mlr.df.txt")
 
-era5 <- pr.df %>% # in m of water equivalent
-  merge(mpr.df, by = c("lon","lat")) %>% # in kg/m2/s
+era5 <- mpr.df %>% # in m of water equivalent
+#  merge(pr.df, by = c("lon","lat")) %>% # in kg/m2/s
   merge(tas.df, by = c("lon","lat")) %>% # in K
-  merge(tas_month.df, by = c("lon","lat")) %>% # in K
   merge(tdew.df, by = c("lon","lat")) %>% # in K
   merge(ssrd.df, by = c("lon","lat")) %>% # in J/m2
   merge(wind.df, by = c("lon","lat")) %>% # in m/s
-  merge(evaporation.df, by = c("lon","lat")) %>% # in m of water equivalent
-  merge(mevap.df, by = c("lon","lat")) %>% # in kg/m2/s
-  merge(pevap.df, by = c("lon","lat")) %>% # in m of water equivalent
-  merge(mpevap.df, by = c("lon","lat")) %>% # in kg/m2/s 
-  merge(slhf.df, by = c("lon","lat")) %>% # in J/m2, accumulated over 1 day: divide by (60*60*24) to get W/m2
-  merge(sshf.df, by = c("lon","lat")) %>% # in J/m2, accumulated over 1 day: divide by (60*60*24) to get W/m2
+ # merge(evaporation.df, by = c("lon","lat")) %>% # in m of water equivalent
+  #merge(mevap.df, by = c("lon","lat")) %>% # in kg/m2/s
+  #merge(pevap.df, by = c("lon","lat")) %>% # in m of water equivalent
+  #merge(mpevap.df, by = c("lon","lat")) %>% # in kg/m2/s 
+  #merge(slhf.df, by = c("lon","lat")) %>% # in J/m2, accumulated over 1 day: divide by (60*60*24) to get W/m2
+  #merge(sshf.df, by = c("lon","lat")) %>% # in J/m2, accumulated over 1 day: divide by (60*60*24) to get W/m2
   merge(mslhf.df, by = c("lon","lat")) %>% # in W/m2
   merge(msshf.df, by = c("lon","lat")) %>% # in W/m2
   merge(msr.df, by = c("lon","lat")) %>% # in W/m2
@@ -274,7 +330,7 @@ write.table(era5, "era5.txt")
 era5 <- read.table("era5.txt")
 ```
 
-```{r comparison-heat-fluxes-solar-radiation}
+```{r comparison-heat-fluxes-solar-radiation, eval = F}
 ggplot(era5) + 
   geom_boxplot(aes(x = "sshf", y = sshf, col = "sshf")) +
   geom_boxplot(aes(x = "slhf", y = slhf, col = "slhf")) +
@@ -309,7 +365,7 @@ ggplot(era5)+geom_raster(aes(x = lon, y = lat, fill = (mlr+msr)+(msshf+sshf)))+
 
 ```
 
-```{r variable-maps}
+```{r variable-maps, eval = F}
 
 par(mfcol = c(2,6))
 
@@ -513,9 +569,13 @@ cowplot::plot_grid(plotlist = list(
 
 ```
 
+```{r exit}
+knitr::knit_exit()
+```
+
 ## Rn is latent + sensible heat flux, tmin used as tdew
 
-```{r aridity-index-Rn}
+```{r aridity-index-Rn, eval = F}
 era5 <- read.table("era5.txt")
 
 era5$Rn <- with(era5, -(msshf + mslhf)) * 86400 * 1e-6 # Rn is actually Rn - G, the sum of sensible and latent heat fluxes. In W/m2, converted to MJ/m2/day
