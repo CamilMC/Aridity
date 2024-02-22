@@ -135,16 +135,32 @@ g <- ggplot(subset(table_calib, !is.na(hyperarid) & !is.na(arid) & !is.na(semi.a
 print(g)
 }
 
-# ggplot(subset(table_calib, Continent == i), aes(x = Name))+
-#  geom_col(aes(y = hyperarid, fill = "Hyperarid"))+
-#   geom_col(aes(y = arid, fill = "Arid"))+
-#   geom_col(aes(y = semi.arid, fill = "Semi-arid"))+
-#   geom_col(aes(y = dry.subhumid, fill = "Dry subhumid"))+
-#   scale_fill_manual(values = col.cat)+
-#   theme_minimal()+
-#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))+
-#   facet_grid(rows = vars(source), switch = "y")+
-#   labs(x = "IPCC Region", y = "Count", fill = "Aridity\ncategory", title = i)
+continent = unique(table_calib$Continent)
+ggplot(subset(table_calib, Continent == continent[1]), aes(x = Name))+
+ geom_col(aes(y = hyperarid/total*100, fill = "Hyperarid"))+
+  geom_col(aes(y = arid/total*100, fill = "Arid"))+
+  geom_col(aes(y = semi.arid/total*100, fill = "Semi-arid"))+
+  geom_col(aes(y = dry.subhumid/total*100, fill = "Dry subhumid"))+
+  geom_col(aes(y = humid/total*100, fill = "Humid"))+
+  geom_col(aes(y = na/total*100, fill = "no value"))+
+  scale_fill_manual(values = c(col.cat, "grey"))+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))+
+  facet_grid(rows = vars(source), switch = "y")+
+  labs(x = "IPCC Region", y = "%", fill = "Aridity\ncategory", title = continent[1])
+
+ggplot(subset(table_calib, Continent == continent[1]), aes(x = Name))+
+ geom_col(aes(y = hyperarid/total*100, fill = "Hyperarid"))+
+  geom_col(aes(y = arid/total*100, fill = "Arid"))+
+  geom_col(aes(y = semi.arid/total*100, fill = "Semi-arid"))+
+  geom_col(aes(y = dry.subhumid/total*100, fill = "Dry subhumid"))+
+  geom_col(aes(y = humid/total*100, fill = "Humid"))+
+  geom_col(aes(y = na/total*100, fill = "no value"))+
+  scale_fill_manual(values = c(col.cat, "grey"))+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))+
+  facet_grid(rows = vars(source), switch = "y")+
+  labs(x = "IPCC Region", y = "%", fill = "Aridity\ncategory", title = continent[1])
 ```
 
 # Maps difference 
@@ -255,7 +271,6 @@ ggplot(calib.wide,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5, col = 
   geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   geom_point(aes( y = sfcWind.era5), alpha =1, shape = 1, col = "white")+
   geom_point(aes(y=sfcWind.cmip6), alpha = 1, shape = 1, col = "white")+
-  geom_abline(slope = 1, intercept = 0)+
   labs(x="Wind speed m/s, WDC", y = "Wind speed m/s", col = "Dataset")+
   scale_color_manual(values = c(colorvec[3], colorvec[9]))+
   theme_void()+
