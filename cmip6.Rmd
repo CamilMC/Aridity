@@ -113,6 +113,13 @@ ggplot(subset(cmip6, period == "1970_2000")) + geom_raster(aes(x=lon, y = lat,  
 
 ## FAO
 
+ea from Rh:
+
+ea = 6.108*(RH/100)*exp(17.27*T/(T+237.3))
+Refs
+https://www.nature.com/articles/s41598-023-40499-6 : Allen and Tetens
+
+
 ### With rsds
 
 ```{r aridity-index-rsds}

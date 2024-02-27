@@ -87,28 +87,34 @@ wdctm <- raster::stack(list.tavg) %>%
   projectRaster(to = land_mask) %>% 
   as.data.frame(xy = T) %>% setNames(c("lon","lat","tas_01","tas_02","tas_03","tas_04","tas_05","tas_06","tas_07","tas_08","tas_09","tas_10","tas_11","tas_12"))
 
+list.prm <- list.files(path = "Worldclim/wc2.1_10m", pattern = "wc2.1_10m_prec_", full.names = T)
+wdcpm <- raster::stack(list.prm) %>%
+  aggregate(fact =6, fun = mean) %>%
+  projectRaster(to = land_mask) %>%
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","pr_01","pr_02","pr_03","pr_04","pr_05","pr_06","pr_07","pr_08","pr_09","pr_10","pr_11","pr_12"))
+
 wdcp <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_12.tif") %>%
   aggregate(fact =6, fun = mean) %>%
   projectRaster(to = land_mask) %>%
   as.data.frame(xy = T) %>% setNames(c("lon","lat","pr"))
 
 list.wind <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_wind", full.names = TRUE)
-wdcw <- raster::stack(list.wind) %>% mean(na.rm = T) %>%
+wdcw <- raster::stack(list.wind) %>% 
   aggregate(fact =6, fun = mean) %>%
   projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind"))
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","sfcWind_01","sfcWind_02","sfcWind_03","sfcWind_04","sfcWind_05","sfcWind_06","sfcWind_07","sfcWind_08","sfcWind_09","sfcWind_10","sfcWind_11","sfcWind_12"))
 
 list.srad <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_srad", full.names = TRUE) # unit: kJ/m2/day. Consider that solar radiation constitute the only component of Rn (surface energy balance)
-wdcr <- raster::stack(list.srad) %>% mean(na.rm = T) %>%
+wdcr <- raster::stack(list.srad) %>%
   aggregate(fact =6, fun = mean) %>%
   projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","srad"))
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","srad_01","srad_02","srad_03","srad_04","srad_05","srad_06","srad_07","srad_08","srad_09","srad_10","srad_11","srad_12"))
 
 list.vapr <- list.files(path = "Worldclim/wc2.1_10m/", pattern = "wc2.1_10m_vapr", full.names = TRUE) # unit: kJ/m2/day. Consider that solar radiation constitute the only component of Rn (surface energy balance)
-wdcv <- raster::stack(list.vapr) %>% mean(na.rm = T) %>%
+wdcv <- raster::stack(list.vapr) %>% 
   aggregate(fact =6, fun = mean) %>%
   projectRaster(to = land_mask) %>% 
-  as.data.frame(xy = T) %>% setNames(c("lon","lat","vapr"))
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","vapr_01","vapr_02","vapr_03","vapr_04","vapr_05","vapr_06","vapr_07","vapr_08","vapr_09","vapr_10","vapr_11","vapr_12"))
 
 
 wdc <- wdct %>% 
@@ -116,6 +122,7 @@ wdc <- wdct %>%
   merge(wdctmin, by = c("lon", "lat")) %>%
   merge(wdctmax, by = c("lon", "lat")) %>%
   merge(wdcp, by = c("lon", "lat")) %>%
+  merge(wdcpm, by = c("lon", "lat")) %>%
   merge(wdcr, by = c("lon", "lat")) %>%
   merge(wdcw, by = c("lon", "lat")) %>%
   merge(wdcv, by = c("lon", "lat")) %>%
@@ -128,6 +135,12 @@ wdc <- wdct %>%
 wdc$tmin <- apply(select(wdc,c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, FUN = mean, na.rm = T)
 
 wdc$tmax <- apply(select(wdc,c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, FUN = mean, na.rm = T)
+
+wdc$vapr <- apply(select(wdc,c("vapr_01", "vapr_02", "vapr_03", "vapr_04", "vapr_05", "vapr_06", "vapr_07", "vapr_08", "vapr_09", "vapr_10", "vapr_11", "vapr_12")), 1, FUN = mean, na.rm = T)
+
+wdc$srad <- apply(select(wdc,c("srad_01", "srad_02", "srad_03", "srad_04", "srad_05", "srad_06", "srad_07", "srad_08", "srad_09", "srad_10", "srad_11", "srad_12")), 1, FUN = mean, na.rm = T)
+
+wdc$sfcWind <- apply(select(wdc,c("sfcWind_01", "sfcWind_02", "sfcWind_03", "sfcWind_04", "sfcWind_05", "sfcWind_06", "sfcWind_07", "sfcWind_08", "sfcWind_09", "sfcWind_10", "sfcWind_11", "sfcWind_12")), 1, FUN = mean, na.rm = T)
 
 write.table(wdc,"wdc.txt")
 ```
@@ -166,15 +179,13 @@ ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AIm))+
 ## FAO Aridity index
 
 
-### ea calculated from tmin
+### ea calculated from srad
 
 ```{r aridity-index}
 wdc$Rn <- with(wdc, srad * 1e-3)  # conversion from kJ/m2/day to MJ/m2/day
 wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
 
-wdc$ea <- with(wdc, 0.61078*exp(17.27*(tmin)/((tmin)+237.3))) # Tetens 1930
-
-#wdc$ea <- with(wdc, vapr)
+wdc$ea <- with(wdc, vapr)
 
 wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
 
@@ -196,7 +207,7 @@ cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "S
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-
+write.table(wdc, "wdc_AI.txt")
 
 ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
@@ -204,7 +215,7 @@ ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   theme(legend.position = "bottom")
 ```
 
-### ea calculated from vapr
+### ea calculated from real Rn
 
 ```{r aridity-index-vapr}
 
@@ -213,78 +224,170 @@ wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
 
 #wdc$ea <- with(wdc, 0.61078*exp(17.27*(tmin)/((tmin)+237.3))) # Tetens 1930
 
-wdc$ea <- with(wdc, vapr)
+#wdc$ea <- with(wdc, vapr)
 
-wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
 
-# wdc <- wdc %>% mutate(psi = pi/180*lat, # latitude in radian
-#                     delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
-#                     delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
-#                     delta_03 = 0.409 * sin(2*pi/365*yday("2000-03-15")-1.39), #solar declination
-#                     delta_04 = 0.409 * sin(2*pi/365*yday("2000-04-15")-1.39), #solar declination
-#                     delta_05 = 0.409 * sin(2*pi/365*yday("2000-05-15")-1.39), #solar declination
-#                     delta_06 = 0.409 * sin(2*pi/365*yday("2000-06-15")-1.39), #solar declination
-#                     delta_07 = 0.409 * sin(2*pi/365*yday("2000-07-15")-1.39), #solar declination                    
-#                     delta_08 = 0.409 * sin(2*pi/365*yday("2000-08-15")-1.39), #solar declination
-#                     delta_09 = 0.409 * sin(2*pi/365*yday("2000-09-15")-1.39), #solar declination                    
-#                     delta_10 = 0.409 * sin(2*pi/365*yday("2000-10-15")-1.39), #solar declination
-#                     delta_11 = 0.409 * sin(2*pi/365*yday("2000-11-15")-1.39), #solar declination                    
-#                     delta_12 = 0.409 * sin(2*pi/365*yday("2000-12-15")-1.39), #solar declination                    
-#                     ws_01 = acos(-tan(psi)*tan(delta_01)), #sunset hour angle
-#                     ws_02 = acos(-tan(psi)*tan(delta_02)), #sunset hour angle
-#                     ws_03 = acos(-tan(psi)*tan(delta_03)), #sunset hour angle                    
-#                     ws_04 = acos(-tan(psi)*tan(delta_04)), #sunset hour angle                    
-#                     ws_05 = acos(-tan(psi)*tan(delta_05)), #sunset hour angle                    
-#                     ws_06 = acos(-tan(psi)*tan(delta_06)), #sunset hour angle                    
-#                     ws_07 = acos(-tan(psi)*tan(delta_07)), #sunset hour angle                    
-#                     ws_08 = acos(-tan(psi)*tan(delta_08)), #sunset hour angle
-#                     ws_09 = acos(-tan(psi)*tan(delta_09)), #sunset hour angle                    
-#                     ws_10 = acos(-tan(psi)*tan(delta_10)), #sunset hour angle
-#                     ws_11 = acos(-tan(psi)*tan(delta_11)), #sunset hour angle
-#                     ws_12 = acos(-tan(psi)*tan(delta_12)), #sunset hour angle                    
-#                     dr_01 = 1+0.033*cos(2*pi/365*yday("2000-01-15")), # inverse relative distance Earth-Sun
-#                     dr_02 = 1+0.033*cos(2*pi/365*yday("2000-02-15")), # inverse relative distance Earth-Sun
-#                     dr_03 = 1+0.033*cos(2*pi/365*yday("2000-03-15")), # inverse relative distance Earth-Sun                    
-#                     dr_04 = 1+0.033*cos(2*pi/365*yday("2000-04-15")), # inverse relative distance Earth-Sun                    
-#                     dr_05 = 1+0.033*cos(2*pi/365*yday("2000-05-15")), # inverse relative distance Earth-Sun                    
-#                     dr_06 = 1+0.033*cos(2*pi/365*yday("2000-06-15")), # inverse relative distance Earth-Sun                    
-#                     dr_07 = 1+0.033*cos(2*pi/365*yday("2000-07-15")), # inverse relative distance Earth-Sun                    
-#                     dr_08 = 1+0.033*cos(2*pi/365*yday("2000-08-15")), # inverse relative distance Earth-Sun
-#                     dr_09 = 1+0.033*cos(2*pi/365*yday("2000-09-15")), # inverse relative distance Earth-Sun                    
-#                     dr_10 = 1+0.033*cos(2*pi/365*yday("2000-10-15")), # inverse relative distance Earth-Sun                    
-#                     dr_11 = 1+0.033*cos(2*pi/365*yday("2000-11-15")), # inverse relative distance Earth-Sun                    
-#                     dr_12 = 1+0.033*cos(2*pi/365*yday("2000-12-15")), # inverse relative distance Earth-Sun                    
-#                     Ra_01 = 24*60/pi * 0.0820 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
-#                     Ra_02 = 24*60/pi * 0.0820 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day                
-#                     Ra_03 = 24*60/pi * 0.0820 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day              
-#                     Ra_04 = 24*60/pi * 0.0820 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day                
-#                     Ra_05 = 24*60/pi * 0.0820 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day    
-#                     Ra_06 = 24*60/pi * 0.0820 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day                
-#                     Ra_07 = 24*60/pi * 0.0820 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day  
-#                     Ra_08 = 24*60/pi * 0.0820 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
-#                     Ra_09 = 24*60/pi * 0.0820 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day              
-#                     Ra_10 = 24*60/pi * 0.0820 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
-#                     Ra_11 = 24*60/pi * 0.0820 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
-#                     Ra_12 = 24*60/pi * 0.0820 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12))) # external radiation MJ/m2/day
-#                     
-# wdc$Ra <- wdc %>% select(c("Ra_01", "Ra_02", "Ra_02", "Ra_03", "Ra_04", "Ra_05", "Ra_06", "Ra_07", "Ra_08", "Ra_09", "Ra_10", "Ra_11", "Ra_12")) %>% rowMeans()
-# wdc$Rso <- with(wdc,Ra*(0.75+2e-5*z))
-# wdc$Rnl <- with(wdc, 4.903e-9*((tmax+273.15)^4+(tmin*273.15)^4)/2*(0.34-0.14*sqrt(ea))*(1.35*(srad*1e-3)/Rso - 0.35))
-# wdc$Rns <- with(wdc, srad*1e-3 * (1 - 0.23)) # conversion from kJ/m2/day to MJ/m2/day; 0.23 is albedo
-# wdc$Rn <- with(wdc,Rns - Rnl) # in MJ/m2/day
-                    
-wdc$Rn <- wdc$srad * 1e-3
 
-wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
+wdc <- wdc %>% mutate(psi = pi/180*lat, # latitude in radian
+                    es_01 = 0.61078*exp(17.27*(tas_01)/((tas_01)+237.3)),
+                    es_02 = 0.61078*exp(17.27*(tas_02)/((tas_02)+237.3)),
+                    es_03 = 0.61078*exp(17.27*(tas_03)/((tas_03)+237.3)),
+                    es_04 = 0.61078*exp(17.27*(tas_04)/((tas_04)+237.3)),
+                    es_05 = 0.61078*exp(17.27*(tas_05)/((tas_05)+237.3)),
+                    es_06 = 0.61078*exp(17.27*(tas_06)/((tas_06)+237.3)),
+                    es_07 = 0.61078*exp(17.27*(tas_07)/((tas_07)+237.3)),
+                    es_08 = 0.61078*exp(17.27*(tas_08)/((tas_08)+237.3)),
+                    es_09 = 0.61078*exp(17.27*(tas_09)/((tas_09)+237.3)),
+                    es_10 = 0.61078*exp(17.27*(tas_10)/((tas_10)+237.3)),
+                    es_11 = 0.61078*exp(17.27*(tas_11)/((tas_11)+237.3)),
+                    es_12 = 0.61078*exp(17.27*(tas_12)/((tas_12)+237.3)),
+                    delta_01 = 0.409 * sin(2*pi/365*yday("2000-01-15")-1.39), #solar declination
+                    delta_02 = 0.409 * sin(2*pi/365*yday("2000-02-15")-1.39), #solar declination
+                    delta_03 = 0.409 * sin(2*pi/365*yday("2000-03-15")-1.39), #solar declination
+                    delta_04 = 0.409 * sin(2*pi/365*yday("2000-04-15")-1.39), #solar declination
+                    delta_05 = 0.409 * sin(2*pi/365*yday("2000-05-15")-1.39), #solar declination
+                    delta_06 = 0.409 * sin(2*pi/365*yday("2000-06-15")-1.39), #solar declination
+                    delta_07 = 0.409 * sin(2*pi/365*yday("2000-07-15")-1.39), #solar declination
+                    delta_08 = 0.409 * sin(2*pi/365*yday("2000-08-15")-1.39), #solar declination
+                    delta_09 = 0.409 * sin(2*pi/365*yday("2000-09-15")-1.39), #solar declination
+                    delta_10 = 0.409 * sin(2*pi/365*yday("2000-10-15")-1.39), #solar declination
+                    delta_11 = 0.409 * sin(2*pi/365*yday("2000-11-15")-1.39), #solar declination
+                    delta_12 = 0.409 * sin(2*pi/365*yday("2000-12-15")-1.39), #solar declination
+                    ws_01 = acos(-tan(psi)*tan(delta_01)), #sunset hour angle
+                    ws_02 = acos(-tan(psi)*tan(delta_02)), #sunset hour angle
+                    ws_03 = acos(-tan(psi)*tan(delta_03)), #sunset hour angle
+                    ws_04 = acos(-tan(psi)*tan(delta_04)), #sunset hour angle
+                    ws_05 = acos(-tan(psi)*tan(delta_05)), #sunset hour angle
+                    ws_06 = acos(-tan(psi)*tan(delta_06)), #sunset hour angle
+                    ws_07 = acos(-tan(psi)*tan(delta_07)), #sunset hour angle
+                    ws_08 = acos(-tan(psi)*tan(delta_08)), #sunset hour angle
+                    ws_09 = acos(-tan(psi)*tan(delta_09)), #sunset hour angle
+                    ws_10 = acos(-tan(psi)*tan(delta_10)), #sunset hour angle
+                    ws_11 = acos(-tan(psi)*tan(delta_11)), #sunset hour angle
+                    ws_12 = acos(-tan(psi)*tan(delta_12)), #sunset hour angle
+                    dr_01 = 1+0.033*cos(2*pi/365*yday("1985-01-15")), # inverse relative distance Earth-Sun
+                    dr_02 = 1+0.033*cos(2*pi/365*yday("1985-02-15")), # inverse relative distance Earth-Sun
+                    dr_03 = 1+0.033*cos(2*pi/365*yday("1985-03-15")), # inverse relative distance Earth-Sun
+                    dr_04 = 1+0.033*cos(2*pi/365*yday("1985-04-15")), # inverse relative distance Earth-Sun
+                    dr_05 = 1+0.033*cos(2*pi/365*yday("1985-05-15")), # inverse relative distance Earth-Sun
+                    dr_06 = 1+0.033*cos(2*pi/365*yday("1985-06-15")), # inverse relative distance Earth-Sun
+                    dr_07 = 1+0.033*cos(2*pi/365*yday("1985-07-15")), # inverse relative distance Earth-Sun
+                    dr_08 = 1+0.033*cos(2*pi/365*yday("1985-08-15")), # inverse relative distance Earth-Sun
+                    dr_09 = 1+0.033*cos(2*pi/365*yday("1985-09-15")), # inverse relative distance Earth-Sun
+                    dr_10 = 1+0.033*cos(2*pi/365*yday("1985-10-15")), # inverse relative distance Earth-Sun
+                    dr_11 = 1+0.033*cos(2*pi/365*yday("1985-11-15")), # inverse relative distance Earth-Sun
+                    dr_12 = 1+0.033*cos(2*pi/365*yday("1985-12-15")), # inverse relative distance Earth-Sun
+                    Ra_01 = 24*60/pi * 0.082 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
+                    Ra_02 = 24*60/pi * 0.082 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), 
+                    Ra_03 = 24*60/pi * 0.082 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), 
+                    Ra_04 = 24*60/pi * 0.082 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), 
+                    Ra_05 = 24*60/pi * 0.082 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), 
+                    Ra_06 = 24*60/pi * 0.082 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), 
+                    Ra_07 = 24*60/pi * 0.082 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), 
+                    Ra_08 = 24*60/pi * 0.082 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), 
+                    Ra_09 = 24*60/pi * 0.082 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), 
+                    Ra_10 = 24*60/pi * 0.082 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), 
+                    Ra_11 = 24*60/pi * 0.082 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), 
+                    Ra_12 = 24*60/pi * 0.082 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), 
+                    Rso_01 = Ra_01*(0.75+2e-5*z),
+                    Rso_02 = Ra_02*(0.75+2e-5*z),
+                    Rso_03 = Ra_03*(0.75+2e-5*z),
+                    Rso_04 = Ra_04*(0.75+2e-5*z),
+                    Rso_05 = Ra_05*(0.75+2e-5*z),
+                    Rso_06 = Ra_06*(0.75+2e-5*z),
+                    Rso_07 = Ra_07*(0.75+2e-5*z),
+                    Rso_08 = Ra_08*(0.75+2e-5*z),
+                    Rso_09 = Ra_09*(0.75+2e-5*z),
+                    Rso_10 = Ra_10*(0.75+2e-5*z),
+                    Rso_11 = Ra_11*(0.75+2e-5*z),
+                    Rso_12 = Ra_12*(0.75+2e-5*z),
+                    Rnl_01 = 4.903e-9*((tmax_01+273.15)^4+(tmin_01*273.15)^4)/2*(0.34-0.14*sqrt(vapr_01))*(1.35*(srad_01*1e-3)/Rso_01 - 0.35),
+                    Rnl_02 = 4.903e-9*((tmax_02+273.15)^4+(tmin_02*273.15)^4)/2*(0.34-0.14*sqrt(vapr_02))*(1.35*(srad_02*1e-3)/Rso_02 - 0.35),
+                    Rnl_03 = 4.903e-9*((tmax_03+273.15)^4+(tmin_03*273.15)^4)/2*(0.34-0.14*sqrt(vapr_03))*(1.35*(srad_03*1e-3)/Rso_03 - 0.35),
+                    Rnl_04 = 4.903e-9*((tmax_04+273.15)^4+(tmin_04*273.15)^4)/2*(0.34-0.14*sqrt(vapr_04))*(1.35*(srad_04*1e-3)/Rso_04 - 0.35),
+                    Rnl_05 = 4.903e-9*((tmax_05+273.15)^4+(tmin_05*273.15)^4)/2*(0.34-0.14*sqrt(vapr_05))*(1.35*(srad_05*1e-3)/Rso_05 - 0.35),
+                    Rnl_06 = 4.903e-9*((tmax_06+273.15)^4+(tmin_06*273.15)^4)/2*(0.34-0.14*sqrt(vapr_06))*(1.35*(srad_06*1e-3)/Rso_06 - 0.35),
+                    Rnl_07 = 4.903e-9*((tmax_07+273.15)^4+(tmin_07*273.15)^4)/2*(0.34-0.14*sqrt(vapr_07))*(1.35*(srad_07*1e-3)/Rso_07 - 0.35),
+                    Rnl_08 = 4.903e-9*((tmax_08+273.15)^4+(tmin_08*273.15)^4)/2*(0.34-0.14*sqrt(vapr_08))*(1.35*(srad_08*1e-3)/Rso_08 - 0.35),
+                    Rnl_09 = 4.903e-9*((tmax_09+273.15)^4+(tmin_09*273.15)^4)/2*(0.34-0.14*sqrt(vapr_09))*(1.35*(srad_09*1e-3)/Rso_09 - 0.35),
+                    Rnl_10 = 4.903e-9*((tmax_10+273.15)^4+(tmin_10*273.15)^4)/2*(0.34-0.14*sqrt(vapr_10))*(1.35*(srad_10*1e-3)/Rso_10 - 0.35),
+                    Rnl_11 = 4.903e-9*((tmax_11+273.15)^4+(tmin_11*273.15)^4)/2*(0.34-0.14*sqrt(vapr_11))*(1.35*(srad_11*1e-3)/Rso_11 - 0.35),
+                    Rnl_12 = 4.903e-9*((tmax_12+273.15)^4+(tmin_12*273.15)^4)/2*(0.34-0.14*sqrt(vapr_12))*(1.35*(srad_12*1e-3)/Rso_12 - 0.35),
+                    Rns_01 = srad_01*1e-3 * (1 - 0.23),
+                    Rns_02 = srad_02*1e-3 * (1 - 0.23),
+                    Rns_03 = srad_03*1e-3 * (1 - 0.23),
+                    Rns_04 = srad_04*1e-3 * (1 - 0.23),
+                    Rns_05 = srad_05*1e-3 * (1 - 0.23),
+                    Rns_06 = srad_06*1e-3 * (1 - 0.23),
+                    Rns_07 = srad_07*1e-3 * (1 - 0.23),
+                    Rns_08 = srad_08*1e-3 * (1 - 0.23),
+                    Rns_09 = srad_09*1e-3 * (1 - 0.23),
+                    Rns_10 = srad_10*1e-3 * (1 - 0.23),
+                    Rns_11 = srad_11*1e-3 * (1 - 0.23),
+                    Rns_12 = srad_12*1e-3 * (1 - 0.23),
+                    Rn_01 = Rns_01 - Rnl_01,
+                    Rn_02 = Rns_02 - Rnl_02,
+                    Rn_03 = Rns_03 - Rnl_03,
+                    Rn_04 = Rns_04 - Rnl_04,
+                    Rn_05 = Rns_05 - Rnl_05,
+                    Rn_06 = Rns_06 - Rnl_06,
+                    Rn_07 = Rns_07 - Rnl_07,
+                    Rn_08 = Rns_08 - Rnl_08,
+                    Rn_09 = Rns_09 - Rnl_09,
+                    Rn_10 = Rns_10 - Rnl_10,
+                    Rn_11 = Rns_11 - Rnl_11,
+                    Rn_12 = Rns_12 - Rnl_12,
+                    delta_01 = 4098*es_01/((tas_01)+237.3)^2,
+                    delta_02 = 4098*es_02/((tas_02)+237.3)^2,
+                    delta_03 = 4098*es_03/((tas_03)+237.3)^2,
+                    delta_04 = 4098*es_04/((tas_04)+237.3)^2,
+                    delta_05 = 4098*es_05/((tas_05)+237.3)^2,
+                    delta_06 = 4098*es_06/((tas_06)+237.3)^2,
+                    delta_07 = 4098*es_07/((tas_07)+237.3)^2,
+                    delta_08 = 4098*es_08/((tas_08)+237.3)^2,
+                    delta_09 = 4098*es_09/((tas_09)+237.3)^2,
+                    delta_10 = 4098*es_10/((tas_10)+237.3)^2,
+                    delta_11 = 4098*es_11/((tas_11)+237.3)^2,
+                    delta_12 = 4098*es_12/((tas_12)+237.3)^2,
+                    gamma_01 = 0.00163*P/(2.51-52.6361e-3*(tas_01)),
+                    gamma_02 = 0.00163*P/(2.501-52.6361e-3*(tas_02)),
+                    gamma_03 = 0.00163*P/(2.501-52.6361e-3*(tas_03)),
+                    gamma_04 = 0.00163*P/(2.501-52.6361e-3*(tas_04)),
+                    gamma_05 = 0.00163*P/(2.501-52.6361e-3*(tas_05)),
+                    gamma_06 = 0.00163*P/(2.501-52.6361e-3*(tas_06)),
+                    gamma_07 = 0.00163*P/(2.501-52.6361e-3*(tas_07)),
+                    gamma_08 = 0.00163*P/(2.501-52.6361e-3*(tas_08)),
+                    gamma_09 = 0.00163*P/(2.501-52.6361e-3*(tas_09)),
+                    gamma_10 = 0.00163*P/(2.501-52.6361e-3*(tas_10)),
+                    gamma_11 = 0.00163*P/(2.501-52.6361e-3*(tas_11)),
+                    gamma_12 = 0.00163*P/(2.501-52.6361e-3*(tas_12)),
+                    ET0_01 = (0.408*delta_01*Rn_01+gamma_01*900/((tas_01)+273)*0.748*sfcWind_01*(es_01-vapr_01))/(delta_01+gamma_01*(1+0.34*0.748*sfcWind_01))*31,
+                    ET0_02 = (0.408*delta_02*Rn_02+gamma_02*900/((tas_02)+273)*0.748*sfcWind_01*(es_02-vapr_01))/(delta_02+gamma_02*(1+0.34*0.748*sfcWind_02))*28,
+                    ET0_03 = (0.408*delta_03*Rn_03+gamma_03*900/((tas_03)+273)*0.748*sfcWind_01*(es_03-vapr_01))/(delta_03+gamma_03*(1+0.34*0.748*sfcWind_03))*31,
+                    ET0_04 = (0.408*delta_04*Rn_04+gamma_04*900/((tas_04)+273)*0.748*sfcWind_01*(es_04-vapr_01))/(delta_04+gamma_04*(1+0.34*0.748*sfcWind_04))*30,
+                    ET0_05 = (0.408*delta_05*Rn_05+gamma_05*900/((tas_05)+273)*0.748*sfcWind_01*(es_05-vapr_01))/(delta_05+gamma_05*(1+0.34*0.748*sfcWind_05))*31,
+                    ET0_06 = (0.408*delta_06*Rn_06+gamma_06*900/((tas_06)+273)*0.748*sfcWind_01*(es_06-vapr_01))/(delta_06+gamma_06*(1+0.34*0.748*sfcWind_06))*30,
+                    ET0_07 = (0.408*delta_07*Rn_07+gamma_07*900/((tas_07)+273)*0.748*sfcWind_01*(es_07-vapr_01))/(delta_07+gamma_07*(1+0.34*0.748*sfcWind_07))*31,
+                    ET0_08 = (0.408*delta_08*Rn_08+gamma_08*900/((tas_08)+273)*0.748*sfcWind_01*(es_08-vapr_01))/(delta_08+gamma_08*(1+0.34*0.748*sfcWind_08))*31,
+                    ET0_09 = (0.408*delta_09*Rn_09+gamma_09*900/((tas_09)+273)*0.748*sfcWind_01*(es_09-vapr_01))/(delta_09+gamma_09*(1+0.34*0.748*sfcWind_09))*30,
+                    ET0_10 = (0.408*delta_10*Rn_10+gamma_10*900/((tas_10)+273)*0.748*sfcWind_01*(es_10-vapr_01))/(delta_10+gamma_10*(1+0.34*0.748*sfcWind_10))*31,
+                    ET0_11 = (0.408*delta_11*Rn_11+gamma_11*900/((tas_11)+273)*0.748*sfcWind_01*(es_11-vapr_01))/(delta_11+gamma_11*(1+0.34*0.748*sfcWind_11))*30,
+                    ET0_12 = (0.408*delta_12*Rn_12+gamma_12*900/((tas_12)+273)*0.748*sfcWind_01*(es_12-vapr_01))/(delta_12+gamma_12*(1+0.34*0.748*sfcWind_12))*31,
+                  )
 
-wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
-
-                      
-wdc$ET0 <-with(wdc,               
-                ((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+# wdc$Rn <- wdc$srad * 1e-3
+# wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
+# wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
+# wdc$ET0 <-with(wdc,((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 # Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
 
-wdc$AI <- with(wdc, pr/(ET0*365))
+wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
+wdc$ea <- wdc$vapr
+wdc$Rn <-apply(select(wdc,c("Rn_01", "Rn_02", "Rn_03", "Rn_04", "Rn_05", "Rn_06", "Rn_07", "Rn_08", "Rn_09", "Rn_10", "Rn_11", "Rn_12")), 1, FUN = mean, na.rm = T)
+
+
+wdc$ET0 <-with(wdc, ET0_01+ET0_02+ET0_03+ET0_04+ET0_05+ET0_06+ET0_07+ET0_08+ET0_09+ET0_10+ET0_11+ET0_12)
+wdc$AI <-with(wdc, pr/ET0)
 
 breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
@@ -292,15 +395,24 @@ cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "S
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-write.table(wdc, "wdc_AI.txt")
-
 ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
   theme_void()+
   theme(legend.position = "bottom")
 
-ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = AI))+
-  #scale_fill_manual(values = col.cat)+
-  theme_void()+
-  theme(legend.position = "bottom")
+
+ggplot(wdc,aes(x=pr))+geom_point(aes(y=ET0_01, col = "janvier"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_02, col = "fevrier"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_03, col = "mars"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_04, col = "april"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_05, col = "may"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_06, col = "june"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_07, col = "july"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_08, col = "august"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_09, col = "september"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_10, col = "october"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_11, col = "november"), alpha = 0.1, size = 0.2)+
+  geom_point(aes(y=ET0_12, col = "december"), alpha = 0.1, size = 0.2)+
+  ylim(0,5000)+
+  theme_minimal()
 ```
