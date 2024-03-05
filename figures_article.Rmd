@@ -50,11 +50,11 @@ Liens utiles:
 # 
 # write.table(era5vA, "era5vA.txt")
 
-era5vA <- read.table("ERA5/et0_30y.txt") %>% mutate(tas = t2m - 273.15, pr = mpr * 60 * 60 * 24 * 365, rsds = NA, sfcWind = wind, model = "historical", source = "ERA5") %>%  select(c("lon","lat","Continent","Type","Name","Acronym","lm","model","source","pr","tas","sfcWind","Rn","rsds","ea","ET0","AI","cat.AI"))
+era5vA <- read.table("ERA5/et0_30y.txt") %>% mutate(tas = t2m - 273.15, pr = mpr * 60 * 60 * 24 * 365, rsds = ssrd / 86400 * 86400 * 1e-6, sfcWind = wind, model = "historical", source = "ERA5") %>%  select(c("lon","lat","Continent","Type","Name","Acronym","lm","model","source","pr","tas","sfcWind","Rn","rsds","ea","ET0","AI","cat.AI"))
 
 write.table(era5vA, "era5vA.txt")
 
-wdcvA <- read.table("wdc_AI.txt") %>% mutate(rsds = srad*1e-3) %>% # srad in MJ/m2/day
+wdcvA <- read.table("wdc_AI.txt") %>% mutate(rsds = srad*1e-3, ea = vapr, ET0 = ET0/365) %>% # srad in MJ/m2/day, ET0 originnally in mm/year
  select(c("lon","lat","Continent","Type","Name","Acronym","lm","model","source","pr","tas","sfcWind","Rn", "rsds","ea","ET0","AI","cat.AI"))
 
 
@@ -63,7 +63,7 @@ write.table(wdcvA, "wdcvA.txt")
 
 cmip6 <- read.table("cmip6_AI.txt")
 
-cmip6vM <- cmip6 %>% subset(period == "1970_2000") %>%
+cmip6vA <- cmip6 %>% subset(period == "1970_2000") %>%
    group_by(lon,lat,Continent, Type, Name, Acronym, lm, model) %>% 
   dplyr::summarise(tas = mean(tas, na.rm = T) - 273.15, pr = mean(pr, na.rm = T) * 60 * 60 * 24 * 365,
                    sfcWind = mean(sfcWind, na.rm = T), Rn = mean(Rn, na.rm = T),
@@ -94,9 +94,7 @@ cmip6vA <- read.table("cmip6vA.txt")
 # Aridity Index 
 
 
-
-
-```{r plot-compare, fig.dim = c(10,6)}
+```{r plot-compare, fig.dim = c(12,9)}
 
 calib <- rbind(cmip6vA, era5vA, wdcvA)
 
@@ -504,7 +502,7 @@ knitr::knit_exit()
 # Download Gimms NDVI
 library(gimms)
 
-ndvi.ref <- downloadGimms(x= 1981,y=2000,dsn = "NDVI")
+ndvi.ref <- downloadGimms(x= 2000,y=2000,dsn = "NDVI")
 ndvi.max <- monthlyComposite(ndvi.ref,monthlyIndices(ndvi.ref))
 saveRDS(ndvi.max,"ndvi.max.rds")
 

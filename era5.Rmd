@@ -821,8 +821,6 @@ et0_1970_2000 <- mon1970_2000 %>% filter(lm != 0) %>% mutate(Rn = - (msshf + msl
                         ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)),
                         AI = (mpr*60*60*24)/ET0)
 
-
-
 breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 
@@ -845,9 +843,11 @@ ggplot(et0_ref) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
 ```
 
 ```{r ET-annual-1970-2000, eval = F}
+mon1970_2000 <- read.table("ERA5/mon1970_2000.txt")
+
 et0_30y <- mon1970_2000 %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% 
                 summarise(mpr = mean(mpr, na.rm = T), t2m = mean(t2m, na.rm = T), tdew = mean(tdew, na.rm = T), 
-                          wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T)) %>%
+                          wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T), ssrd = mean(ssrd, na.rm = T)) %>%
                  mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
                         P = 101.3 * ((293-0.0065*z)/293)^(5.26),
                         ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
@@ -878,7 +878,10 @@ ggplot(et0_30y) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
 ```{r compare-et0-30y}
 et0_all <- merge(et0_ref, select(et0_30y, names(et0_ref)), by = c("lon","lat","lm","Continent","Type","Name","Acronym","z"))
 
-ggplot(et0_all)+geom_point(aes(x = ET0.x, y = ET0.y, col = cat.AI.x))+scale_color_manual(values = col.cat) + theme_minimal()
+ggplot(data = et0_all, aes(x = ET0.x, y = ET0.y))+
+  geom_point(aes(col =cat.AI.x))+
+  geom_abline(slope = 1, intercept = 0)+
+  stat_poly_eq()+scale_color_manual(values = col.cat) + theme_minimal()
 
 ggplot(et0_all) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.x))+
   scale_fill_manual(values = col.cat)+
@@ -894,18 +897,19 @@ ggplot(et0_all) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.y))+
 
 # Daily means
 
-```{r test-daily-mean}
+```{r test-daily-mean, eval = F}
 
 mprm <- data.frame(lon = NA, lat = NA, mpr = NA, month = NA)
 t2mm <- data.frame(lon = NA, lat = NA, t2m = NA, month = NA)
 tdewm <- data.frame(lon = NA, lat = NA, tdew = NA, month = NA)
-windm <- data.frame(lon = NA, lat = NA, wind = NA, month = NA)
+uwindm <- data.frame(lon = NA, lat = NA, uwind = NA, month = NA)
+vwindm <- data.frame(lon = NA, lat = NA, vwind = NA, month = NA)
 mslhfm <- data.frame(lon = NA, lat = NA, mslhf = NA, month = NA)
 msshfm <- data.frame(lon = NA, lat = NA, msshf = NA, month = NA)
 
-for(i in 1:372){
+for(i in 1:31){
   
-mpr <- raster("ERA5/pr_compiler.nc", varname = "mtpr", band = i) %>%
+mpr <- raster("ERA5/pr_compiler.nc", band = i) %>%
   raster::rotate() %>% projectRaster(land_mask) %>%
   as.data.frame(xy = T) %>% setNames(c("lon","lat","mpr")) %>%
   mutate(month = i)
@@ -921,7 +925,7 @@ t2m <- raster("ERA5/t2m_compiler.nc", band = i) %>%
 
 t2mm <<- rbind(t2mm, t2m)
 
-tdew <- raster("ERA5/d2m_compiler.nc", varname = "d2m", band = i)  %>% 
+tdew <- raster("ERA5/d2m_compiler.nc", band = i)  %>% 
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -930,17 +934,27 @@ tdew <- raster("ERA5/d2m_compiler.nc", varname = "d2m", band = i)  %>%
 
 tdewm <- rbind(tdewm, tdew)
 
-wind <- raster("ERA5/wind_compiler.nc", varname = "si10", band = i) %>%
+uwind <- raster("ERA5/10m-u-wind_compiler.nc", band = i) %>%
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
   as.data.frame(xy = T) %>% 
-  setNames(c("lon","lat","wind")) %>%
+  setNames(c("lon","lat","uwind")) %>%
   mutate(month = i)# m/s
 
-windm <<- rbind(windm, wind) 
+uwindm <<- rbind(uwindm, uwind) 
 
-mslhf <- raster("ERA5/mslhf_compiler.nc", varname = "mslhf", band = i) %>%
+vwind <- raster("ERA5/10m-v-wind_compiler.nc", band = i) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% 
+  setNames(c("lon","lat","vwind")) %>%
+  mutate(month = i)# m/s
+
+vwindm <<- rbind(vwindm, vwind) 
+
+mslhf <- raster("ERA5/mslhf_compiler.nc", band = i) %>%
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>% 
   projectRaster(land_mask) %>% 
@@ -949,7 +963,7 @@ mslhf <- raster("ERA5/mslhf_compiler.nc", varname = "mslhf", band = i) %>%
 
 mslhfm <<- rbind(mslhfm, mslhf)
 
-msshf <- raster("ERA5/msshf_compiler.nc", varname = "msshf", band = i) %>%
+msshf <- raster("ERA5/msshf_compiler.nc", band = i) %>%
   raster::rotate() %>% 
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -960,7 +974,7 @@ msshfm <<- rbind(msshfm, msshf)
 }
 
 
-jan1985 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, by = c("lon","lat","month")) %>% merge(windm, by = c("lon","lat","month")) %>% 
+jan1985 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, by = c("lon","lat","month"))  %>% merge(uwindm, by = c("lon","lat","month"))%>% merge(vwindm, by = c("lon","lat","month")) %>% 
   merge(mslhfm, by = c("lon","lat","month")) %>% merge(msshfm, by = c("lon","lat","month")) %>% 
   merge(land_mask.df, by = c("lon","lat")) %>%
   merge(ipcc_regions.df, by = c("lon","lat")) %>%
@@ -970,7 +984,9 @@ write.table(jan1985, "ERA5/jan1985.txt")
 ```
 
 ```{r jan1985-ref}
-jan85_day <- jan1985_day %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
+jan1985 <- read.table("ERA5/jan1985.txt")
+jan85_day <- jan1985 %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
+                        wind = sqrt(uwind^2+vwind^2), #make wind from u and v components                                
                         P = 101.3 * ((293-0.0065*z)/293)^(5.26),
                         ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
                         es = 0.61078*exp(17.27*(t2m-273.15)/((t2m-273.15)+237.3)),
@@ -978,8 +994,6 @@ jan85_day <- jan1985_day %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) *
                         gamma = 0.00163*P/(2.501-52.6361e-3*(t2m-273.15)),
                         ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)),
                         AI = (mpr*60*60*24)/ET0)
-
-
 
 breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
@@ -993,7 +1007,7 @@ write.table(jan85_ref, "ERA5/jan85_ref.txt")
 ```
 
 ```{r jan1985-avg}
-jan85_avg <- jan1985_day %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% 
+jan85_avg <- jan85_day %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% 
                 summarise(mpr = mean(mpr, na.rm = T), t2m = mean(t2m, na.rm = T), tdew = mean(tdew, na.rm = T), 
                           wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T)) %>%
                  mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
@@ -1008,25 +1022,71 @@ jan85_avg <- jan1985_day %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent,
 breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 
-jan85_avg$cat.AI <- jan85_day$AI %>% cut(breaks = breaks.unesco) %>%  revalue(cat.unesco)
+jan85_avg$cat.AI <- jan85_avg$AI %>% cut(breaks = breaks.unesco) %>%  revalue(cat.unesco)
 
 write.table(jan85_avg, "ERA5/jan85_avg.txt")
 ```
 
 ```{r compare-jan1985}
+
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+
 jan85_all <- merge(jan85_ref, select(jan85_avg, names(jan85_ref)), by = c("lon","lat","lm","Continent","Type","Name","Acronym","z"))
 
-ggplot(jan85_all)+geom_point(aes(x = ET0.x, y = ET0.y, col = cat.AI.x))+scale_color_manual(values = col.cat) + theme_minimal()
-
-ggplot(jan85_all) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.x))+
+ggplot(jan85_all) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI.x))+
   scale_fill_manual(values = col.cat)+
   theme_void()+
   theme(legend.position = "bottom")
 
-ggplot(jan85_all) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.y))+
+ggplot(jan85_all) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI.y))+
   scale_fill_manual(values = col.cat)+
   theme_void()+
   theme(legend.position = "bottom")
+
+ggplot(data = jan85_all, aes(x = ET0.x, y = ET0.y))+geom_point(aes(col = cat.AI.x))+
+  stat_poly_eq(label.x = "right", label.y = "bottom")+
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0_avg")+
+  scale_color_manual(values = col.cat) + theme_minimal()
+
+ggplot(data = jan85_all, aes(x = mpr.x, y = mpr.y))+geom_point(aes(col = cat.AI.x))+
+  stat_poly_eq(label.x = "right", label.y = "bottom")+
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x = "pr as mean(pr_i)", y = "PR as pr_avg")+
+  scale_color_manual(values = col.cat) + theme_minimal()
+
+ggplot(jan85_all, aes(x = AI.x, y = AI.y))+geom_point(aes(col = cat.AI.x))+
+  geom_abline(slope = 1, intercept = 0)+
+  stat_poly_eq()+
+  labs(x = "AI as mean(P/ET0)", y = "AI as mean(P)/mean(ET)")+
+  lims(x = c(-1, 5), y = c(-1,5))+
+  scale_color_manual(values = col.cat) + theme_minimal()
+
+
+
+ggplot(subset(jan85_all, lm ==1)) + geom_tile(aes(x=lon, y = lat,  fill = ET0.y - ET0.x))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", mid = 0, rev = T, name = "Diff ET0_avg - ET0_ref")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(jan85_all, lat < 50 & lat > -50), aes(x = AI.x, y = AI.y))+geom_point(aes(col = lat), alpha = 0.5, shape = 1)+
+  geom_abline(slope = 1, intercept = 0)+
+  stat_poly_eq()+
+  scale_color_continuous_divergingx(palette = "RdYlBu", mid = 0, rev = T, name = "latitude")+
+  labs(x = "AI as mean(P/ET0)", y = "AI as mean(P)/mean(ET)")+ theme_minimal()
+
+ggplot(jan85_all) + geom_boxplot(aes(x = "AI as mean(P/ET)", y = AI.x)) + geom_boxplot(aes(x = "AI as mean(P)/mean(ET)", y = AI.y))
+
+ggplot(jan85_all) + geom_boxplot(aes(x = "AI as mean(P/ET)", y = AI.x)) + geom_boxplot(aes(x = "AI as mean(P)/mean(ET)", y = AI.y)) + ylim(-2.5e4, 5e4)
+
+ggplot()+geom_boxplot(data = subset(jan85_all, AI.x > 0), aes(x="AI.x", y = AI.x))+
+  geom_boxplot(data = subset(jan85_all, AI.x < 0), aes(x="AI.x", y = abs(AI.x)))+
+  geom_boxplot(data = subset(jan85_all, AI.y > 0), aes(x="AI.y", y = AI.y))+
+  geom_boxplot(data = subset(jan85_all, AI.y < 0), aes(x="AI.y", y = abs(AI.y)))+
+  scale_y_continuous(trans = "log10")+
+  theme_minimal()
 ```
 
 ```{r exit}

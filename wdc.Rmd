@@ -24,6 +24,7 @@ library(plyr)
 library(dplyr)
 
 library(RColorBrewer)
+library(colorspace)
 
 library(lubridate)
 
@@ -58,7 +59,7 @@ ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 ```
 
-```{r create-wdc, eval = T}
+```{r create-wdc, eval = F}
 wdct <- raster("Worldclim/wc2.1_10m/wc2.1_10m_bio_1.tif") %>% 
   aggregate(fact = 6, fun = mean) %>%
   projectRaster(to = land_mask) %>% 
@@ -207,7 +208,7 @@ cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "S
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-write.table(wdc, "wdc_AI.txt")
+
 
 ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
@@ -215,7 +216,7 @@ ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   theme(legend.position = "bottom")
 ```
 
-### ea calculated from real Rn
+### ET0 calculated from real Rn
 
 ```{r aridity-index-vapr}
 
@@ -278,17 +279,17 @@ wdc <- wdc %>% mutate(psi = pi/180*lat, # latitude in radian
                     dr_11 = 1+0.033*cos(2*pi/365*yday("1985-11-15")), # inverse relative distance Earth-Sun
                     dr_12 = 1+0.033*cos(2*pi/365*yday("1985-12-15")), # inverse relative distance Earth-Sun
                     Ra_01 = 24*60/pi * 0.082 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
-                    Ra_02 = 24*60/pi * 0.082 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), 
-                    Ra_03 = 24*60/pi * 0.082 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), 
-                    Ra_04 = 24*60/pi * 0.082 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), 
-                    Ra_05 = 24*60/pi * 0.082 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), 
-                    Ra_06 = 24*60/pi * 0.082 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), 
-                    Ra_07 = 24*60/pi * 0.082 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), 
-                    Ra_08 = 24*60/pi * 0.082 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), 
-                    Ra_09 = 24*60/pi * 0.082 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), 
-                    Ra_10 = 24*60/pi * 0.082 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), 
-                    Ra_11 = 24*60/pi * 0.082 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), 
-                    Ra_12 = 24*60/pi * 0.082 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), 
+                    Ra_02 = 24*60/pi * 0.082 * dr_02 * ((ws_02*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), 
+                    Ra_03 = 24*60/pi * 0.082 * dr_03 * ((ws_03*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), 
+                    Ra_04 = 24*60/pi * 0.082 * dr_04 * ((ws_04*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), 
+                    Ra_05 = 24*60/pi * 0.082 * dr_05 * ((ws_05*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), 
+                    Ra_06 = 24*60/pi * 0.082 * dr_06 * ((ws_06*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), 
+                    Ra_07 = 24*60/pi * 0.082 * dr_07 * ((ws_07*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), 
+                    Ra_08 = 24*60/pi * 0.082 * dr_08 * ((ws_08*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), 
+                    Ra_09 = 24*60/pi * 0.082 * dr_09 * ((ws_09*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), 
+                    Ra_10 = 24*60/pi * 0.082 * dr_10 * ((ws_10*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), 
+                    Ra_11 = 24*60/pi * 0.082 * dr_11 * ((ws_11*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), 
+                    Ra_12 = 24*60/pi * 0.082 * dr_12 * ((ws_12*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), 
                     Rso_01 = Ra_01*(0.75+2e-5*z),
                     Rso_02 = Ra_02*(0.75+2e-5*z),
                     Rso_03 = Ra_03*(0.75+2e-5*z),
@@ -301,30 +302,66 @@ wdc <- wdc %>% mutate(psi = pi/180*lat, # latitude in radian
                     Rso_10 = Ra_10*(0.75+2e-5*z),
                     Rso_11 = Ra_11*(0.75+2e-5*z),
                     Rso_12 = Ra_12*(0.75+2e-5*z),
-                    Rnl_01 = 4.903e-9*((tmax_01+273.15)^4+(tmin_01*273.15)^4)/2*(0.34-0.14*sqrt(vapr_01))*(1.35*(srad_01*1e-3)/Rso_01 - 0.35),
-                    Rnl_02 = 4.903e-9*((tmax_02+273.15)^4+(tmin_02*273.15)^4)/2*(0.34-0.14*sqrt(vapr_02))*(1.35*(srad_02*1e-3)/Rso_02 - 0.35),
-                    Rnl_03 = 4.903e-9*((tmax_03+273.15)^4+(tmin_03*273.15)^4)/2*(0.34-0.14*sqrt(vapr_03))*(1.35*(srad_03*1e-3)/Rso_03 - 0.35),
-                    Rnl_04 = 4.903e-9*((tmax_04+273.15)^4+(tmin_04*273.15)^4)/2*(0.34-0.14*sqrt(vapr_04))*(1.35*(srad_04*1e-3)/Rso_04 - 0.35),
-                    Rnl_05 = 4.903e-9*((tmax_05+273.15)^4+(tmin_05*273.15)^4)/2*(0.34-0.14*sqrt(vapr_05))*(1.35*(srad_05*1e-3)/Rso_05 - 0.35),
-                    Rnl_06 = 4.903e-9*((tmax_06+273.15)^4+(tmin_06*273.15)^4)/2*(0.34-0.14*sqrt(vapr_06))*(1.35*(srad_06*1e-3)/Rso_06 - 0.35),
-                    Rnl_07 = 4.903e-9*((tmax_07+273.15)^4+(tmin_07*273.15)^4)/2*(0.34-0.14*sqrt(vapr_07))*(1.35*(srad_07*1e-3)/Rso_07 - 0.35),
-                    Rnl_08 = 4.903e-9*((tmax_08+273.15)^4+(tmin_08*273.15)^4)/2*(0.34-0.14*sqrt(vapr_08))*(1.35*(srad_08*1e-3)/Rso_08 - 0.35),
-                    Rnl_09 = 4.903e-9*((tmax_09+273.15)^4+(tmin_09*273.15)^4)/2*(0.34-0.14*sqrt(vapr_09))*(1.35*(srad_09*1e-3)/Rso_09 - 0.35),
-                    Rnl_10 = 4.903e-9*((tmax_10+273.15)^4+(tmin_10*273.15)^4)/2*(0.34-0.14*sqrt(vapr_10))*(1.35*(srad_10*1e-3)/Rso_10 - 0.35),
-                    Rnl_11 = 4.903e-9*((tmax_11+273.15)^4+(tmin_11*273.15)^4)/2*(0.34-0.14*sqrt(vapr_11))*(1.35*(srad_11*1e-3)/Rso_11 - 0.35),
-                    Rnl_12 = 4.903e-9*((tmax_12+273.15)^4+(tmin_12*273.15)^4)/2*(0.34-0.14*sqrt(vapr_12))*(1.35*(srad_12*1e-3)/Rso_12 - 0.35),
-                    Rns_01 = srad_01*1e-3 * (1 - 0.23),
-                    Rns_02 = srad_02*1e-3 * (1 - 0.23),
-                    Rns_03 = srad_03*1e-3 * (1 - 0.23),
-                    Rns_04 = srad_04*1e-3 * (1 - 0.23),
-                    Rns_05 = srad_05*1e-3 * (1 - 0.23),
-                    Rns_06 = srad_06*1e-3 * (1 - 0.23),
-                    Rns_07 = srad_07*1e-3 * (1 - 0.23),
-                    Rns_08 = srad_08*1e-3 * (1 - 0.23),
-                    Rns_09 = srad_09*1e-3 * (1 - 0.23),
-                    Rns_10 = srad_10*1e-3 * (1 - 0.23),
-                    Rns_11 = srad_11*1e-3 * (1 - 0.23),
-                    Rns_12 = srad_12*1e-3 * (1 - 0.23),
+                    Rs_01 = srad_01*1e-3,
+                    Rs_02 = srad_02*1e-3,
+                    Rs_03 = srad_03*1e-3,
+                    Rs_04 = srad_04*1e-3,
+                    Rs_05 = srad_05*1e-3,
+                    Rs_06 = srad_06*1e-3,
+                    Rs_07 = srad_07*1e-3,
+                    Rs_08 = srad_08*1e-3,
+                    Rs_09 = srad_09*1e-3,
+                    Rs_10 = srad_10*1e-3,
+                    Rs_11 = srad_11*1e-3,
+                    Rs_12 = srad_12*1e-3,
+                    Rs.Rso_01 = ifelse((Rs_01)/Rso_01 < 1, Rs_01/Rso_01, 1),
+                    Rs.Rso_02 = ifelse((Rs_02)/Rso_02 < 1, Rs_01/Rso_02, 1),
+                    Rs.Rso_03 = ifelse((Rs_03)/Rso_03 < 1, Rs_01/Rso_03, 1),
+                    Rs.Rso_04 = ifelse((Rs_04)/Rso_04 < 1, (Rs_04)/Rso_04, 1),
+                    Rs.Rso_05 = ifelse((Rs_05)/Rso_05 < 1, (Rs_05)/Rso_05, 1),
+                    Rs.Rso_06 = ifelse((Rs_06)/Rso_06 < 1, (Rs_06)/Rso_06, 1),
+                    Rs.Rso_07 = ifelse((Rs_07)/Rso_07 < 1, (Rs_07)/Rso_07, 1),
+                    Rs.Rso_08 = ifelse((Rs_08)/Rso_08 < 1, (Rs_08)/Rso_08, 1),
+                    Rs.Rso_09 = ifelse((Rs_09)/Rso_09 < 1, (Rs_09)/Rso_09, 1),
+                    Rs.Rso_10 = ifelse((Rs_10)/Rso_10 < 1, (Rs_10)/Rso_10, 1),
+                    Rs.Rso_11 = ifelse((Rs_11)/Rso_11 < 1, (Rs_11)/Rso_11, 1),
+                    Rs.Rso_12 = ifelse((Rs_12)/Rso_12 < 1, (Rs_12)/Rso_12, 1),
+                    # Rs.Rso_01 = (Rs_01)/Rso_01,
+                    # Rs.Rso_02 = (Rs_02)/Rso_02,
+                    # Rs.Rso_03 = (Rs_03)/Rso_03,
+                    # Rs.Rso_04 = (Rs_04)/Rso_04,
+                    # Rs.Rso_05 = (Rs_05)/Rso_05,
+                    # Rs.Rso_06 = (Rs_06)/Rso_06,
+                    # Rs.Rso_07 = (Rs_07)/Rso_07,
+                    # Rs.Rso_08 = (Rs_08)/Rso_08,
+                    # Rs.Rso_09 = (Rs_09)/Rso_09,
+                    # Rs.Rso_10 = (Rs_10)/Rso_10,
+                    # Rs.Rso_11 = (Rs_11)/Rso_11,
+                    # Rs.Rso_12 = (Rs_12)/Rso_12,
+                    Rnl_01 = 4.903e-9*((tmax_01+273.15)^4+(tmin_01+273.15)^4/2)*(0.34-0.14*sqrt(vapr_01))*(1.35*Rs.Rso_01 - 0.35),
+                    Rnl_02 = 4.903e-9*((tmax_02+273.15)^4+(tmin_02+273.15)^4/2)*(0.34-0.14*sqrt(vapr_02))*(1.35*Rs.Rso_02 - 0.35),
+                    Rnl_03 = 4.903e-9*((tmax_03+273.15)^4+(tmin_03+273.15)^4/2)*(0.34-0.14*sqrt(vapr_03))*(1.35*Rs.Rso_03 - 0.35),
+                    Rnl_04 = 4.903e-9*((tmax_04+273.15)^4+(tmin_04+273.15)^4/2)*(0.34-0.14*sqrt(vapr_04))*(1.35*Rs.Rso_04 - 0.35),
+                    Rnl_05 = 4.903e-9*((tmax_05+273.15)^4+(tmin_05+273.15)^4/2)*(0.34-0.14*sqrt(vapr_05))*(1.35*Rs.Rso_05 - 0.35),
+                    Rnl_06 = 4.903e-9*((tmax_06+273.15)^4+(tmin_06+273.15)^4/2)*(0.34-0.14*sqrt(vapr_06))*(1.35*Rs.Rso_06 - 0.35),
+                    Rnl_07 = 4.903e-9*((tmax_07+273.15)^4+(tmin_07+273.15)^4/2)*(0.34-0.14*sqrt(vapr_07))*(1.35*Rs.Rso_07 - 0.35),
+                    Rnl_08 = 4.903e-9*((tmax_08+273.15)^4+(tmin_08+273.15)^4/2)*(0.34-0.14*sqrt(vapr_08))*(1.35*Rs.Rso_08 - 0.35),
+                    Rnl_09 = 4.903e-9*((tmax_09+273.15)^4+(tmin_09+273.15)^4/2)*(0.34-0.14*sqrt(vapr_09))*(1.35*Rs.Rso_09 - 0.35),
+                    Rnl_10 = 4.903e-9*((tmax_10+273.15)^4+(tmin_10+273.15)^4/2)*(0.34-0.14*sqrt(vapr_10))*(1.35*Rs.Rso_10 - 0.35),
+                    Rnl_11 = 4.903e-9*((tmax_11+273.15)^4+(tmin_11+273.15)^4/2)*(0.34-0.14*sqrt(vapr_11))*(1.35*Rs.Rso_11 - 0.35),
+                    Rnl_12 = 4.903e-9*((tmax_12+273.15)^4+(tmin_12+273.15)^4/2)*(0.34-0.14*sqrt(vapr_12))*(1.35*Rs.Rso_12 - 0.35),
+                    Rns_01 = Rs_01 * (1 - 0.23),
+                    Rns_02 = Rs_02 * (1 - 0.23),
+                    Rns_03 = Rs_03 * (1 - 0.23),
+                    Rns_04 = Rs_04 * (1 - 0.23),
+                    Rns_05 = Rs_05 * (1 - 0.23),
+                    Rns_06 = Rs_06 * (1 - 0.23),
+                    Rns_07 = Rs_07 * (1 - 0.23),
+                    Rns_08 = Rs_08 * (1 - 0.23),
+                    Rns_09 = Rs_09 * (1 - 0.23),
+                    Rns_10 = Rs_10 * (1 - 0.23),
+                    Rns_11 = Rs_11 * (1 - 0.23),
+                    Rns_12 = Rs_12 * (1 - 0.23),
                     Rn_01 = Rns_01 - Rnl_01,
                     Rn_02 = Rns_02 - Rnl_02,
                     Rn_03 = Rns_03 - Rnl_03,
@@ -362,57 +399,205 @@ wdc <- wdc %>% mutate(psi = pi/180*lat, # latitude in radian
                     gamma_11 = 0.00163*P/(2.501-52.6361e-3*(tas_11)),
                     gamma_12 = 0.00163*P/(2.501-52.6361e-3*(tas_12)),
                     ET0_01 = (0.408*delta_01*Rn_01+gamma_01*900/((tas_01)+273)*0.748*sfcWind_01*(es_01-vapr_01))/(delta_01+gamma_01*(1+0.34*0.748*sfcWind_01))*31,
-                    ET0_02 = (0.408*delta_02*Rn_02+gamma_02*900/((tas_02)+273)*0.748*sfcWind_01*(es_02-vapr_01))/(delta_02+gamma_02*(1+0.34*0.748*sfcWind_02))*28,
-                    ET0_03 = (0.408*delta_03*Rn_03+gamma_03*900/((tas_03)+273)*0.748*sfcWind_01*(es_03-vapr_01))/(delta_03+gamma_03*(1+0.34*0.748*sfcWind_03))*31,
-                    ET0_04 = (0.408*delta_04*Rn_04+gamma_04*900/((tas_04)+273)*0.748*sfcWind_01*(es_04-vapr_01))/(delta_04+gamma_04*(1+0.34*0.748*sfcWind_04))*30,
-                    ET0_05 = (0.408*delta_05*Rn_05+gamma_05*900/((tas_05)+273)*0.748*sfcWind_01*(es_05-vapr_01))/(delta_05+gamma_05*(1+0.34*0.748*sfcWind_05))*31,
-                    ET0_06 = (0.408*delta_06*Rn_06+gamma_06*900/((tas_06)+273)*0.748*sfcWind_01*(es_06-vapr_01))/(delta_06+gamma_06*(1+0.34*0.748*sfcWind_06))*30,
-                    ET0_07 = (0.408*delta_07*Rn_07+gamma_07*900/((tas_07)+273)*0.748*sfcWind_01*(es_07-vapr_01))/(delta_07+gamma_07*(1+0.34*0.748*sfcWind_07))*31,
-                    ET0_08 = (0.408*delta_08*Rn_08+gamma_08*900/((tas_08)+273)*0.748*sfcWind_01*(es_08-vapr_01))/(delta_08+gamma_08*(1+0.34*0.748*sfcWind_08))*31,
-                    ET0_09 = (0.408*delta_09*Rn_09+gamma_09*900/((tas_09)+273)*0.748*sfcWind_01*(es_09-vapr_01))/(delta_09+gamma_09*(1+0.34*0.748*sfcWind_09))*30,
-                    ET0_10 = (0.408*delta_10*Rn_10+gamma_10*900/((tas_10)+273)*0.748*sfcWind_01*(es_10-vapr_01))/(delta_10+gamma_10*(1+0.34*0.748*sfcWind_10))*31,
-                    ET0_11 = (0.408*delta_11*Rn_11+gamma_11*900/((tas_11)+273)*0.748*sfcWind_01*(es_11-vapr_01))/(delta_11+gamma_11*(1+0.34*0.748*sfcWind_11))*30,
-                    ET0_12 = (0.408*delta_12*Rn_12+gamma_12*900/((tas_12)+273)*0.748*sfcWind_01*(es_12-vapr_01))/(delta_12+gamma_12*(1+0.34*0.748*sfcWind_12))*31,
+                    ET0_02 = (0.408*delta_02*Rn_02+gamma_02*900/((tas_02)+273)*0.748*sfcWind_01*(es_02-vapr_02))/(delta_02+gamma_02*(1+0.34*0.748*sfcWind_02))*28,
+                    ET0_03 = (0.408*delta_03*Rn_03+gamma_03*900/((tas_03)+273)*0.748*sfcWind_01*(es_03-vapr_03))/(delta_03+gamma_03*(1+0.34*0.748*sfcWind_03))*31,
+                    ET0_04 = (0.408*delta_04*Rn_04+gamma_04*900/((tas_04)+273)*0.748*sfcWind_01*(es_04-vapr_04))/(delta_04+gamma_04*(1+0.34*0.748*sfcWind_04))*30,
+                    ET0_05 = (0.408*delta_05*Rn_05+gamma_05*900/((tas_05)+273)*0.748*sfcWind_01*(es_05-vapr_05))/(delta_05+gamma_05*(1+0.34*0.748*sfcWind_05))*31,
+                    ET0_06 = (0.408*delta_06*Rn_06+gamma_06*900/((tas_06)+273)*0.748*sfcWind_01*(es_06-vapr_06))/(delta_06+gamma_06*(1+0.34*0.748*sfcWind_06))*30,
+                    ET0_07 = (0.408*delta_07*Rn_07+gamma_07*900/((tas_07)+273)*0.748*sfcWind_01*(es_07-vapr_07))/(delta_07+gamma_07*(1+0.34*0.748*sfcWind_07))*31,
+                    ET0_08 = (0.408*delta_08*Rn_08+gamma_08*900/((tas_08)+273)*0.748*sfcWind_01*(es_08-vapr_08))/(delta_08+gamma_08*(1+0.34*0.748*sfcWind_08))*31,
+                    ET0_09 = (0.408*delta_09*Rn_09+gamma_09*900/((tas_09)+273)*0.748*sfcWind_01*(es_09-vapr_09))/(delta_09+gamma_09*(1+0.34*0.748*sfcWind_09))*30,
+                    ET0_10 = (0.408*delta_10*Rn_10+gamma_10*900/((tas_10)+273)*0.748*sfcWind_01*(es_10-vapr_10))/(delta_10+gamma_10*(1+0.34*0.748*sfcWind_10))*31,
+                    ET0_11 = (0.408*delta_11*Rn_11+gamma_11*900/((tas_11)+273)*0.748*sfcWind_01*(es_11-vapr_11))/(delta_11+gamma_11*(1+0.34*0.748*sfcWind_11))*30,
+                    ET0_12 = (0.408*delta_12*Rn_12+gamma_12*900/((tas_12)+273)*0.748*sfcWind_01*(es_12-vapr_12))/(delta_12+gamma_12*(1+0.34*0.748*sfcWind_12))*31,
+                    AI_01 = pr_01/ET0_01,
+                    AI_02 = pr_02/ET0_02,
+                    AI_03 = pr_03/ET0_03,
+                    AI_04 = pr_04/ET0_04,
+                    AI_05 = pr_05/ET0_05,
+                    AI_06 = pr_06/ET0_06,
+                    AI_07 = pr_07/ET0_07,
+                    AI_08 = pr_08/ET0_08,
+                    AI_09 = pr_09/ET0_09,
+                    AI_10 = pr_10/ET0_10,
+                    AI_11 = pr_11/ET0_11,
+                    AI_12 = pr_12/ET0_12
                   )
 
-# wdc$Rn <- wdc$srad * 1e-3
 # wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
 # wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
 # wdc$ET0 <-with(wdc,((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 # Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
 
-wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
-wdc$ea <- wdc$vapr
+
+
+# Check monthly and annual values
 wdc$Rn <-apply(select(wdc,c("Rn_01", "Rn_02", "Rn_03", "Rn_04", "Rn_05", "Rn_06", "Rn_07", "Rn_08", "Rn_09", "Rn_10", "Rn_11", "Rn_12")), 1, FUN = mean, na.rm = T)
 
+wdc$sum.pr <- with(wdc, pr_01 + pr_02 + pr_03 + pr_04 + pr_05 + pr_06 + pr_07 + pr_08 + pr_09 + pr_10 + pr_11 + pr_12) # is equal to annual pr
+wdc$mean.srad <- rowMeans(select(wdc,c("srad_01", "srad_02", "srad_03", "srad_04", "srad_05", "srad_06", "srad_07", "srad_08", "srad_09", "srad_10", "srad_11", "srad_12")), na.rm = T) # equal to srad
+wdc$mean.vapr <- rowMeans(select(wdc,c("vapr_01", "vapr_02", "vapr_03", "vapr_04", "vapr_05", "vapr_06", "vapr_07", "vapr_08", "vapr_09", "vapr_10", "vapr_11", "vapr_12")), na.rm = T) # equal to vapr
 
-wdc$ET0 <-with(wdc, ET0_01+ET0_02+ET0_03+ET0_04+ET0_05+ET0_06+ET0_07+ET0_08+ET0_09+ET0_10+ET0_11+ET0_12)
+wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
+wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
+wdc$mean.delta <- rowMeans(select(wdc,c("delta_01", "delta_02", "delta_03", "delta_04", "delta_05", "delta_06", "delta_07", "delta_08", "delta_09", "delta_10", "delta_11", "delta_12")), na.rm = T) # mean delta is often higher than delta. More variability
+
+wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
+wdc$mean.gamma <- rowMeans(select(wdc,c("gamma_01", "gamma_02", "gamma_03", "gamma_04", "gamma_05", "gamma_06", "gamma_07", "gamma_08", "gamma_09", "gamma_10", "gamma_11", "gamma_12")), na.rm = T) # the higher gamma, the higher the variability
+
+wdc$mET0 <-with(wdc,((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+wdc$mAI <- with(wdc, pr/(mET0*365))
+
+wdc$ET0 <- rowSums(select(wdc,c("ET0_01", "ET0_02", "ET0_03", "ET0_04", "ET0_05", "ET0_06", "ET0_07", "ET0_08", "ET0_09", "ET0_10", "ET0_11", "ET0_12")), na.rm = T)
+
 wdc$AI <-with(wdc, pr/ET0)
+
+wdc$AI2 <- rowMeans(select(wdc,c("AI_01", "AI_02", "AI_03", "AI_04", "AI_05", "AI_06", "AI_07", "AI_08", "AI_09", "AI_10", "AI_11", "AI_12")), na.rm = T)
 
 breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 
+wdc$cat.mAI <- wdc$mAI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
+wdc$cat.AI2 <- wdc$AI2 %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+write.table(wdc, "wdc_AI.txt")
+
+ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = cat.mAI))+
   scale_fill_manual(values = col.cat)+
   theme_void()+
   theme(legend.position = "bottom")
 
+ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
 
-ggplot(wdc,aes(x=pr))+geom_point(aes(y=ET0_01, col = "janvier"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_02, col = "fevrier"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_03, col = "mars"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_04, col = "april"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_05, col = "may"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_06, col = "june"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_07, col = "july"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_08, col = "august"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_09, col = "september"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_10, col = "october"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_11, col = "november"), alpha = 0.1, size = 0.2)+
-  geom_point(aes(y=ET0_12, col = "december"), alpha = 0.1, size = 0.2)+
-  ylim(0,5000)+
-  theme_minimal()
+ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = cat.AI2))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+```
+
+```{r study-plots}
+na2 <- subset(wdc, is.na(cat.AI2))
+
+ggplot(na2)+geom_tile(aes(x = lon, y = lat, fill = ET0_02))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", mid = 0)+
+  theme_void()
+
+ggpubr::ggarrange(
+ggplot(wdc) + geom_point(aes(x = pr_12, y = ET0_12, col ="december"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[1])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+   geom_point(aes(x = pr_03, y = ET0_03, col ="march"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[2])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+  geom_point(aes(x = pr_06, y = ET0_06, col ="june"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[3])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + geom_point(aes(x = pr_09, y = ET0_09, col ="september"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[4])+
+  theme_minimal()+theme(legend.position = "none"),
+ncol = 2, nrow = 2)
+
+negET <- subset(wdc, Rn < 0 & is.na(cat.AI2) & !is.na(cat.AI))
+
+ggpubr::ggarrange(
+ggplot(wdc) + geom_point(aes(x = Rn_12, y = ET0_12, col ="december"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[1])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+   geom_point(aes(x = Rn_03, y = ET0_03, col ="march"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[2])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+  geom_point(aes(x = Rn_06, y = ET0_06, col ="june"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[3])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + geom_point(aes(x = Rn_09, y = ET0_09, col ="september"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[4])+
+  theme_minimal()+theme(legend.position = "none"),
+ncol = 2, nrow = 2)
+
+ggpubr::ggarrange(
+ggplot(wdc) + geom_point(aes(x = vapr_12, y = ET0_12, col ="december"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[1])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+   geom_point(aes(x = vapr_03, y = ET0_03, col ="march"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[2])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+  geom_point(aes(x = vapr_06, y = ET0_06, col ="june"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[3])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + geom_point(aes(x = vapr_09, y = ET0_09, col ="september"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[4])+
+  theme_minimal()+theme(legend.position = "none"),
+ncol = 2, nrow = 2)
+
+ggpubr::ggarrange(
+ggplot(wdc) + geom_point(aes(x = tas_12, y = ET0_12, col ="december"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[1])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+   geom_point(aes(x = tas_03, y = ET0_03, col ="march"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[2])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+  geom_point(aes(x = tas_06, y = ET0_06, col ="june"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[3])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + geom_point(aes(x = tas_09, y = ET0_09, col ="september"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[4])+
+  theme_minimal()+theme(legend.position = "none"),
+ncol = 2, nrow = 2)
+
+ggpubr::ggarrange(
+ggplot(wdc) + geom_point(aes(x = es_12, y = ET0_12, col ="december"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[1])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+   geom_point(aes(x = es_03, y = ET0_03, col ="march"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[2])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+  geom_point(aes(x = es_06, y = ET0_06, col ="june"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[3])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + geom_point(aes(x = es_09, y = ET0_09, col ="september"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[4])+
+  theme_minimal()+theme(legend.position = "none"),
+ncol = 2, nrow = 2)
+
+ggpubr::ggarrange(
+ggplot(wdc) + geom_point(aes(x = es_12-vapr_12, y = ET0_12, col ="december"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[1])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+   geom_point(aes(x = es_03-vapr_03, y = ET0_03, col ="march"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[2])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + 
+  geom_point(aes(x = es_06-vapr_06, y = ET0_06, col ="june"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[3])+
+  theme_minimal()+theme(legend.position = "none"),
+ggplot(wdc) + geom_point(aes(x = es_09-vapr_09, y = ET0_09, col ="september"), alpha = 0.5)+
+   scale_color_manual(values = colorvec[4])+
+  theme_minimal()+theme(legend.position = "none"),
+ncol = 2, nrow = 2)
+
+lm(scale(ET0)~scale(mean.Rn)+scale(tas)+scale(sfcWind)+scale(vapr), data = wdc) %>% summary()
+lm(scale(AI)~scale(pr)+scale(mean.Rn)+scale(tas)+scale(sfcWind)+scale(vapr), data = subset(wdc, AI > 0 & AI < 0.65)) %>% summary()
+
+lm(scale(ET0_03)~scale(Rn_03)+scale(tas_03)+scale(sfcWind_03)+scale(Rs_03), data = subset(wdc, ET0_03 < 0)) %>% summary()
+```
 ```
