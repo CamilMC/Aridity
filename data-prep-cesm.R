@@ -4,7 +4,7 @@ library(raster)
 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 
-# Average-cesm-temperature ----
+# ts ----
 ## historical 1850-1880 ----
 list.nf <- "/bettik/crapartc/CMIP6/ts/ts_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
 
@@ -528,7 +528,7 @@ dec.ts.stack <- raster::stack(list.nf, bands =  seq(from = 72, to = 432, by = 12
 dec.ts.df <- as.data.frame(dec.ts.stack, xy = T) %>% setNames(c("lon","lat","ts"))
 write.table(dec.ts.df, file = "/bettik/crapartc/Averages/ts/cesm.ssp585.2070-2100.dec.ts.txt")
 
-# Average-cesm-precipitation -----   
+# pr -----   
 ## historical 1850-1880 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/pr/pr_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -1053,7 +1053,7 @@ dec.pr.stack <- raster::stack(list.nf, bands = seq(from = 72, to = 432, by = 12)
 dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/cesm.ssp585.2070-2100.dec.pr.txt")
 
-# Average-cesm-irradition -----   
+# rsds -----   
 
 ## historical 1850-1880 ----
 
@@ -1576,7 +1576,7 @@ dec.stack <- raster::stack(list.nf, bands = seq(from = 72, to = 432, by = 12)) %
 dec.rsds.df <- as.data.frame(dec.rsds.stack, xy = T) %>% setNames(c("lon","lat","rsds"))
 write.table(dec.rsds.df, file = "/bettik/crapartc/Averages/rsds/cesm.ssp585.2070-2100.dec.rsds.txt")
 
-# Average-cesm-wind -----   
+# Wind -----   
 
 ## historical 1850-1880 ----
 
@@ -2103,8 +2103,7 @@ dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 72, to = 432, by 
 dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/cesm.ssp585.2070-2100.dec.sfcWind.txt")
 
-# Average-cesm-surface-temperature ----
-
+# tas ----
 ## historical 1850-1880 ----
 list.nf <- "/bettik/crapartc/CMIP6/tas/tas_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
 
@@ -2455,8 +2454,6 @@ write.table(nov.tas.df, file = "/bettik/crapartc/Averages/tas/cesm.ssp370.2030-2
 dec.tas.stack <- raster::stack(list.nf, bands =  seq(from = 192, to = 540, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/cesm.ssp370.2030-2060.dec.tas.txt")
-
-
 ## SSP370 2070-2100 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/tas/tas_Amon_CESM2-WACCM_ssp370_r1i1p1f1_gn_206501-210012.nc"
@@ -2514,8 +2511,6 @@ write.table(nov.tas.df, file = "/bettik/crapartc/Averages/tas/cesm.ssp370.2070-2
 dec.tas.stack <- raster::stack(list.nf, bands =  seq(from = 72, to = 432, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/cesm.ssp370.2070-2100.dec.tas.txt")
-
-
 ## SSP585 2030-2060 ----
 
 list.nf <- "/bettik/crapartc/CMIP6/tas/tas_Amon_CESM2-WACCM_ssp585_r1i1p1f1_gn_201501-210012.nc"
@@ -2632,7 +2627,7 @@ dec.tas.stack <- raster::stack(list.nf, bands =  seq(from = 72, to = 432, by = 1
 dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/cesm.ssp585.2070-2100.dec.tas.txt")
 
-# CESM -----
+# hfls -----
 
 ## historical 1850-1880 ----
 list.nf <- "/bettik/crapartc/CMIP6/hfls/hfls_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"
@@ -3157,7 +3152,7 @@ dec.hfls.stack <- raster::stack(list.nf, bands =  seq(from = 72, to = 432, by = 
 dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
 write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/cesm.ssp585.2070-2100.dec.hfls.txt")
 
-# CESM -----
+# hfss -----
 
 ## historical 1850-1880 ----
 list.nf <- "/bettik/crapartc/CMIP6/hfss/hfss_Amon_CESM2-WACCM_historical_r1i1p1f1_gn_185001-201412.nc"

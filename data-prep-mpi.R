@@ -4,7 +4,7 @@ library(raster)
 
 land_mask <- raster("Aridity/Masks/land_sea_mask_1degree.nc4") 
 
-# Average-mpi-temperature ----
+# ts ----
 
 ## historical 1850-1880 ----
 
@@ -2629,3 +2629,1569 @@ write.table(nov.tas.df, file = "/bettik/crapartc/Averages/tas/mpi.ssp585.2070-21
 dec.tas.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/mpi.ssp585.2070-2100.dec.tas.txt")
+
+# MPI -----
+## historical 1850-1880 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_186*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_187*", full.names = T)
+
+### annual mean ---- 
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1850-1880.dec.hfls.txt")
+
+## historical 1970-2000 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_197*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_198*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_199*", full.names = T)
+
+### annual mean
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.hfls.txt")
+
+### mensual mean
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1970-2000.dec.hfls.txt")
+## historical 1985-2015 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1985*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1986*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1987*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1988*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1989*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_199*|hfls_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_20*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.hist.1985-2015.dec.hfls.txt")
+
+## SSP245 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_203*|hfls_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_204*|hfls_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2030-2060.dec.hfls.txt")
+
+## SSP245 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_207*|hfls_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_208*|hfls_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp245.2070-2100.dec.hfls.txt")
+
+## SSP370 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_203*|hfls_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_204*|hfls_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2030-2060.dec.hfls.txt")
+
+## SSP370 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_207*|hfls_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_208*|hfls_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp370.2070-2100.dec.hfls.txt")
+
+## SSP585 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_203*|hfls_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_204*|hfls_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2030-2060.dec.hfls.txt")
+
+## SSP585 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_207*|hfls_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_208*|hfls_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfls.df <- as.data.frame(hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.hfls.txt")
+
+### mensual mean ----
+jan.hfls.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfls.df <- as.data.frame(jan.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jan.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.jan.hfls.txt")
+
+fev.hfls.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfls.df <- as.data.frame(fev.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(fev.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.fev.hfls.txt")
+
+mar.hfls.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfls.df <- as.data.frame(mar.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(mar.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.mar.hfls.txt")
+
+avr.hfls.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfls.df <- as.data.frame(avr.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(avr.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.avr.hfls.txt")
+
+may.hfls.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfls.df <- as.data.frame(may.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(may.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.may.hfls.txt")
+
+jun.hfls.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfls.df <- as.data.frame(jun.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jun.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.jun.hfls.txt")
+
+jul.hfls.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfls.df <- as.data.frame(jul.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(jul.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.jul.hfls.txt")
+
+agu.hfls.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfls.df <- as.data.frame(agu.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(agu.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.agu.hfls.txt")
+
+sep.hfls.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfls.df <- as.data.frame(sep.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(sep.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.sep.hfls.txt")
+
+oct.hfls.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfls.df <- as.data.frame(oct.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(oct.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.oct.hfls.txt")
+
+nov.hfls.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfls.df <- as.data.frame(nov.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(nov.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.nov.hfls.txt")
+
+dec.hfls.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat","hfls"))
+write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/mpi.ssp585.2070-2100.dec.hfls.txt")
+
+# hfss -----
+## historical 1850-1880 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_186*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_187*", full.names = T)
+
+### annual mean ---- 
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.dec.hfss.txt")
+
+## historical 1970-2000 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_197*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_198*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_199*", full.names = T)
+
+### annual mean
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.hfss.txt")
+
+### mensual mean
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1970-2000.dec.hfss.txt")
+## historical 1985-2015 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1985*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1986*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1987*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1988*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1989*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_199*|hfss_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_20*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.hist.1985-2015.dec.hfss.txt")
+
+## SSP245 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_203*|hfss_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_204*|hfss_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2030-2060.dec.hfss.txt")
+
+## SSP245 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_207*|hfss_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_208*|hfss_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp245.2070-2100.dec.hfss.txt")
+
+## SSP370 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_203*|hfss_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_204*|hfss_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2030-2060.dec.hfss.txt")
+
+## SSP370 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_207*|hfss_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_208*|hfss_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp370.2070-2100.dec.hfss.txt")
+
+## SSP585 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_203*|hfss_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_204*|hfss_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2030-2060.dec.hfss.txt")
+
+## SSP585 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_207*|hfss_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_208*|hfss_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hfss.df <- as.data.frame(hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.hfss.txt")
+
+### mensual mean ----
+jan.hfss.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hfss.df <- as.data.frame(jan.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jan.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.jan.hfss.txt")
+
+fev.hfss.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hfss.df <- as.data.frame(fev.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(fev.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.fev.hfss.txt")
+
+mar.hfss.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hfss.df <- as.data.frame(mar.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(mar.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.mar.hfss.txt")
+
+avr.hfss.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hfss.df <- as.data.frame(avr.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(avr.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.avr.hfss.txt")
+
+may.hfss.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hfss.df <- as.data.frame(may.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(may.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.may.hfss.txt")
+
+jun.hfss.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hfss.df <- as.data.frame(jun.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jun.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.jun.hfss.txt")
+
+jul.hfss.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hfss.df <- as.data.frame(jul.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(jul.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.jul.hfss.txt")
+
+agu.hfss.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hfss.df <- as.data.frame(agu.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(agu.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.agu.hfss.txt")
+
+sep.hfss.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hfss.df <- as.data.frame(sep.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(sep.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.sep.hfss.txt")
+
+oct.hfss.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hfss.df <- as.data.frame(oct.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(oct.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.oct.hfss.txt")
+
+nov.hfss.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hfss.df <- as.data.frame(nov.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(nov.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.nov.hfss.txt")
+
+dec.hfss.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat","hfss"))
+write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/mpi.ssp585.2070-2100.dec.hfss.txt")
+
+# hurs -----
+## historical 1850-1880 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_185*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_186*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_187*", full.names = T)
+
+### annual mean ---- 
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.dec.hurs.txt")
+
+## historical 1970-2000 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_197*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_198*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_199*", full.names = T)
+
+### annual mean
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.hurs.txt")
+
+### mensual mean
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1970-2000.dec.hurs.txt")
+## historical 1985-2015 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1985*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1986*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1987*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1988*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1989*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_199*|hurs_Amon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_20*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.hist.1985-2015.dec.hurs.txt")
+
+## SSP245 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_203*|hurs_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_204*|hurs_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2030-2060.dec.hurs.txt")
+
+## SSP245 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_207*|hurs_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_208*|hurs_Amon_MPI-ESM1-2-HR_ssp245_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp245.2070-2100.dec.hurs.txt")
+
+## SSP370 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_203*|hurs_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_204*|hurs_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2030-2060.dec.hurs.txt")
+
+## SSP370 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_207*|hurs_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_208*|hurs_Amon_MPI-ESM1-2-HR_ssp370_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp370.2070-2100.dec.hurs.txt")
+
+## SSP585 2030-2060 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_203*|hurs_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_204*|hurs_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_205*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2030-2060.dec.hurs.txt")
+
+## SSP585 2070-2100 ----
+
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_207*|hurs_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_208*|hurs_Amon_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_209*", full.names = T)
+
+### annual mean ----
+hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+hurs.df <- as.data.frame(hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.hurs.txt")
+
+### mensual mean ----
+jan.hurs.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 49, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jan.hurs.df <- as.data.frame(jan.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jan.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.jan.hurs.txt")
+
+fev.hurs.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 50, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+fev.hurs.df <- as.data.frame(fev.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(fev.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.fev.hurs.txt")
+
+mar.hurs.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 51, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+mar.hurs.df <- as.data.frame(mar.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(mar.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.mar.hurs.txt")
+
+avr.hurs.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 52, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+avr.hurs.df <- as.data.frame(avr.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(avr.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.avr.hurs.txt")
+
+may.hurs.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 53, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+may.hurs.df <- as.data.frame(may.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(may.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.may.hurs.txt")
+
+jun.hurs.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 54, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jun.hurs.df <- as.data.frame(jun.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jun.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.jun.hurs.txt")
+
+jul.hurs.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 55, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+jul.hurs.df <- as.data.frame(jul.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(jul.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.jul.hurs.txt")
+
+agu.hurs.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 56, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+agu.hurs.df <- as.data.frame(agu.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(agu.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.agu.hurs.txt")
+
+sep.hurs.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 57, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sep.hurs.df <- as.data.frame(sep.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(sep.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.sep.hurs.txt")
+
+oct.hurs.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 58, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+oct.hurs.df <- as.data.frame(oct.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(oct.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.oct.hurs.txt")
+
+nov.hurs.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 59, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+nov.hurs.df <- as.data.frame(nov.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(nov.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.nov.hurs.txt")
+
+dec.hurs.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 60, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat","hurs"))
+write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/mpi.ssp585.2070-2100.dec.hurs.txt")
