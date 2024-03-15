@@ -577,11 +577,11 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/noresm.ssp370.2030-2
 
 ## SSP370 2070-2100 ----
 
+### annual mean ----
 list.nf <- list("/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_ssp370_r1i1p1f1_gr1_207101-208012.nc",
                 "/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_ssp370_r1i1p1f1_gr1_208101-209012.nc",
                 "/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_ssp370_r1i1p1f1_gr1_209101-210012.nc")
 
-### annual mean ----
 pr.stack <- raster::stack(list.nf, bands = c()) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 pr.df <- as.data.frame(pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(pr.df, file = "/bettik/crapartc/Averages/pr/noresm.ssp370.2070-2100.pr.txt")
@@ -904,125 +904,230 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/noresm.ssp585.2070-2
 
 ## historical 1850-1880 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-194912.nc"
+list.nf <- list("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc",
+                "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc",
+                "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc")
 
 ### annual mean
-sfcWind.stack <- raster::stack(list.nf, bands = c(1:360)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.sfcWind.txt")
 
 ### mensual mean
-jan.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 1, to = 349, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 1, to = 109, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 1, to = 109, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 1, to = 109, by = 12)))
+
+jan.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jan.sfcWind.df <- as.data.frame(jan.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jan.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.jan.sfcWind.txt")
 
-fev.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 2, to = 350, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 2, to = 110, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 2, to = 110, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 2, to = 110, by = 12)))
+
+fev.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 fev.sfcWind.df <- as.data.frame(fev.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.fev.sfcWind.txt")
 
-mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 3, to = 351, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 3, to = 111, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 3, to = 111, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 3, to = 111, by = 12)))
+
+mar.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.mar.sfcWind.txt")
 
-avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 4, to = 352, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 4, to = 112, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 4, to = 112, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 4, to = 112, by = 12)))
+
+avr.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(avr.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.avr.sfcWind.txt")
 
-may.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 5, to = 353, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 3, to = 113, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 3, to = 113, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 3, to = 113, by = 12)))
+
+may.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 may.sfcWind.df <- as.data.frame(may.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(may.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.may.sfcWind.txt")
 
-jun.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 6, to = 354, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 4, to = 114, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 4, to = 114, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 4, to = 114, by = 12)))
+
+jun.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jun.sfcWind.df <- as.data.frame(jun.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jun.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.jun.sfcWind.txt")
 
-jul.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 7, to = 355, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 5, to = 115, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 5, to = 115, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 5, to = 115, by = 12)))
+
+jul.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jul.sfcWind.df <- as.data.frame(jul.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jul.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.jul.sfcWind.txt")
 
-agu.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 8, to = 356, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 6, to = 116, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 6, to = 116, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 6, to = 116, by = 12)))
+
+agu.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 agu.sfcWind.df <- as.data.frame(agu.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(agu.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.agu.sfcWind.txt")
 
-sep.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 9, to = 357, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 6, to = 117, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 6, to = 117, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 6, to = 117, by = 12)))
+
+sep.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 sep.sfcWind.df <- as.data.frame(sep.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sep.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.sep.sfcWind.txt")
 
-oct.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 10, to = 358, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 7, to = 118, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 7, to = 118, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 7, to = 118, by = 12)))
+
+oct.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 oct.sfcWind.df <- as.data.frame(oct.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(oct.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.oct.sfcWind.txt")
 
-nov.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 11, to = 359, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 8, to = 119, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 8, to = 119, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 8, to = 119, by = 12)))
+
+nov.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 nov.sfcWind.df <- as.data.frame(nov.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(nov.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.nov.sfcWind.txt")
 
-dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 12, to = 360, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_185001-195912.nc", bands = seq(from = 9, to = 120, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_186001-196912.nc", bands = seq(from = 9, to = 120, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_187001-197912.nc", bands = seq(from = 9, to = 120, by = 12)))
+
+dec.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.dec.sfcWind.txt")
 
 ## historical 1970-2000 ----
 
-list.nf <- "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_195001-199912.nc"
+list.nf <- list("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc",
+                "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc",
+                "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc")
 
 ### annual mean
-sfcWind.stack <- raster::stack(list.nf, bands = c(241:600)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.sfcWind.txt")
 
 ### mensual mean
-jan.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 241, to = 589, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 1, to = 109, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 1, to = 109, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 1, to = 109, by = 12)))
+
+jan.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jan.sfcWind.df <- as.data.frame(jan.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jan.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.jan.sfcWind.txt")
 
-fev.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 242, to = 590, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 2, to = 110, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 2, to = 110, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 2, to = 110, by = 12)))
+
+fev.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 fev.sfcWind.df <- as.data.frame(fev.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(fev.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.fev.sfcWind.txt")
 
-mar.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 243, to = 591, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 3, to = 111, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 3, to = 111, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 3, to = 111, by = 12)))
+
+mar.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 mar.sfcWind.df <- as.data.frame(mar.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(mar.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.mar.sfcWind.txt")
 
-avr.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 244, to = 592, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 4, to = 112, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 4, to = 112, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 4, to = 112, by = 12)))
+
+avr.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 avr.sfcWind.df <- as.data.frame(avr.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(avr.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.avr.sfcWind.txt")
 
-may.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 245, to = 593, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 5, to = 113, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 5, to = 113, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 5, to = 113, by = 12)))
+
+may.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 may.sfcWind.df <- as.data.frame(may.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(may.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.may.sfcWind.txt")
 
-jun.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 246, to = 594, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 6, to = 114, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 6, to = 114, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 6, to = 114, by = 12)))
+
+jun.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jun.sfcWind.df <- as.data.frame(jun.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jun.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.jun.sfcWind.txt")
 
-jul.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 247, to = 595, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 7, to = 115, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 7, to = 115, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 7, to = 115, by = 12)))
+
+jul.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 jul.sfcWind.df <- as.data.frame(jul.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(jul.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.jul.sfcWind.txt")
 
-agu.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 248, to = 596, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 8, to = 116, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 8, to = 116, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 8, to = 116, by = 12)))
+
+agu.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 agu.sfcWind.df <- as.data.frame(agu.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(agu.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.agu.sfcWind.txt")
 
-sep.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 249, to = 597, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 9, to = 117, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 9, to = 117, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 9, to = 117, by = 12)))
+
+sep.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 sep.sfcWind.df <- as.data.frame(sep.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sep.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.sep.sfcWind.txt")
 
-oct.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 250, to = 598, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 10, to = 118, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 10, to = 118, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 10, to = 118, by = 12)))
+
+oct.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 oct.sfcWind.df <- as.data.frame(oct.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(oct.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.oct.sfcWind.txt")
 
-nov.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 251, to = 599, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 11, to = 119, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 11, to = 119, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 11, to = 119, by = 12)))
+
+nov.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 nov.sfcWind.df <- as.data.frame(nov.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(nov.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.nov.sfcWind.txt")
 
-dec.sfcWind.stack <- raster::stack(list.nf, bands = seq(from = 252, to = 600, by = 12)) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_197001-197912.nc", bands = seq(from = 12, to = 120, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = seq(from = 12, to = 120, by = 12)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = seq(from = 12, to = 120, by = 12)))
+
+dec.sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.sfcWind.df <- as.data.frame(dec.sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1970-2000.dec.sfcWind.txt")
 
 ## historical 1985-2015 ----
 
-list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_195001-199912.nc", bands = c(421:600)), raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_200001-201412.nc"))
-
 ### annual mean ----
+list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_198001-198912.nc", bands = c(61:120)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_199001-199912.nc", bands = c(1:120)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_200001-200912.nc", bands = c(1:120)),
+                raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gr1_201001-201412.nc", bands = c(1:108)))
+
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1985-2015.sfcWind.txt")
