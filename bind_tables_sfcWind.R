@@ -11,10 +11,11 @@ land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm"
 ipcc_regions <- shapefile("/home/crapartc/Aridity/Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
 ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
+
 # CAS-ESM-2 ----
 ## Annual ----
 
-cas_annual <- mutate(read.table("/bettik/crapartc/Averages/sfcWind/cas.esm2.hist.1850-1880.sfcWind.txt"), model = "historical", period = "1850_1880") %>% 
+cas.esm2_annual <- mutate(read.table("/bettik/crapartc/Averages/sfcWind/cas.esm2.hist.1850-1880.sfcWind.txt"), model = "historical", period = "1850_1880") %>% 
   rbind(mutate(read.table("/bettik/crapartc/Averages/sfcWind/cas.esm2.hist.1970-2000.sfcWind.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/sfcWind/cas.esm2.hist.1985-2015.sfcWind.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/sfcWind/cas.esm2.ssp245.2030-2060.sfcWind.txt"), model = "SSP245", period = "2030_2060")) %>%
