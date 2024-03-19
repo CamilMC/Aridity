@@ -417,7 +417,7 @@ write.table(cmccm_ipcc, "/bettik/crapartc/IPCC/cmccm.hfss_ipcc.txt")
 
 ## Annual -----
 
-cmcc_annual <- mutate(read.table("/bettik/crapartc/Averages/hfss/cmcc.esm2.hist.1850-1880.hfss.txt"), model = "historical", period = "1850_1880") %>%
+cmcc.esm2_annual <- mutate(read.table("/bettik/crapartc/Averages/hfss/cmcc.esm2.hist.1850-1880.hfss.txt"), model = "historical", period = "1850_1880") %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cmcc.esm2.hist.1970-2000.hfss.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cmcc.esm2.hist.1985-2015.hfss.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cmcc.esm2.ssp245.2030-2060.hfss.txt"), model = "SSP245", period = "2030_2060")) %>%

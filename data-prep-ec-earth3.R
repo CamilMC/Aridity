@@ -6,7 +6,7 @@ land_mask <- raster("/home/crapartc/Aridity/Masks/land_sea_mask_1degree.nc4")
 # pr -----   
 ## historical 1850-1880 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_187_*", full.names = T)
 
 ### annual mean
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -64,7 +64,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.hist.1850-
 
 ## historical 1970-2000 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_197*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_198*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_197_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_198_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*", full.names = T)
 
 ### annual mean
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -119,11 +119,9 @@ write.table(nov.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.hist.1970-
 dec.pr.stack <- raster::stack(list.nf, bands = 12) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
 dec.pr.df <- as.data.frame(dec.pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.hist.1970-2000.dec.pr.txt")
-
-
 ## historical 1985-2015 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*|pr_Amon_EC-Earth3_historical_r1i1p1f1_gr_20_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -181,7 +179,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.hist.1985-
 
 ## SSP245 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203_*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204_*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -239,7 +237,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.ssp245.203
 
 ## SSP245 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207_*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208_*|pr_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -297,7 +295,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.ssp245.207
 
 ## SSP370 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203_*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204_*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -355,7 +353,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.ssp370.203
 
 ## SSP370 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207_*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208_*|pr_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -413,7 +411,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.ssp370.207
 
 ## SSP585 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203_*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204_*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -471,7 +469,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.ssp585.203
 
 ## SSP585 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/pr", pattern = "pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207_*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208_*|pr_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -531,7 +529,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/ec-earth3.ssp585.207
 # Average-wind -----
 ## historical 1850-1880 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_187_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -589,7 +587,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## historical 1970-2000 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_187_*", full.names = T)
 
 ### annual mean ---- 
 
@@ -647,7 +645,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## historical 1985-2015 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*|sfcWind_Amon_EC-Earth3_historical_r1i1p1f1_gr_20_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -705,7 +703,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## SSP245 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203_*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204_*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -763,7 +761,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## SSP245 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207_*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208_*|sfcWind_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -821,7 +819,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## SSP370 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203_*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204_*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -879,7 +877,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## SSP370 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207_*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208_*|sfcWind_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -937,7 +935,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## SSP585 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203_*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204_*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -995,7 +993,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## SSP585 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/sfcWind", pattern = "sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207_*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208_*|sfcWind_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1056,7 +1054,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/ec-earth3.
 
 ## historical 1850-1880 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
 
 ### annual mean ----- 
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1115,7 +1113,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.hist.185
 
 ## historical 1970-2000 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_197*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_198*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_197_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_198_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*", full.names = T)
 
 ### annual mean ----- 
 
@@ -1174,7 +1172,7 @@ dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","t
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.hist.1970-2000.dec.tas.txt")
 ## historical 1985-2015 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*|tas_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1231,7 +1229,7 @@ dec.tas.df <- as.data.frame(dec.tas.stack, xy = T) %>% setNames(c("lon","lat","t
 write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.hist.1985-2015.dec.tas.txt")
 ## SSP245 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204_*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1289,7 +1287,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.ssp245.2
 
 ## SSP245 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207_*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208_*|tas_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1347,7 +1345,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.ssp245.2
 
 ## SSP370 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203_*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204_*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1405,7 +1403,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.ssp370.2
 
 ## SSP370 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207_*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208_*|tas_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1463,7 +1461,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.ssp370.2
 
 ## SSP585 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203_*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204_*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1521,7 +1519,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.ssp585.2
 
 ## SSP585 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/tas", pattern = "tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207_*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208_*|tas_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1581,7 +1579,7 @@ write.table(dec.tas.df, file = "/bettik/crapartc/Averages/tas/ec-earth3.ssp585.2
 
 ## historical 1850-1880 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_187_*", full.names = T)
 
 ### annual mean ----- 
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1640,7 +1638,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.hist.1
 
 ## historical 1970-2000 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_197*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_198*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_197_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_198_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*", full.names = T)
 
 ### annual mean ----- 
 
@@ -1699,7 +1697,7 @@ dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat",
 write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.dec.hfls.txt")
 ## historical 1985-2015 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*|hfls_Amon_EC-Earth3_historical_r1i1p1f1_gr_20_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1756,7 +1754,7 @@ dec.hfls.df <- as.data.frame(dec.hfls.stack, xy = T) %>% setNames(c("lon","lat",
 write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.dec.hfls.txt")
 ## SSP245 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203_*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204_*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1814,7 +1812,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.ssp245
 
 ## SSP245 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207_*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208_*|hfls_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1872,7 +1870,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.ssp245
 
 ## SSP370 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203_*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204_*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1930,7 +1928,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.ssp370
 
 ## SSP370 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207_*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208_*|hfls_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -1988,7 +1986,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.ssp370
 
 ## SSP585 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203_*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204_*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2046,7 +2044,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.ssp585
 
 ## SSP585 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfls", pattern = "hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207_*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208_*|hfls_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hfls.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2106,7 +2104,7 @@ write.table(dec.hfls.df, file = "/bettik/crapartc/Averages/hfls/ec-earth3.ssp585
 
 ## historical 1850-1880 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_187_*", full.names = T)
 
 ### annual mean ----- 
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2165,7 +2163,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.hist.1
 
 ## historical 1970-2000 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_197*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_198*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_197_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_198_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*", full.names = T)
 
 ### annual mean ----- 
 
@@ -2224,7 +2222,7 @@ dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat",
 write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.hist.1970-2000.dec.hfss.txt")
 ## historical 1985-2015 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*|hfss_Amon_EC-Earth3_historical_r1i1p1f1_gr_20_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2281,7 +2279,7 @@ dec.hfss.df <- as.data.frame(dec.hfss.stack, xy = T) %>% setNames(c("lon","lat",
 write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.hist.1985-2015.dec.hfss.txt")
 ## SSP245 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203_*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204_*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2339,7 +2337,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.ssp245
 
 ## SSP245 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207_*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208_*|hfss_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2397,7 +2395,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.ssp245
 
 ## SSP370 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203_*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204_*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2455,7 +2453,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.ssp370
 
 ## SSP370 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207_*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208_*|hfss_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2513,7 +2511,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.ssp370
 
 ## SSP585 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203_*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204_*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2571,7 +2569,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.ssp585
 
 ## SSP585 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hfss", pattern = "hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207_*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208_*|hfss_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hfss.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2632,7 +2630,7 @@ write.table(dec.hfss.df, file = "/bettik/crapartc/Averages/hfss/ec-earth3.ssp585
 
 ## historical 1850-1880 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_185*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_186*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_187*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_185_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_186_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_187_*", full.names = T)
 
 ### annual mean ----- 
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T)  %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2691,7 +2689,7 @@ write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.hist.1
 
 ## historical 1970-2000 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_197*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_198*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_197_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_198_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*", full.names = T)
 
 ### annual mean ----- 
 
@@ -2750,7 +2748,7 @@ dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat",
 write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.hist.1970-2000.dec.hurs.txt")
 ## historical 1985-2015 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_199*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_20*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1985_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1986_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1987_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1988_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_1989_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_199_*|hurs_Amon_EC-Earth3_historical_r1i1p1f1_gr_20_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2807,7 +2805,7 @@ dec.hurs.df <- as.data.frame(dec.hurs.stack, xy = T) %>% setNames(c("lon","lat",
 write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.hist.1985-2015.dec.hurs.txt")
 ## SSP245 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_203_*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_204_*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2865,7 +2863,7 @@ write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.ssp245
 
 ## SSP245 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_207_*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_208_*|hurs_Amon_EC-Earth3_ssp245_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2923,7 +2921,7 @@ write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.ssp245
 
 ## SSP370 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_203_*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_204_*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -2981,7 +2979,7 @@ write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.ssp370
 
 ## SSP370 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_207_*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_208_*|hurs_Amon_EC-Earth3_ssp370_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -3039,7 +3037,7 @@ write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.ssp370
 
 ## SSP585 2030-2060 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_203_*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_204_*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_205_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)
@@ -3097,7 +3095,7 @@ write.table(dec.hurs.df, file = "/bettik/crapartc/Averages/hurs/ec-earth3.ssp585
 
 ## SSP585 2070-2100 ----
 
-list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_210*", full.names = T)
+list.nf <- list.files(path="/bettik/crapartc/CMIP6/hurs", pattern = "hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_207_*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_208_*|hurs_Amon_EC-Earth3_ssp585_r1i1p1f1_gr_209_*", full.names = T)
 
 ### annual mean ----
 hurs.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotate() %>% projectRaster(land_mask)

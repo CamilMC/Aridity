@@ -13,7 +13,7 @@ ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lo
 # CAS-ESM-2 ----
 ## Annual ----
 
-cas_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/cas.esm2.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>% 
+cas.esm2_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/cas.esm2.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>% 
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/cas.esm2.hist.1970-2000.hfls.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/cas.esm2.hist.1985-2015.hfls.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/cas.esm2.ssp245.2030-2060.hfls.txt"), model = "SSP245", period = "2030_2060")) %>%
@@ -417,7 +417,7 @@ write.table(cmccm_ipcc, "/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt")
 
 ## Annual -----
 
-cmcc_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/cmcc.esm2.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>%
+cmcc.esm2_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/cmcc.esm2.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/cmcc.esm2.hist.1970-2000.hfls.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/cmcc.esm2.hist.1985-2015.hfls.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/cmcc.esm2.ssp245.2030-2060.hfls.txt"), model = "SSP245", period = "2030_2060")) %>%

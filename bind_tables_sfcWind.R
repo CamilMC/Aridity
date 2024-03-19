@@ -419,7 +419,7 @@ write.table(cmccm_ipcc, "/bettik/crapartc/IPCC/cmccm.sfcWind_ipcc.txt")
 
 ## Annual -----
 
-cmcc_annual <- mutate(read.table("/bettik/crapartc/Averages/sfcWind/cmcc.esm2.hist.1850-1880.sfcWind.txt"), model = "historical", period = "1850_1880") %>%
+cmcc.esm2_annual <- mutate(read.table("/bettik/crapartc/Averages/sfcWind/cmcc.esm2.hist.1850-1880.sfcWind.txt"), model = "historical", period = "1850_1880") %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/sfcWind/cmcc.esm2.hist.1970-2000.sfcWind.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/sfcWind/cmcc.esm2.hist.1985-2015.sfcWind.txt"), model = "historical", period = "1985_2015")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/sfcWind/cmcc.esm2.ssp245.2030-2060.sfcWind.txt"), model = "SSP245", period = "2030_2060")) %>%
