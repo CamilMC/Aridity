@@ -8,7 +8,7 @@ land_mask <- raster("/home/crapartc/Aridity/Masks/land_sea_mask_1degree.nc4")
 
 ## historical 1850-1880 ----
 
-### annual mean
+### annual mean ---- 
 
 list.nf <- list("/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_historical_r1i1p1f1_gn_185001-185912.nc", "/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_historical_r1i1p1f1_gn_186001-186912.nc","/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_historical_r1i1p1f1_gn_187001-187912.nc")
 
@@ -16,7 +16,7 @@ pr.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rotat
 pr.df <- as.data.frame(pr.stack, xy = T) %>% setNames(c("lon","lat","pr"))
 write.table(pr.df, file = "/bettik/crapartc/Averages/pr/noresm.hist.1850-1880.pr.txt")
 
-### mensual mean
+### mensual mean ----
 
 list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_historical_r1i1p1f1_gn_185001-185912.nc", bands = seq(from = 1, to = 109, by = 12)), raster::stack("/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_historical_r1i1p1f1_gn_186001-186912.nc", bands = seq(from = 1, to = 109, by = 12)), raster::stack("/bettik/crapartc/CMIP6/pr/pr_Amon_NorESM2-MM_historical_r1i1p1f1_gn_187001-187912.nc", bands = seq(from = 1, to = 109, by = 12)))
 
@@ -758,7 +758,7 @@ write.table(dec.pr.df, file = "/bettik/crapartc/Averages/pr/noresm.ssp585.2070-2
 
 ## historical 1850-1880 ----
 
-### annual mean
+### annual mean ---- 
 
 list.nf <- list("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gn_185001-185912.nc", "/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gn_186001-186912.nc","/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gn_187001-187912.nc")
 
@@ -766,7 +766,7 @@ sfcWind.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::
 sfcWind.df <- as.data.frame(sfcWind.stack, xy = T) %>% setNames(c("lon","lat","sfcWind"))
 write.table(sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.hist.1850-1880.sfcWind.txt")
 
-### mensual mean
+### mensual mean ---- 
 
 list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gn_185001-185912.nc", bands = seq(from = 1, to = 109, by = 12)), raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gn_186001-186912.nc", bands = seq(from = 1, to = 109, by = 12)), raster::stack("/bettik/crapartc/CMIP6/sfcWind/sfcWind_Amon_NorESM2-MM_historical_r1i1p1f1_gn_187001-187912.nc", bands = seq(from = 1, to = 109, by = 12)))
 
@@ -1507,7 +1507,7 @@ write.table(dec.sfcWind.df, file = "/bettik/crapartc/Averages/sfcWind/noresm.ssp
 
 ## historical 1850-1880 ----
 
-### annual mean
+### annual mean ---- 
 
 list.nf <- list("/bettik/crapartc/CMIP6/tas/tas_Amon_NorESM2-MM_historical_r1i1p1f1_gn_185001-185912.nc", "/bettik/crapartc/CMIP6/tas/tas_Amon_NorESM2-MM_historical_r1i1p1f1_gn_186001-186912.nc","/bettik/crapartc/CMIP6/tas/tas_Amon_NorESM2-MM_historical_r1i1p1f1_gn_187001-187912.nc")
 
@@ -1515,7 +1515,7 @@ tas.stack <- raster::stack(list.nf) %>% raster::mean(na.rm = T) %>% raster::rota
 tas.df <- as.data.frame(tas.stack, xy = T) %>% setNames(c("lon","lat","tas"))
 write.table(tas.df, file = "/bettik/crapartc/Averages/tas/noresm.hist.1850-1880.tas.txt")
 
-### mensual mean
+### mensual mean ----
 
 list.nf <- list(raster::stack("/bettik/crapartc/CMIP6/tas/tas_Amon_NorESM2-MM_historical_r1i1p1f1_gn_185001-185912.nc", bands = seq(from = 1, to = 109, by = 12)), raster::stack("/bettik/crapartc/CMIP6/tas/tas_Amon_NorESM2-MM_historical_r1i1p1f1_gn_186001-186912.nc", bands = seq(from = 1, to = 109, by = 12)), raster::stack("/bettik/crapartc/CMIP6/tas/tas_Amon_NorESM2-MM_historical_r1i1p1f1_gn_187001-187912.nc", bands = seq(from = 1, to = 109, by = 12)))
 

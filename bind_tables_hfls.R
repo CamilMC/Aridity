@@ -688,15 +688,15 @@ write.table(cnrmm_ipcc, "/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt")
 
 ## Annual ---- 
 
-ec.earth3_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>% 
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.hfls.txt"), model = "historical", period = "1970_2000")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.hfls.txt"), model = "historical", period = "1985_2015")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.hfls.txt"), model = "SSP245", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.hfls.txt"), model = "SSP245", period = "2070_2100")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.hfls.txt"), model = "SSP370", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.hfls.txt"), model = "SSP370", period = "2070_2100")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.hfls.txt"), model = "SSP585", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.hfls.txt"), model = "SSP585", period = "2070_2100"))
+ec.earth3_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>% 
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.hfls.txt"), model = "historical", period = "1970_2000")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.hfls.txt"), model = "historical", period = "1985_2015")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.hfls.txt"), model = "SSP245", period = "2030_2060")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.hfls.txt"), model = "SSP245", period = "2070_2100")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.hfls.txt"), model = "SSP370", period = "2030_2060")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.hfls.txt"), model = "SSP370", period = "2070_2100")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.hfls.txt"), model = "SSP585", period = "2030_2060")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.hfls.txt"), model = "SSP585", period = "2070_2100"))
 
 ec.earth3_land <- merge(ec.earth3_annual, land_mask.df, by = c("lon", "lat")) 
 ec.earth3_ipcc <- merge(ec.earth3_land, ipcc_regions.df, by = c("lon", "lat"))
@@ -705,114 +705,114 @@ write.table(ec.earth3_ipcc, "/bettik/crapartc/IPCC/ec.earth3.hfls_ipcc.txt")
 
 ## Monthly -----
 
-ec.earth3_monthly <- mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.jan.hfls.txt"), model = "historical", period = "1850_1880", month = 1) %>% 
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.jan.hfls.txt"), model = "historical", period = "1970_2000", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.jan.hfls.txt"), model = "historical", period = "1985_2015", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.jan.hfls.txt"), model = "SSP245", period = "2030_2060", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.jan.hfls.txt"), model = "SSP245", period = "2070_2100", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.jan.hfls.txt"), model = "SSP370", period = "2030_2060", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.jan.hfls.txt"), model = "SSP370", period = "2070_2100", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.jan.hfls.txt"), model = "SSP585", period = "2030_2060", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.jan.hfls.txt"), model = "SSP585", period = "2070_2100", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.fev.hfls.txt"), model = "historical", period = "1850_1880", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.fev.hfls.txt"), model = "historical", period = "1970_2000", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.fev.hfls.txt"), model = "historical", period = "1985_2015", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.fev.hfls.txt"), model = "SSP245", period = "2030_2060", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.fev.hfls.txt"), model = "SSP245", period = "2070_2100", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.fev.hfls.txt"), model = "SSP370", period = "2030_2060", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.fev.hfls.txt"), model = "SSP370", period = "2070_2100", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.fev.hfls.txt"), model = "SSP585", period = "2030_2060", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.fev.hfls.txt"), model = "SSP585", period = "2070_2100", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.mar.hfls.txt"), model = "historical", period = "1850_1880", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.mar.hfls.txt"), model = "historical", period = "1970_2000", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.mar.hfls.txt"), model = "historical", period = "1985_2015", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.mar.hfls.txt"), model = "SSP245", period = "2030_2060", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.mar.hfls.txt"), model = "SSP245", period = "2070_2100", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.mar.hfls.txt"), model = "SSP370", period = "2030_2060", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.mar.hfls.txt"), model = "SSP370", period = "2070_2100", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.mar.hfls.txt"), model = "SSP585", period = "2030_2060", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.mar.hfls.txt"), model = "SSP585", period = "2070_2100", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.avr.hfls.txt"), model = "historical", period = "1850_1880", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.avr.hfls.txt"), model = "historical", period = "1970_2000", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.avr.hfls.txt"), model = "historical", period = "1985_2015", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.avr.hfls.txt"), model = "SSP245", period = "2030_2060", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.avr.hfls.txt"), model = "SSP245", period = "2070_2100", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.avr.hfls.txt"), model = "SSP370", period = "2030_2060", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.avr.hfls.txt"), model = "SSP370", period = "2070_2100", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.avr.hfls.txt"), model = "SSP585", period = "2030_2060", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.avr.hfls.txt"), model = "SSP585", period = "2070_2100", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.may.hfls.txt"), model = "historical", period = "1850_1880", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.may.hfls.txt"), model = "historical", period = "1970_2000", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.may.hfls.txt"), model = "historical", period = "1985_2015", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.may.hfls.txt"), model = "SSP245", period = "2030_2060", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.may.hfls.txt"), model = "SSP245", period = "2070_2100", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.may.hfls.txt"), model = "SSP370", period = "2030_2060", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.may.hfls.txt"), model = "SSP370", period = "2070_2100", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.may.hfls.txt"), model = "SSP585", period = "2030_2060", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.may.hfls.txt"), model = "SSP585", period = "2070_2100", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.jun.hfls.txt"), model = "historical", period = "1850_1880", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.jun.hfls.txt"), model = "historical", period = "1970_2000", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.jun.hfls.txt"), model = "historical", period = "1985_2015", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.jun.hfls.txt"), model = "SSP245", period = "2030_2060", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.jun.hfls.txt"), model = "SSP245", period = "2070_2100", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.jun.hfls.txt"), model = "SSP370", period = "2030_2060", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.jun.hfls.txt"), model = "SSP370", period = "2070_2100", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.jun.hfls.txt"), model = "SSP585", period = "2030_2060", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.jun.hfls.txt"), model = "SSP585", period = "2070_2100", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.jul.hfls.txt"), model = "historical", period = "1850_1880", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.jul.hfls.txt"), model = "historical", period = "1970_2000", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.jul.hfls.txt"), model = "historical", period = "1985_2015", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.jul.hfls.txt"), model = "SSP245", period = "2030_2060", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.jul.hfls.txt"), model = "SSP245", period = "2070_2100", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.jul.hfls.txt"), model = "SSP370", period = "2030_2060", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.jul.hfls.txt"), model = "SSP370", period = "2070_2100", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.jul.hfls.txt"), model = "SSP585", period = "2030_2060", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.jul.hfls.txt"), model = "SSP585", period = "2070_2100", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.agu.hfls.txt"), model = "historical", period = "1850_1880", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.agu.hfls.txt"), model = "historical", period = "1970_2000", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.agu.hfls.txt"), model = "historical", period = "1985_2015", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.agu.hfls.txt"), model = "SSP245", period = "2030_2060", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.agu.hfls.txt"), model = "SSP245", period = "2070_2100", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.agu.hfls.txt"), model = "SSP370", period = "2030_2060", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.agu.hfls.txt"), model = "SSP370", period = "2070_2100", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.agu.hfls.txt"), model = "SSP585", period = "2030_2060", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.agu.hfls.txt"), model = "SSP585", period = "2070_2100", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.sep.hfls.txt"), model = "historical", period = "1850_1880", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.sep.hfls.txt"), model = "historical", period = "1970_2000", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.sep.hfls.txt"), model = "historical", period = "1985_2015", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.sep.hfls.txt"), model = "SSP245", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.sep.hfls.txt"), model = "SSP245", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.sep.hfls.txt"), model = "SSP370", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.sep.hfls.txt"), model = "SSP370", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.sep.hfls.txt"), model = "SSP585", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.sep.hfls.txt"), model = "SSP585", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.oct.hfls.txt"), model = "historical", period = "1850_1880", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.oct.hfls.txt"), model = "historical", period = "1970_2000", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.oct.hfls.txt"), model = "historical", period = "1985_2015", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.oct.hfls.txt"), model = "SSP245", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.oct.hfls.txt"), model = "SSP245", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.oct.hfls.txt"), model = "SSP370", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.oct.hfls.txt"), model = "SSP370", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.oct.hfls.txt"), model = "SSP585", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.oct.hfls.txt"), model = "SSP585", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.nov.hfls.txt"), model = "historical", period = "1850_1880", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.nov.hfls.txt"), model = "historical", period = "1970_2000", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.nov.hfls.txt"), model = "historical", period = "1985_2015", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.nov.hfls.txt"), model = "SSP245", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.nov.hfls.txt"), model = "SSP245", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.nov.hfls.txt"), model = "SSP370", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.nov.hfls.txt"), model = "SSP370", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.nov.hfls.txt"), model = "SSP585", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.nov.hfls.txt"), model = "SSP585", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1850-1880.dec.hfls.txt"), model = "historical", period = "1850_1880", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1970-2000.dec.hfls.txt"), model = "historical", period = "1970_2000", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.hist.1985-2015.dec.hfls.txt"), model = "historical", period = "1985_2015", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2030-2060.dec.hfls.txt"), model = "SSP245", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp245.2070-2100.dec.hfls.txt"), model = "SSP245", period = "2070_2100", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2030-2060.dec.hfls.txt"), model = "SSP370", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp370.2070-2100.dec.hfls.txt"), model = "SSP370", period = "2070_2100", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2030-2060.dec.hfls.txt"), model = "SSP585", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec.earth3.ssp585.2070-2100.dec.hfls.txt"), model = "SSP585", period = "2070_2100", month = 12)) 
+ec.earth3_monthly <- mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.jan.hfls.txt"), model = "historical", period = "1850_1880", month = 1) %>% 
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.jan.hfls.txt"), model = "historical", period = "1970_2000", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.jan.hfls.txt"), model = "historical", period = "1985_2015", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.jan.hfls.txt"), model = "SSP245", period = "2030_2060", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.jan.hfls.txt"), model = "SSP245", period = "2070_2100", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.jan.hfls.txt"), model = "SSP370", period = "2030_2060", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.jan.hfls.txt"), model = "SSP370", period = "2070_2100", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.jan.hfls.txt"), model = "SSP585", period = "2030_2060", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.jan.hfls.txt"), model = "SSP585", period = "2070_2100", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.fev.hfls.txt"), model = "historical", period = "1850_1880", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.fev.hfls.txt"), model = "historical", period = "1970_2000", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.fev.hfls.txt"), model = "historical", period = "1985_2015", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.fev.hfls.txt"), model = "SSP245", period = "2030_2060", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.fev.hfls.txt"), model = "SSP245", period = "2070_2100", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.fev.hfls.txt"), model = "SSP370", period = "2030_2060", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.fev.hfls.txt"), model = "SSP370", period = "2070_2100", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.fev.hfls.txt"), model = "SSP585", period = "2030_2060", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.fev.hfls.txt"), model = "SSP585", period = "2070_2100", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.mar.hfls.txt"), model = "historical", period = "1850_1880", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.mar.hfls.txt"), model = "historical", period = "1970_2000", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.mar.hfls.txt"), model = "historical", period = "1985_2015", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.mar.hfls.txt"), model = "SSP245", period = "2030_2060", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.mar.hfls.txt"), model = "SSP245", period = "2070_2100", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.mar.hfls.txt"), model = "SSP370", period = "2030_2060", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.mar.hfls.txt"), model = "SSP370", period = "2070_2100", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.mar.hfls.txt"), model = "SSP585", period = "2030_2060", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.mar.hfls.txt"), model = "SSP585", period = "2070_2100", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.avr.hfls.txt"), model = "historical", period = "1850_1880", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.avr.hfls.txt"), model = "historical", period = "1970_2000", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.avr.hfls.txt"), model = "historical", period = "1985_2015", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.avr.hfls.txt"), model = "SSP245", period = "2030_2060", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.avr.hfls.txt"), model = "SSP245", period = "2070_2100", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.avr.hfls.txt"), model = "SSP370", period = "2030_2060", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.avr.hfls.txt"), model = "SSP370", period = "2070_2100", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.avr.hfls.txt"), model = "SSP585", period = "2030_2060", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.avr.hfls.txt"), model = "SSP585", period = "2070_2100", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.may.hfls.txt"), model = "historical", period = "1850_1880", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.may.hfls.txt"), model = "historical", period = "1970_2000", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.may.hfls.txt"), model = "historical", period = "1985_2015", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.may.hfls.txt"), model = "SSP245", period = "2030_2060", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.may.hfls.txt"), model = "SSP245", period = "2070_2100", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.may.hfls.txt"), model = "SSP370", period = "2030_2060", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.may.hfls.txt"), model = "SSP370", period = "2070_2100", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.may.hfls.txt"), model = "SSP585", period = "2030_2060", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.may.hfls.txt"), model = "SSP585", period = "2070_2100", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.jun.hfls.txt"), model = "historical", period = "1850_1880", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.jun.hfls.txt"), model = "historical", period = "1970_2000", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.jun.hfls.txt"), model = "historical", period = "1985_2015", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.jun.hfls.txt"), model = "SSP245", period = "2030_2060", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.jun.hfls.txt"), model = "SSP245", period = "2070_2100", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.jun.hfls.txt"), model = "SSP370", period = "2030_2060", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.jun.hfls.txt"), model = "SSP370", period = "2070_2100", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.jun.hfls.txt"), model = "SSP585", period = "2030_2060", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.jun.hfls.txt"), model = "SSP585", period = "2070_2100", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.jul.hfls.txt"), model = "historical", period = "1850_1880", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.jul.hfls.txt"), model = "historical", period = "1970_2000", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.jul.hfls.txt"), model = "historical", period = "1985_2015", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.jul.hfls.txt"), model = "SSP245", period = "2030_2060", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.jul.hfls.txt"), model = "SSP245", period = "2070_2100", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.jul.hfls.txt"), model = "SSP370", period = "2030_2060", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.jul.hfls.txt"), model = "SSP370", period = "2070_2100", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.jul.hfls.txt"), model = "SSP585", period = "2030_2060", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.jul.hfls.txt"), model = "SSP585", period = "2070_2100", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.agu.hfls.txt"), model = "historical", period = "1850_1880", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.agu.hfls.txt"), model = "historical", period = "1970_2000", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.agu.hfls.txt"), model = "historical", period = "1985_2015", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.agu.hfls.txt"), model = "SSP245", period = "2030_2060", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.agu.hfls.txt"), model = "SSP245", period = "2070_2100", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.agu.hfls.txt"), model = "SSP370", period = "2030_2060", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.agu.hfls.txt"), model = "SSP370", period = "2070_2100", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.agu.hfls.txt"), model = "SSP585", period = "2030_2060", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.agu.hfls.txt"), model = "SSP585", period = "2070_2100", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.sep.hfls.txt"), model = "historical", period = "1850_1880", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.sep.hfls.txt"), model = "historical", period = "1970_2000", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.sep.hfls.txt"), model = "historical", period = "1985_2015", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.sep.hfls.txt"), model = "SSP245", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.sep.hfls.txt"), model = "SSP245", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.sep.hfls.txt"), model = "SSP370", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.sep.hfls.txt"), model = "SSP370", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.sep.hfls.txt"), model = "SSP585", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.sep.hfls.txt"), model = "SSP585", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.oct.hfls.txt"), model = "historical", period = "1850_1880", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.oct.hfls.txt"), model = "historical", period = "1970_2000", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.oct.hfls.txt"), model = "historical", period = "1985_2015", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.oct.hfls.txt"), model = "SSP245", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.oct.hfls.txt"), model = "SSP245", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.oct.hfls.txt"), model = "SSP370", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.oct.hfls.txt"), model = "SSP370", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.oct.hfls.txt"), model = "SSP585", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.oct.hfls.txt"), model = "SSP585", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.nov.hfls.txt"), model = "historical", period = "1850_1880", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.nov.hfls.txt"), model = "historical", period = "1970_2000", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.nov.hfls.txt"), model = "historical", period = "1985_2015", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.nov.hfls.txt"), model = "SSP245", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.nov.hfls.txt"), model = "SSP245", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.nov.hfls.txt"), model = "SSP370", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.nov.hfls.txt"), model = "SSP370", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.nov.hfls.txt"), model = "SSP585", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.nov.hfls.txt"), model = "SSP585", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1850-1880.dec.hfls.txt"), model = "historical", period = "1850_1880", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1970-2000.dec.hfls.txt"), model = "historical", period = "1970_2000", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.hist.1985-2015.dec.hfls.txt"), model = "historical", period = "1985_2015", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2030-2060.dec.hfls.txt"), model = "SSP245", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp245.2070-2100.dec.hfls.txt"), model = "SSP245", period = "2070_2100", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2030-2060.dec.hfls.txt"), model = "SSP370", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp370.2070-2100.dec.hfls.txt"), model = "SSP370", period = "2070_2100", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2030-2060.dec.hfls.txt"), model = "SSP585", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/ec-earth3.ssp585.2070-2100.dec.hfls.txt"), model = "SSP585", period = "2070_2100", month = 12)) 
 
 ec.earth3m_land <- merge(ec.earth3_monthly, land_mask.df, by = c("lon", "lat")) 
 ec.earth3m_ipcc <- merge(ec.earth3m_land, ipcc_regions.df, by = c("lon", "lat"))
@@ -958,15 +958,15 @@ write.table(fgoalsm_ipcc, "/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt")
 
 ## Annual ----
 
-gfdl.esm4_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.hfls.txt"), model = "historical", period = "1970_2000")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.hfls.txt"), model = "historical", period = "1985_2015")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.hfls.txt"), model = "SSP245", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.hfls.txt"), model = "SSP245", period = "2070_2100")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.hfls.txt"), model = "SSP370", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.hfls.txt"), model = "SSP370", period = "2070_2100")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.hfls.txt"), model = "SSP585", period = "2030_2060")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.hfls.txt"), model = "SSP585", period = "2070_2100"))
+gfdl.esm4_annual <- mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.hfls.txt"), model = "historical", period = "1850_1880") %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.hfls.txt"), model = "historical", period = "1970_2000")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.hfls.txt"), model = "historical", period = "1985_2015")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.hfls.txt"), model = "SSP245", period = "2030_2060")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.hfls.txt"), model = "SSP245", period = "2070_2100")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.hfls.txt"), model = "SSP370", period = "2030_2060")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.hfls.txt"), model = "SSP370", period = "2070_2100")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.hfls.txt"), model = "SSP585", period = "2030_2060")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.hfls.txt"), model = "SSP585", period = "2070_2100"))
 
 gfdl.esm4_land <- merge(gfdl.esm4_annual, land_mask.df, by = c("lon", "lat")) 
 gfdl.esm4_ipcc <- merge(gfdl.esm4_land, ipcc_regions.df, by = c("lon", "lat"))
@@ -974,114 +974,114 @@ gfdl.esm4_ipcc <- merge(gfdl.esm4_land, ipcc_regions.df, by = c("lon", "lat"))
 write.table(gfdl.esm4_ipcc, "/bettik/crapartc/IPCC/gfdl.esm4.hfls_ipcc.txt")
 ## Monthly ---- 
 
-gfdl.esm4_monthly <- mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.jan.hfls.txt"), model = "historical", period = "1850_1880", month = 1) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.jan.hfls.txt"), model = "historical", period = "1970_2000", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.jan.hfls.txt"), model = "historical", period = "1985_2015", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.jan.hfls.txt"), model = "SSP245", period = "2030_2060", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.jan.hfls.txt"), model = "SSP245", period = "2070_2100", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.jan.hfls.txt"), model = "SSP370", period = "2030_2060", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.jan.hfls.txt"), model = "SSP370", period = "2070_2100", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.jan.hfls.txt"), model = "SSP585", period = "2030_2060", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.jan.hfls.txt"), model = "SSP585", period = "2070_2100", month = 1)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.fev.hfls.txt"), model = "historical", period = "1850_1880", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.fev.hfls.txt"), model = "historical", period = "1970_2000", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.fev.hfls.txt"), model = "historical", period = "1985_2015", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.fev.hfls.txt"), model = "SSP245", period = "2030_2060", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.fev.hfls.txt"), model = "SSP245", period = "2070_2100", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.fev.hfls.txt"), model = "SSP370", period = "2030_2060", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.fev.hfls.txt"), model = "SSP370", period = "2070_2100", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.fev.hfls.txt"), model = "SSP585", period = "2030_2060", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.fev.hfls.txt"), model = "SSP585", period = "2070_2100", month = 2)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.mar.hfls.txt"), model = "historical", period = "1850_1880", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.mar.hfls.txt"), model = "historical", period = "1970_2000", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.mar.hfls.txt"), model = "historical", period = "1985_2015", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.mar.hfls.txt"), model = "SSP245", period = "2030_2060", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.mar.hfls.txt"), model = "SSP245", period = "2070_2100", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.mar.hfls.txt"), model = "SSP370", period = "2030_2060", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.mar.hfls.txt"), model = "SSP370", period = "2070_2100", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.mar.hfls.txt"), model = "SSP585", period = "2030_2060", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.mar.hfls.txt"), model = "SSP585", period = "2070_2100", month = 3)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.avr.hfls.txt"), model = "historical", period = "1850_1880", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.avr.hfls.txt"), model = "historical", period = "1970_2000", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.avr.hfls.txt"), model = "historical", period = "1985_2015", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.avr.hfls.txt"), model = "SSP245", period = "2030_2060", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.avr.hfls.txt"), model = "SSP245", period = "2070_2100", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.avr.hfls.txt"), model = "SSP370", period = "2030_2060", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.avr.hfls.txt"), model = "SSP370", period = "2070_2100", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.avr.hfls.txt"), model = "SSP585", period = "2030_2060", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.avr.hfls.txt"), model = "SSP585", period = "2070_2100", month = 4)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.may.hfls.txt"), model = "historical", period = "1850_1880", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.may.hfls.txt"), model = "historical", period = "1970_2000", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.may.hfls.txt"), model = "historical", period = "1985_2015", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.may.hfls.txt"), model = "SSP245", period = "2030_2060", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.may.hfls.txt"), model = "SSP245", period = "2070_2100", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.may.hfls.txt"), model = "SSP370", period = "2030_2060", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.may.hfls.txt"), model = "SSP370", period = "2070_2100", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.may.hfls.txt"), model = "SSP585", period = "2030_2060", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.may.hfls.txt"), model = "SSP585", period = "2070_2100", month = 5)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.jun.hfls.txt"), model = "historical", period = "1850_1880", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.jun.hfls.txt"), model = "historical", period = "1970_2000", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.jun.hfls.txt"), model = "historical", period = "1985_2015", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.jun.hfls.txt"), model = "SSP245", period = "2030_2060", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.jun.hfls.txt"), model = "SSP245", period = "2070_2100", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.jun.hfls.txt"), model = "SSP370", period = "2030_2060", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.jun.hfls.txt"), model = "SSP370", period = "2070_2100", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.jun.hfls.txt"), model = "SSP585", period = "2030_2060", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.jun.hfls.txt"), model = "SSP585", period = "2070_2100", month = 6)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.jul.hfls.txt"), model = "historical", period = "1850_1880", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.jul.hfls.txt"), model = "historical", period = "1970_2000", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.jul.hfls.txt"), model = "historical", period = "1985_2015", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.jul.hfls.txt"), model = "SSP245", period = "2030_2060", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.jul.hfls.txt"), model = "SSP245", period = "2070_2100", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.jul.hfls.txt"), model = "SSP370", period = "2030_2060", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.jul.hfls.txt"), model = "SSP370", period = "2070_2100", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.jul.hfls.txt"), model = "SSP585", period = "2030_2060", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.jul.hfls.txt"), model = "SSP585", period = "2070_2100", month = 7)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.agu.hfls.txt"), model = "historical", period = "1850_1880", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.agu.hfls.txt"), model = "historical", period = "1970_2000", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.agu.hfls.txt"), model = "historical", period = "1985_2015", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.agu.hfls.txt"), model = "SSP245", period = "2030_2060", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.agu.hfls.txt"), model = "SSP245", period = "2070_2100", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.agu.hfls.txt"), model = "SSP370", period = "2030_2060", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.agu.hfls.txt"), model = "SSP370", period = "2070_2100", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.agu.hfls.txt"), model = "SSP585", period = "2030_2060", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.agu.hfls.txt"), model = "SSP585", period = "2070_2100", month = 8)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.sep.hfls.txt"), model = "historical", period = "1850_1880", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.sep.hfls.txt"), model = "historical", period = "1970_2000", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.sep.hfls.txt"), model = "historical", period = "1985_2015", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.sep.hfls.txt"), model = "SSP245", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.sep.hfls.txt"), model = "SSP245", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.sep.hfls.txt"), model = "SSP370", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.sep.hfls.txt"), model = "SSP370", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.sep.hfls.txt"), model = "SSP585", period = "2030_2060", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.sep.hfls.txt"), model = "SSP585", period = "2070_2100", month = 9)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.oct.hfls.txt"), model = "historical", period = "1850_1880", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.oct.hfls.txt"), model = "historical", period = "1970_2000", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.oct.hfls.txt"), model = "historical", period = "1985_2015", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.oct.hfls.txt"), model = "SSP245", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.oct.hfls.txt"), model = "SSP245", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.oct.hfls.txt"), model = "SSP370", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.oct.hfls.txt"), model = "SSP370", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.oct.hfls.txt"), model = "SSP585", period = "2030_2060", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.oct.hfls.txt"), model = "SSP585", period = "2070_2100", month = 10)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.nov.hfls.txt"), model = "historical", period = "1850_1880", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.nov.hfls.txt"), model = "historical", period = "1970_2000", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.nov.hfls.txt"), model = "historical", period = "1985_2015", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.nov.hfls.txt"), model = "SSP245", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.nov.hfls.txt"), model = "SSP245", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.nov.hfls.txt"), model = "SSP370", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.nov.hfls.txt"), model = "SSP370", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.nov.hfls.txt"), model = "SSP585", period = "2030_2060", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.nov.hfls.txt"), model = "SSP585", period = "2070_2100", month = 11)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1850-1880.dec.hfls.txt"), model = "historical", period = "1850_1880", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1970-2000.dec.hfls.txt"), model = "historical", period = "1970_2000", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.hist.1985-2015.dec.hfls.txt"), model = "historical", period = "1985_2015", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2030-2060.dec.hfls.txt"), model = "SSP245", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp245.2070-2100.dec.hfls.txt"), model = "SSP245", period = "2070_2100", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2030-2060.dec.hfls.txt"), model = "SSP370", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp370.2070-2100.dec.hfls.txt"), model = "SSP370", period = "2070_2100", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2030-2060.dec.hfls.txt"), model = "SSP585", period = "2030_2060", month = 12)) %>%
-  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl.esm4.ssp585.2070-2100.dec.hfls.txt"), model = "SSP585", period = "2070_2100", month = 12)) 
+gfdl.esm4_monthly <- mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.jan.hfls.txt"), model = "historical", period = "1850_1880", month = 1) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.jan.hfls.txt"), model = "historical", period = "1970_2000", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.jan.hfls.txt"), model = "historical", period = "1985_2015", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.jan.hfls.txt"), model = "SSP245", period = "2030_2060", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.jan.hfls.txt"), model = "SSP245", period = "2070_2100", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.jan.hfls.txt"), model = "SSP370", period = "2030_2060", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.jan.hfls.txt"), model = "SSP370", period = "2070_2100", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.jan.hfls.txt"), model = "SSP585", period = "2030_2060", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.jan.hfls.txt"), model = "SSP585", period = "2070_2100", month = 1)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.fev.hfls.txt"), model = "historical", period = "1850_1880", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.fev.hfls.txt"), model = "historical", period = "1970_2000", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.fev.hfls.txt"), model = "historical", period = "1985_2015", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.fev.hfls.txt"), model = "SSP245", period = "2030_2060", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.fev.hfls.txt"), model = "SSP245", period = "2070_2100", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.fev.hfls.txt"), model = "SSP370", period = "2030_2060", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.fev.hfls.txt"), model = "SSP370", period = "2070_2100", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.fev.hfls.txt"), model = "SSP585", period = "2030_2060", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.fev.hfls.txt"), model = "SSP585", period = "2070_2100", month = 2)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.mar.hfls.txt"), model = "historical", period = "1850_1880", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.mar.hfls.txt"), model = "historical", period = "1970_2000", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.mar.hfls.txt"), model = "historical", period = "1985_2015", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.mar.hfls.txt"), model = "SSP245", period = "2030_2060", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.mar.hfls.txt"), model = "SSP245", period = "2070_2100", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.mar.hfls.txt"), model = "SSP370", period = "2030_2060", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.mar.hfls.txt"), model = "SSP370", period = "2070_2100", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.mar.hfls.txt"), model = "SSP585", period = "2030_2060", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.mar.hfls.txt"), model = "SSP585", period = "2070_2100", month = 3)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.avr.hfls.txt"), model = "historical", period = "1850_1880", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.avr.hfls.txt"), model = "historical", period = "1970_2000", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.avr.hfls.txt"), model = "historical", period = "1985_2015", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.avr.hfls.txt"), model = "SSP245", period = "2030_2060", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.avr.hfls.txt"), model = "SSP245", period = "2070_2100", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.avr.hfls.txt"), model = "SSP370", period = "2030_2060", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.avr.hfls.txt"), model = "SSP370", period = "2070_2100", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.avr.hfls.txt"), model = "SSP585", period = "2030_2060", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.avr.hfls.txt"), model = "SSP585", period = "2070_2100", month = 4)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.may.hfls.txt"), model = "historical", period = "1850_1880", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.may.hfls.txt"), model = "historical", period = "1970_2000", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.may.hfls.txt"), model = "historical", period = "1985_2015", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.may.hfls.txt"), model = "SSP245", period = "2030_2060", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.may.hfls.txt"), model = "SSP245", period = "2070_2100", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.may.hfls.txt"), model = "SSP370", period = "2030_2060", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.may.hfls.txt"), model = "SSP370", period = "2070_2100", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.may.hfls.txt"), model = "SSP585", period = "2030_2060", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.may.hfls.txt"), model = "SSP585", period = "2070_2100", month = 5)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.jun.hfls.txt"), model = "historical", period = "1850_1880", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.jun.hfls.txt"), model = "historical", period = "1970_2000", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.jun.hfls.txt"), model = "historical", period = "1985_2015", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.jun.hfls.txt"), model = "SSP245", period = "2030_2060", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.jun.hfls.txt"), model = "SSP245", period = "2070_2100", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.jun.hfls.txt"), model = "SSP370", period = "2030_2060", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.jun.hfls.txt"), model = "SSP370", period = "2070_2100", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.jun.hfls.txt"), model = "SSP585", period = "2030_2060", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.jun.hfls.txt"), model = "SSP585", period = "2070_2100", month = 6)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.jul.hfls.txt"), model = "historical", period = "1850_1880", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.jul.hfls.txt"), model = "historical", period = "1970_2000", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.jul.hfls.txt"), model = "historical", period = "1985_2015", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.jul.hfls.txt"), model = "SSP245", period = "2030_2060", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.jul.hfls.txt"), model = "SSP245", period = "2070_2100", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.jul.hfls.txt"), model = "SSP370", period = "2030_2060", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.jul.hfls.txt"), model = "SSP370", period = "2070_2100", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.jul.hfls.txt"), model = "SSP585", period = "2030_2060", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.jul.hfls.txt"), model = "SSP585", period = "2070_2100", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.agu.hfls.txt"), model = "historical", period = "1850_1880", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.agu.hfls.txt"), model = "historical", period = "1970_2000", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.agu.hfls.txt"), model = "historical", period = "1985_2015", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.agu.hfls.txt"), model = "SSP245", period = "2030_2060", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.agu.hfls.txt"), model = "SSP245", period = "2070_2100", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.agu.hfls.txt"), model = "SSP370", period = "2030_2060", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.agu.hfls.txt"), model = "SSP370", period = "2070_2100", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.agu.hfls.txt"), model = "SSP585", period = "2030_2060", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.agu.hfls.txt"), model = "SSP585", period = "2070_2100", month = 8)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.sep.hfls.txt"), model = "historical", period = "1850_1880", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.sep.hfls.txt"), model = "historical", period = "1970_2000", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.sep.hfls.txt"), model = "historical", period = "1985_2015", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.sep.hfls.txt"), model = "SSP245", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.sep.hfls.txt"), model = "SSP245", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.sep.hfls.txt"), model = "SSP370", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.sep.hfls.txt"), model = "SSP370", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.sep.hfls.txt"), model = "SSP585", period = "2030_2060", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.sep.hfls.txt"), model = "SSP585", period = "2070_2100", month = 9)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.oct.hfls.txt"), model = "historical", period = "1850_1880", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.oct.hfls.txt"), model = "historical", period = "1970_2000", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.oct.hfls.txt"), model = "historical", period = "1985_2015", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.oct.hfls.txt"), model = "SSP245", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.oct.hfls.txt"), model = "SSP245", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.oct.hfls.txt"), model = "SSP370", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.oct.hfls.txt"), model = "SSP370", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.oct.hfls.txt"), model = "SSP585", period = "2030_2060", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.oct.hfls.txt"), model = "SSP585", period = "2070_2100", month = 10)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.nov.hfls.txt"), model = "historical", period = "1850_1880", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.nov.hfls.txt"), model = "historical", period = "1970_2000", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.nov.hfls.txt"), model = "historical", period = "1985_2015", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.nov.hfls.txt"), model = "SSP245", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.nov.hfls.txt"), model = "SSP245", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.nov.hfls.txt"), model = "SSP370", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.nov.hfls.txt"), model = "SSP370", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.nov.hfls.txt"), model = "SSP585", period = "2030_2060", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.nov.hfls.txt"), model = "SSP585", period = "2070_2100", month = 11)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1850-1880.dec.hfls.txt"), model = "historical", period = "1850_1880", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1970-2000.dec.hfls.txt"), model = "historical", period = "1970_2000", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.hist.1985-2015.dec.hfls.txt"), model = "historical", period = "1985_2015", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2030-2060.dec.hfls.txt"), model = "SSP245", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp245.2070-2100.dec.hfls.txt"), model = "SSP245", period = "2070_2100", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2030-2060.dec.hfls.txt"), model = "SSP370", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp370.2070-2100.dec.hfls.txt"), model = "SSP370", period = "2070_2100", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2030-2060.dec.hfls.txt"), model = "SSP585", period = "2030_2060", month = 12)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfls/gfdl-esm4.ssp585.2070-2100.dec.hfls.txt"), model = "SSP585", period = "2070_2100", month = 12)) 
 
 gfdl.esm4m_land <- merge(gfdl.esm4_monthly, land_mask.df, by = c("lon", "lat")) 
 gfdl.esm4m_ipcc <- merge(gfdl.esm4m_land, ipcc_regions.df, by = c("lon", "lat"))
@@ -1788,7 +1788,7 @@ all_january <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ip
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 1), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 1), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 1), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 1), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 1), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 1), source = "FGOALS")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 1), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 1), source = "INM")) %>%
@@ -1804,7 +1804,7 @@ all_february <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_i
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 2), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 2), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 2), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 2), source = "FGOALS")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 2), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 2), source = "INM")) %>%
@@ -1820,7 +1820,7 @@ all_march <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ipcc
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 3), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 3), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 3), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 3), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 3), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 3), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 3), source = "INM")) %>%
@@ -1836,7 +1836,7 @@ all_april <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ipcc
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 4), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 4), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 4), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 4), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 4), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 4), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 4), source = "INM")) %>%
@@ -1852,7 +1852,7 @@ all_may <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ipcc.t
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 5), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 5), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 5), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 5), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 5), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 5), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 5), source = "INM")) %>%
@@ -1868,7 +1868,7 @@ all_june <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ipcc.
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 6), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 6), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 6), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 6), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 6), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 6), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 6), source = "INM")) %>%
@@ -1884,7 +1884,7 @@ all_july <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ipcc.
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 7), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 7), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 7), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 7), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 7), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 7), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 7), source = "INM")) %>%
@@ -1900,7 +1900,7 @@ all_august <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ipc
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 8), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 8), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 8), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 8), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 8), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 8), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 8), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 8), source = "INM")) %>%
@@ -1916,7 +1916,7 @@ all_september <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 9), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 9), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 9), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 9), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 9), source = "FGOALS")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 9), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 9), source = "INM")) %>%
@@ -1932,7 +1932,7 @@ all_october <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_ip
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 10), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 10), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 10), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 10), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 10), source = "FGOALS")) %>%
     rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 10), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 10), source = "INM")) %>%
@@ -1948,7 +1948,7 @@ all_november <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_i
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 11), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 11), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 11), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 11), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 11), source = "FGOALS")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 11), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 11), source = "INM")) %>%
@@ -1964,7 +1964,7 @@ all_december <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hfls_i
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmccm.hfls_ipcc.txt"), lm == 1, month == 12), source = "CMCC")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cmcc.esm2m.hfls_ipcc.txt"), lm == 1, month == 2), source = "CMCC-ESM2")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hfls_ipcc.txt"), lm == 1, month == 12), source = "CNRM")) %>%
-  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec-earth3.hfls_ipcc.txt"), lm == 1, month == 12), source = "EC-Earth3")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfls_ipcc.txt"), lm == 1, month == 12), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hfls_ipcc.txt"), lm == 1, month == 12), source = "FGOALS")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hfls_ipcc.txt"), lm == 1, month == 12), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hfls_ipcc.txt"), lm == 1, month == 12), source = "INM")) %>%
