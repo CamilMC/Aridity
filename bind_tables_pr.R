@@ -682,10 +682,7 @@ cnrmm_land <- merge(cnrm_monthly, land_mask.df, by = c("lon", "lat"))
 cnrmm_ipcc <- merge(cnrmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(cnrmm_ipcc, "/bettik/crapartc/IPCC/cnrmm.pr_ipcc.txt")
-
-
 # EC-Earth3 ---- 
-
 ## Annual ---- 
 
 ec.earth3_annual <- mutate(read.table("/bettik/crapartc/Averages/pr/ec-earth3.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880") %>% 
@@ -817,7 +814,7 @@ ec.earth3_monthly <- mutate(read.table("/bettik/crapartc/Averages/pr/ec-earth3.h
 ec.earth3m_land <- merge(ec.earth3_monthly, land_mask.df, by = c("lon", "lat")) 
 ec.earth3m_ipcc <- merge(ec.earth3m_land, ipcc_regions.df, by = c("lon", "lat"))
 
-write.table(ec.earth3m_ipcc, "/bettik/crapartc/IPCC/ec-earth3m.pr_ipcc.txt")
+write.table(ec.earth3m_ipcc, "/bettik/crapartc/IPCC/ec.earth3m.pr_ipcc.txt")
 
 # FGOALS ----
 
@@ -952,8 +949,6 @@ fgoalsm_land <- merge(fgoals_monthly, land_mask.df, by = c("lon", "lat"))
 fgoalsm_ipcc <- merge(fgoalsm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(fgoalsm_ipcc, "/bettik/crapartc/IPCC/fgoalsm.pr_ipcc.txt")
-
-
 # GFDL-ESM4 ----
 
 ## Annual ----
@@ -1087,8 +1082,6 @@ gfdl.esm4m_land <- merge(gfdl.esm4_monthly, land_mask.df, by = c("lon", "lat"))
 gfdl.esm4m_ipcc <- merge(gfdl.esm4m_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(gfdl.esm4m_ipcc, "/bettik/crapartc/IPCC/gfdl.esm4m.pr_ipcc.txt")
-
-
 # INM-CM4-8 -------
 
 ## Annual
@@ -1356,8 +1349,6 @@ inm.cm5m_land <- merge(inm.cm5_monthly, land_mask.df, by = c("lon", "lat"))
 inm.cm5m_ipcc <- merge(inm.cm5m_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(inm.cm5m_ipcc, "/bettik/crapartc/IPCC/inm.cm5m.pr_ipcc.txt")
-
-
 # MPI-ESM1-2-HR ---- 
 ## Annual ----
 mpi_annual <- mutate(read.table("/bettik/crapartc/Averages/pr/mpi.hist.1850-1880.pr.txt"), model = "historical", period = "1850_1880") %>%
@@ -1625,8 +1616,6 @@ mrim_land <- merge(mri_monthly, land_mask.df, by = c("lon", "lat"))
 mrim_ipcc <- merge(mrim_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(mrim_ipcc, "/bettik/crapartc/IPCC/mrim.pr_ipcc.txt")
-
-
 # NorESM-2-MM ---- 
 
 ## Annual ---- 
@@ -1761,8 +1750,6 @@ noresmm_land <- merge(noresm_monthly, land_mask.df, by = c("lon", "lat"))
 noresmm_ipcc <- merge(noresmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(noresmm_ipcc, "/bettik/crapartc/IPCC/noresmm.pr_ipcc.txt")
-
-
 # ALL pr ANNUAL ----- 
 
 all_annual <- mutate(read.table("/bettik/crapartc/IPCC/cas.esm2.pr_ipcc.txt"), source = "CAS-ESM2") %>%

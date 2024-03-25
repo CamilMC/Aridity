@@ -682,12 +682,8 @@ cnrmm_land <- merge(cnrm_monthly, land_mask.df, by = c("lon", "lat"))
 cnrmm_ipcc <- merge(cnrmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(cnrmm_ipcc, "/bettik/crapartc/IPCC/cnrmm.tas_ipcc.txt")
-
-
 # EC-Earth3 ---- 
-
 ## Annual ---- 
-
 ec.earth3_annual <- mutate(read.table("/bettik/crapartc/Averages/tas/ec-earth3.hist.1850-1880.tas.txt"), model = "historical", period = "1850_1880") %>% 
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/ec-earth3.hist.1970-2000.tas.txt"), model = "historical", period = "1970_2000")) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/ec-earth3.hist.1985-2015.tas.txt"), model = "historical", period = "1985_2015")) %>%
@@ -1934,7 +1930,7 @@ all_october <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.tas_ipc
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.tas_ipcc.txt"), lm == 1, month == 10), source = "CNRM")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.tas_ipcc.txt"), lm == 1, month == 10), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.tas_ipcc.txt"), lm == 1, month == 10), source = "FGOALS")) %>%
-    rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.tas_ipcc.txt"), lm == 1, month == 10), source = "GFDL-ESM4")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.tas_ipcc.txt"), lm == 1, month == 10), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.tas_ipcc.txt"), lm == 1, month == 10), source = "INM")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inm.cm5m.tas_ipcc.txt"), lm == 1, month == 10), source = "INM-CM5")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/mpim.tas_ipcc.txt"), lm == 1, month == 10), source = "MPI")) %>%

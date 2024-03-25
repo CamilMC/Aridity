@@ -1770,7 +1770,7 @@ all_annual <- mutate(read.table("/bettik/crapartc/IPCC/cas.esm2.hfss_ipcc.txt"),
   rbind(mutate(read.table("/bettik/crapartc/IPCC/cmcc.hfss_ipcc.txt"), source = "CMCC")) %>%
   rbind(mutate(read.table("/bettik/crapartc/IPCC/cmcc.esm2.hfss_ipcc.txt"), source = "CMCC-ESM2")) %>%
   rbind(mutate(read.table("/bettik/crapartc/IPCC/cnrm.hfss_ipcc.txt"), source = "CNRM")) %>%
-  rbind(mutate(read.table("/bettik/crapartc/IPCC/ec.earth3m.hfss_ipcc.txt"), source = "EC-Earth3")) %>%
+  rbind(mutate(read.table("/bettik/crapartc/IPCC/ec.earth3.hfss_ipcc.txt"), source = "EC-Earth3")) %>%
   rbind(mutate(read.table("/bettik/crapartc/IPCC/fgoals.hfss_ipcc.txt"), source = "FGOALS")) %>%
   rbind(mutate(read.table("/bettik/crapartc/IPCC/gfdl.esm4.hfss_ipcc.txt"), source = "GFDL-ESM4")) %>%
   rbind(mutate(read.table("/bettik/crapartc/IPCC/inm.hfss_ipcc.txt"), source = "INM")) %>%

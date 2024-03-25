@@ -820,7 +820,6 @@ ec.earth3m_ipcc <- merge(ec.earth3m_land, ipcc_regions.df, by = c("lon", "lat"))
 write.table(ec.earth3m_ipcc, "/bettik/crapartc/IPCC/ec.earth3m.hurs_ipcc.txt")
 
 # FGOALS ----
-
 ## Annual ----
 
 fgoals_annual <- mutate(read.table("/bettik/crapartc/Averages/hurs/fgoals.hist.1850-1880.hurs.txt"), model = "historical", period = "1850_1880") %>%
@@ -952,8 +951,6 @@ fgoalsm_land <- merge(fgoals_monthly, land_mask.df, by = c("lon", "lat"))
 fgoalsm_ipcc <- merge(fgoalsm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(fgoalsm_ipcc, "/bettik/crapartc/IPCC/fgoalsm.hurs_ipcc.txt")
-
-
 # GFDL-ESM4 ----
 
 ## Annual ----
@@ -1087,8 +1084,6 @@ gfdl.esm4m_land <- merge(gfdl.esm4_monthly, land_mask.df, by = c("lon", "lat"))
 gfdl.esm4m_ipcc <- merge(gfdl.esm4m_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(gfdl.esm4m_ipcc, "/bettik/crapartc/IPCC/gfdl.esm4m.hurs_ipcc.txt")
-
-
 # INM-CM4-8 -------
 
 ## Annual
@@ -1356,8 +1351,6 @@ inm.cm5m_land <- merge(inm.cm5_monthly, land_mask.df, by = c("lon", "lat"))
 inm.cm5m_ipcc <- merge(inm.cm5m_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(inm.cm5m_ipcc, "/bettik/crapartc/IPCC/inm.cm5m.hurs_ipcc.txt")
-
-
 # MPI-ESM1-2-HR ---- 
 ## Annual ----
 mpi_annual <- mutate(read.table("/bettik/crapartc/Averages/hurs/mpi.hist.1850-1880.hurs.txt"), model = "historical", period = "1850_1880") %>%
@@ -1625,8 +1618,6 @@ mrim_land <- merge(mri_monthly, land_mask.df, by = c("lon", "lat"))
 mrim_ipcc <- merge(mrim_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(mrim_ipcc, "/bettik/crapartc/IPCC/mrim.hurs_ipcc.txt")
-
-
 # NorESM-2-MM ---- 
 
 ## Annual ---- 
@@ -1762,7 +1753,6 @@ noresmm_ipcc <- merge(noresmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(noresmm_ipcc, "/bettik/crapartc/IPCC/noresmm.hurs_ipcc.txt")
 
-
 # ALL hurs ANNUAL ----- 
 
 all_annual <- mutate(read.table("/bettik/crapartc/IPCC/cas.esm2.hurs_ipcc.txt"), source = "CAS-ESM2") %>%
@@ -1822,7 +1812,7 @@ all_march <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hurs_ipcc
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hurs_ipcc.txt"), lm == 1, month == 3), source = "CNRM")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hurs_ipcc.txt"), lm == 1, month == 3), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hurs_ipcc.txt"), lm == 1, month == 3), source = "FGOALS")) %>%
-    rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hurs_ipcc.txt"), lm == 1, month == 3), source = "GFDL-ESM4")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hurs_ipcc.txt"), lm == 1, month == 3), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hurs_ipcc.txt"), lm == 1, month == 3), source = "INM")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inm.cm5m.hurs_ipcc.txt"), lm == 1, month == 3), source = "INM-CM5")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/mpim.hurs_ipcc.txt"), lm == 1, month == 3), source = "MPI")) %>%
@@ -1902,7 +1892,7 @@ all_august <- mutate(filter(read.table("/bettik/crapartc/IPCC/cas.esm2m.hurs_ipc
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/cnrmm.hurs_ipcc.txt"), lm == 1, month == 8), source = "CNRM")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/ec.earth3m.hurs_ipcc.txt"), lm == 1, month == 8), source = "EC-Earth3")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/fgoalsm.hurs_ipcc.txt"), lm == 1, month == 8), source = "FGOALS")) %>%
-    rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hurs_ipcc.txt"), lm == 1, month == 8), source = "GFDL-ESM4")) %>%
+  rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/gfdl.esm4m.hurs_ipcc.txt"), lm == 1, month == 8), source = "GFDL-ESM4")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inmm.hurs_ipcc.txt"), lm == 1, month == 8), source = "INM")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/inm.cm5m.hurs_ipcc.txt"), lm == 1, month == 8), source = "INM-CM5")) %>%
   rbind(mutate(filter(read.table("/bettik/crapartc/IPCC/mpim.hurs_ipcc.txt"), lm == 1, month == 8), source = "MPI")) %>%
