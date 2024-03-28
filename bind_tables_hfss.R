@@ -220,6 +220,7 @@ cesm_monthly <- mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.hist.1850
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.ssp585.2030-2060.jun.hfss.txt"), model = "SSP585", period = "2030_2060", month = 6)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.ssp585.2070-2100.jun.hfss.txt"), model = "SSP585", period = "2070_2100", month = 6)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.hist.1850-1880.jul.hfss.txt"), model = "historical", period = "1850_1880", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.hist.1970-2000.jul.hfss.txt"), model = "historical", period = "1970_2000", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.hist.1985-2015.jul.hfss.txt"), model = "historical", period = "1985_2015", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.ssp245.2030-2060.jul.hfss.txt"), model = "SSP245", period = "2030_2060", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/hfss/cesm.ssp245.2070-2100.jul.hfss.txt"), model = "SSP245", period = "2070_2100", month = 7)) %>%
@@ -682,8 +683,6 @@ cnrmm_land <- merge(cnrm_monthly, land_mask.df, by = c("lon", "lat"))
 cnrmm_ipcc <- merge(cnrmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(cnrmm_ipcc, "/bettik/crapartc/IPCC/cnrmm.hfss_ipcc.txt")
-
-
 # EC-Earth3 ---- 
 
 ## Annual ---- 
@@ -952,8 +951,6 @@ fgoalsm_land <- merge(fgoals_monthly, land_mask.df, by = c("lon", "lat"))
 fgoalsm_ipcc <- merge(fgoalsm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(fgoalsm_ipcc, "/bettik/crapartc/IPCC/fgoalsm.hfss_ipcc.txt")
-
-
 # GFDL-ESM4 ----
 
 ## Annual ----
@@ -1087,8 +1084,6 @@ gfdl.esm4m_land <- merge(gfdl.esm4_monthly, land_mask.df, by = c("lon", "lat"))
 gfdl.esm4m_ipcc <- merge(gfdl.esm4m_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(gfdl.esm4m_ipcc, "/bettik/crapartc/IPCC/gfdl.esm4m.hfss_ipcc.txt")
-
-
 # INM-CM4-8 -------
 
 ## Annual
@@ -1356,8 +1351,6 @@ inm.cm5m_land <- merge(inm.cm5_monthly, land_mask.df, by = c("lon", "lat"))
 inm.cm5m_ipcc <- merge(inm.cm5m_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(inm.cm5m_ipcc, "/bettik/crapartc/IPCC/inm.cm5m.hfss_ipcc.txt")
-
-
 # MPI-ESM1-2-HR ---- 
 ## Annual ----
 mpi_annual <- mutate(read.table("/bettik/crapartc/Averages/hfss/mpi.hist.1850-1880.hfss.txt"), model = "historical", period = "1850_1880") %>%
@@ -1625,8 +1618,6 @@ mrim_land <- merge(mri_monthly, land_mask.df, by = c("lon", "lat"))
 mrim_ipcc <- merge(mrim_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(mrim_ipcc, "/bettik/crapartc/IPCC/mrim.hfss_ipcc.txt")
-
-
 # NorESM-2-MM ---- 
 
 ## Annual ---- 
@@ -1761,8 +1752,6 @@ noresmm_land <- merge(noresm_monthly, land_mask.df, by = c("lon", "lat"))
 noresmm_ipcc <- merge(noresmm_land, ipcc_regions.df, by = c("lon", "lat"))
 
 write.table(noresmm_ipcc, "/bettik/crapartc/IPCC/noresmm.hfss_ipcc.txt")
-
-
 # ALL hfss ANNUAL ----- 
 
 all_annual <- mutate(read.table("/bettik/crapartc/IPCC/cas.esm2.hfss_ipcc.txt"), source = "CAS-ESM2") %>%

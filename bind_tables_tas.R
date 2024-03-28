@@ -220,6 +220,7 @@ cesm_monthly <- mutate(read.table("/bettik/crapartc/Averages/tas/cesm.hist.1850-
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.ssp585.2030-2060.jun.tas.txt"), model = "SSP585", period = "2030_2060", month = 6)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.ssp585.2070-2100.jun.tas.txt"), model = "SSP585", period = "2070_2100", month = 6)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.hist.1850-1880.jul.tas.txt"), model = "historical", period = "1850_1880", month = 7)) %>%
+  rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.hist.1970-2000.jul.tas.txt"), model = "historical", period = "1970_2000", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.hist.1985-2015.jul.tas.txt"), model = "historical", period = "1985_2015", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.ssp245.2030-2060.jul.tas.txt"), model = "SSP245", period = "2030_2060", month = 7)) %>%
   rbind(mutate(read.table("/bettik/crapartc/Averages/tas/cesm.ssp245.2070-2100.jul.tas.txt"), model = "SSP245", period = "2070_2100", month = 7)) %>%
