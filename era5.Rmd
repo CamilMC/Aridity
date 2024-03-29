@@ -487,7 +487,7 @@ ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AIm))+
 https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
 
 
-## Rn is latent + sensible heat flux
+## Rn is latent + sensible heat flux. AI = average P / average PET
 
 ```{r aridity-index-Rn-G}
 #era5 <- read.table("era5.txt")
@@ -564,10 +564,12 @@ cowplot::plot_grid(plotlist = list(
 
 ```
 
+## ET0 is calculated monthly before summing for annual PET
 
-# Comparison hourly and monthly mean for ET
+### test on 1970 
 
-## test on 1970
+Check that calculating by month before summing, makes a difference compared to averaging the parameters for 30 years.
+
 
 ```{r load-raster-by-month-1970, eval = T}
 
@@ -578,7 +580,7 @@ windm <- data.frame(lon = NA, lat = NA, wind = NA, month = NA)
 mslhfm <- data.frame(lon = NA, lat = NA, mslhf = NA, month = NA)
 msshfm <- data.frame(lon = NA, lat = NA, msshf = NA, month = NA)
 
-for(i in 1:12){
+for(i in 1:12){ # the 12 first layers correspond to the year 1970
   
 mpr <- raster("ERA5/mean_rates.nc", varname = "mtpr", band = i) %>%
    aggregate(fact = 4, fun = mean) %>%
@@ -644,7 +646,7 @@ mon70 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, by = c(
 ```
 
 ```{r ET-by-month-1970}
-et0 <- mon70 %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
+et0 <- mon70 %>% filter(lm == 1) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
                         P = 101.3 * ((293-0.0065*z)/293)^(5.26),
                         ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
                         es = 0.61078*exp(17.27*(t2m-273.15)/((t2m-273.15)+237.3)),
@@ -731,7 +733,10 @@ ggplot(et0c) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.y))+
   theme_void()+
   theme(legend.position = "bottom")
 ```
-## ETO by month before averaging
+
+
+
+### PET by month for the 30 years of the reference period
 
 ```{r load-raster-by-month, eval = F}
 
@@ -847,7 +852,7 @@ mon1970_2000 <- read.table("ERA5/mon1970_2000.txt")
 
 et0_30y <- mon1970_2000 %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% 
                 summarise(mpr = mean(mpr, na.rm = T), t2m = mean(t2m, na.rm = T), tdew = mean(tdew, na.rm = T), 
-                          wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T), ssrd = mean(ssrd, na.rm = T)) %>%
+                          wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T)) %>%
                  mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
                         P = 101.3 * ((293-0.0065*z)/293)^(5.26),
                         ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
@@ -894,8 +899,51 @@ ggplot(et0_all) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.y))+
   theme(legend.position = "bottom")
 ```
 
+```{r ET-by-month-1970-2000, eval = F}
+mon1970_2000 <- read.table("ERA5/mon1970_2000.txt")
+
+era5_bymonth <- mon1970_2000 %>% mutate(month2 = NA)
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(1,361,12))] <- 1
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(2,362,12))] <- 2
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(3,363,12))] <- 3
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(4,364,12))] <- 4
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(5,365,12))] <- 5
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(6,366,12))] <- 6
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(7,367,12))] <- 7
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(8,368,12))] <- 8
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(9,369,12))] <- 9
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(10,370,12))] <- 10
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(11,371,12))] <- 11
+era5_bymonth$month2[which(era5_bymonth$month %in% seq(12,372,12))] <- 12
+
+
+era5_bymonth <- era5_bymonth %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z, month2) %>% 
+                 summarise(mpr = mean(mpr, na.rm = T), t2m = mean(t2m, na.rm = T), tdew = mean(tdew, na.rm = T), 
+                          wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T)) %>%
+                 mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
+                        P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                        ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
+                        es = 0.61078*exp(17.27*(t2m-273.15)/((t2m-273.15)+237.3)),
+                        delta = 4098*es/((t2m-273.15)+237.3)^2,
+                        gamma = 0.00163*P/(2.501-52.6361e-3*(t2m-273.15)),
+                        ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)))
+
+era5_AI <- era5_bymonth %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z, month)
+# find a way to sum the ETO and pr by month
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+era5_AI$cat.AI <- era5_AI$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+write.table(et0_30y, "ERA5/et0_30y.txt")
+```
+
 
 # Daily means
+
+## January 1985
 
 ```{r test-daily-mean, eval = F}
 
@@ -1028,7 +1076,8 @@ write.table(jan85_avg, "ERA5/jan85_avg.txt")
 ```
 
 ```{r compare-jan1985}
-
+jan85_ref <- read.table("ERA5/jan85_ref.txt")
+jan85_avg <- read.table("ERA5/jan85_avg.txt")
 colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 
 col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
@@ -1050,6 +1099,13 @@ ggplot(data = jan85_all, aes(x = ET0.x, y = ET0.y))+geom_point(aes(col = cat.AI.
   geom_abline(slope = 1, intercept = 0)+
   labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0_avg")+
   scale_color_manual(values = col.cat) + theme_minimal()
+
+ggplot(data = jan85_all, aes(x = ET0.x, y = ET0.y))+geom_point(aes(col = cat.AI.x))+
+     stat_poly_eq(label.x = "right", label.y = "bottom")+
+     annotate(x = 2, y = 8, geom = "label", label = paste("r = ", round(cor(jan85_all$ET0.x, jan85_all$ET0.y, use = "pairwise.complete"),4)))+
+     geom_abline(slope = 1, intercept = 0)+
+     labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0_avg", title = "ET0 for january 1985", col = "")+
+     scale_color_manual(values = col.cat) + theme_minimal()
 
 ggplot(data = jan85_all, aes(x = mpr.x, y = mpr.y))+geom_point(aes(col = cat.AI.x))+
   stat_poly_eq(label.x = "right", label.y = "bottom")+
@@ -1088,6 +1144,202 @@ ggplot()+geom_boxplot(data = subset(jan85_all, AI.x > 0), aes(x="AI.x", y = AI.x
   scale_y_continuous(trans = "log10")+
   theme_minimal()
 ```
+
+## March 2023
+
+```{r test-daily-mean-23, eval = F}
+
+mprm <- data.frame(lon = NA, lat = NA, mpr = NA, month = NA)
+t2mm <- data.frame(lon = NA, lat = NA, t2m = NA, month = NA)
+tdewm <- data.frame(lon = NA, lat = NA, tdew = NA, month = NA)
+uwindm <- data.frame(lon = NA, lat = NA, uwind = NA, month = NA)
+vwindm <- data.frame(lon = NA, lat = NA, vwind = NA, month = NA)
+mslhfm <- data.frame(lon = NA, lat = NA, mslhf = NA, month = NA)
+msshfm <- data.frame(lon = NA, lat = NA, msshf = NA, month = NA)
+
+for(i in 1:31){
+  
+mpr <- raster("ERA5/march2023/pr.nc", band = i) %>%
+  raster::rotate() %>% projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","mpr")) %>%
+  mutate(month = i)
+
+mprm <<- rbind(mprm, mpr)
+
+t2m <- raster("ERA5/march2023/t2m.nc", band = i) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","t2m")) %>%
+  mutate(month = i)
+
+t2mm <<- rbind(t2mm, t2m)
+
+tdew <- raster("ERA5/march2023/d2m.nc", band = i)  %>% 
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","tdew")) %>%
+  mutate(month = i)
+
+tdewm <- rbind(tdewm, tdew)
+
+uwind <- raster("ERA5/march2023/10m-u-wind.nc", band = i) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% 
+  setNames(c("lon","lat","uwind")) %>%
+  mutate(month = i)# m/s
+
+uwindm <<- rbind(uwindm, uwind) 
+
+vwind <- raster("ERA5/march2023/10m-v-wind.nc", band = i) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% 
+  setNames(c("lon","lat","vwind")) %>%
+  mutate(month = i)# m/s
+
+vwindm <<- rbind(vwindm, vwind) 
+
+mslhf <- raster("ERA5/march2023/mslhf.nc", band = i) %>%
+  raster::rotate() %>%
+  aggregate(fact = 4, fun = mean) %>% 
+  projectRaster(land_mask) %>% 
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","mslhf")) %>%
+  mutate(month = i)
+
+mslhfm <<- rbind(mslhfm, mslhf)
+
+msshf <- raster("ERA5/march2023/msshf.nc", band = i) %>%
+  raster::rotate() %>% 
+  aggregate(fact = 4, fun = mean) %>%
+  projectRaster(land_mask) %>%
+  as.data.frame(xy = T) %>% setNames(c("lon","lat","msshf"))  %>%
+  mutate(month = i)
+
+msshfm <<- rbind(msshfm, msshf)
+}
+
+
+mar2023 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, by = c("lon","lat","month"))  %>% merge(uwindm, by = c("lon","lat","month"))%>% merge(vwindm, by = c("lon","lat","month")) %>% 
+  merge(mslhfm, by = c("lon","lat","month")) %>% merge(msshfm, by = c("lon","lat","month")) %>% 
+  merge(land_mask.df, by = c("lon","lat")) %>%
+  merge(ipcc_regions.df, by = c("lon","lat")) %>%
+  merge(elev.df, by = c("lon","lat"))
+
+write.table(mar2023, "ERA5/march2023/mar2023.txt")
+```
+
+```{r mar2023-ref}
+mar2023 <- read.table("ERA5/march2023/mar2023.txt")
+mar23_day <- mar2023 %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
+                        wind = sqrt(uwind^2+vwind^2), #make wind from u and v components                                
+                        P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                        ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
+                        es = 0.61078*exp(17.27*(t2m-273.15)/((t2m-273.15)+237.3)),
+                        delta = 4098*es/((t2m-273.15)+237.3)^2,
+                        gamma = 0.00163*P/(2.501-52.6361e-3*(t2m-273.15)),
+                        ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)),
+                        AI = (mpr*60*60*24)/ET0)
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+mar23_day$cat.AI <- mar23_day$AI %>% cut(breaks = breaks.unesco) %>%  revalue(cat.unesco)
+
+mar23_ref <- mar23_day %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% summarise(AI = mean(AI, na.rm = T), ET0 = mean(ET0, na.rm = T), mpr = mean(mpr, na.rm = T))
+mar23_ref$cat.AI <- mar23_ref$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+
+write.table(mar23_ref, "ERA5/mar23_ref.txt")
+```
+
+```{r mar2023-avg}
+mar23_avg <- mar23_day %>% filter(lm != 0) %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% 
+                summarise(mpr = mean(mpr, na.rm = T), t2m = mean(t2m, na.rm = T), tdew = mean(tdew, na.rm = T), 
+                          wind = mean(wind, na.rm = T), msshf = mean(msshf, na.rm = T), mslhf = mean(mslhf, na.rm = T)) %>%
+                 mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
+                        P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                        ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
+                        es = 0.61078*exp(17.27*(t2m-273.15)/((t2m-273.15)+237.3)),
+                        delta = 4098*es/((t2m-273.15)+237.3)^2,
+                        gamma = 0.00163*P/(2.501-52.6361e-3*(t2m-273.15)),
+                        ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)),
+                        AI = (mpr*60*60*24)/ET0) 
+
+breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+mar23_avg$cat.AI <- mar23_avg$AI %>% cut(breaks = breaks.unesco) %>%  revalue(cat.unesco)
+
+write.table(mar23_avg, "ERA5/march2023/mar23_avg.txt")
+```
+
+```{r compare-mar2023}
+
+colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+
+mar23_all <- merge(mar23_ref, select(mar23_avg, names(mar23_ref)), by = c("lon","lat","lm","Continent","Type","Name","Acronym","z"))
+
+ggplot(mar23_all) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI.x))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(mar23_all) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI.y))+
+  scale_fill_manual(values = col.cat)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(data = mar23_all, aes(x = ET0.x, y = ET0.y))+geom_point(aes(col = cat.AI.x))+
+     stat_poly_eq(label.x = "right", label.y = "bottom")+
+     annotate(x = 2, y = 8, geom = "label", label = paste("r = ", round(cor(mar23_all$ET0.x, mar23_all$ET0.y, use = "pairwise.complete"),3)))+
+     geom_abline(slope = 1, intercept = 0)+
+     labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0_avg", title = "ET0 for march 2023", col = "")+
+     scale_color_manual(values = col.cat) + theme_minimal()
+
+ggplot(data = mar23_all, aes(x = mpr.x, y = mpr.y))+geom_point(aes(col = cat.AI.x))+
+  stat_poly_eq(label.x = "right", label.y = "bottom")+
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x = "pr as mean(pr_i)", y = "PR as pr_avg")+
+  scale_color_manual(values = col.cat) + theme_minimal()
+
+ggplot(mar23_all, aes(x = AI.x, y = AI.y))+geom_point(aes(col = cat.AI.x))+
+  geom_abline(slope = 1, intercept = 0)+
+  stat_poly_eq()+
+  labs(x = "AI as mean(P/ET0)", y = "AI as mean(P)/mean(ET)")+
+  lims(x = c(-1, 5), y = c(-1,5))+
+  scale_color_manual(values = col.cat) + theme_minimal()
+
+
+
+ggplot(subset(mar23_all, lm ==1)) + geom_tile(aes(x=lon, y = lat,  fill = ET0.y - ET0.x))+
+  scale_fill_continuous_divergingx(palette = "RdYlBu", mid = 0, rev = T, name = "Diff ET0_avg - ET0_ref")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot(subset(mar23_all, lat < 50 & lat > -50), aes(x = AI.x, y = AI.y))+geom_point(aes(col = lat), alpha = 0.5, shape = 1)+
+  geom_abline(slope = 1, intercept = 0)+
+  stat_poly_eq()+
+  scale_color_continuous_divergingx(palette = "RdYlBu", mid = 0, rev = T, name = "latitude")+
+  labs(x = "AI as mean(P/ET0)", y = "AI as mean(P)/mean(ET)")+ theme_minimal()
+
+ggplot(mar23_all) + geom_boxplot(aes(x = "AI as mean(P/ET)", y = AI.x)) + geom_boxplot(aes(x = "AI as mean(P)/mean(ET)", y = AI.y))
+
+ggplot(mar23_all) + geom_boxplot(aes(x = "AI as mean(P/ET)", y = AI.x)) + geom_boxplot(aes(x = "AI as mean(P)/mean(ET)", y = AI.y)) + ylim(-2.5e4, 5e4)
+
+ggplot()+geom_boxplot(data = subset(mar23_all, AI.x > 0), aes(x="AI.x", y = AI.x))+
+  geom_boxplot(data = subset(mar23_all, AI.x < 0), aes(x="AI.x", y = abs(AI.x)))+
+  geom_boxplot(data = subset(mar23_all, AI.y > 0), aes(x="AI.y", y = AI.y))+
+  geom_boxplot(data = subset(mar23_all, AI.y < 0), aes(x="AI.y", y = abs(AI.y)))+
+  scale_y_continuous(trans = "log10")+
+  theme_minimal()
+```
+
 
 ```{r exit}
 knitr::knit_exit()

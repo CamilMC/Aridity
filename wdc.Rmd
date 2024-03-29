@@ -131,7 +131,7 @@ wdc <- wdct %>%
   merge(land_mask.df, by = c("lon", "lat")) %>%
   merge(ipcc_regions.df, by = c("lon", "lat")) %>% 
   merge(elev.df, by = c("lon","lat")) %>%
-  filter(lm == 1)
+  filter(lm != 0)
 
 wdc$tmin <- apply(select(wdc,c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, FUN = mean, na.rm = T)
 
@@ -153,11 +153,11 @@ wdc <- read.table("wdc.txt")
 ```
 
 ```{r colors}
-#display.brewer.pal(n = 11, name ="RdYlBu")
-colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+display.brewer.pal(n = 11, name ="RdYlGn")
+colorvec <- brewer.pal(n = 11, name ="RdYlGn")
 
 col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = colorvec[11])
 ```
 
 ## De Martonne Aridity Index
@@ -171,57 +171,17 @@ cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid",
 
 wdc$cat.AIm <- wdc$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 
-ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AIm))+
+ggplot() + geom_raster(data = filter(wdc, lm == 1), aes(x=lon, y = lat,  fill = cat.AIm))+
+  geom_raster(data = filter(wdc, lm != 1), aes(x=lon, y = lat), fill = "lightblue")+
   scale_fill_manual(values = col.martonne)+
+  ylim(-55,90)+
   theme_void()+
   theme(legend.position = "bottom")
 ```
 
 ## FAO Aridity index
-
-
-### ea calculated from srad
-
-```{r aridity-index}
-wdc$Rn <- with(wdc, srad * 1e-3)  # conversion from kJ/m2/day to MJ/m2/day
-wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
-
-wdc$ea <- with(wdc, vapr)
-
-wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
-
-
-wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
-
-wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
-
-                      
-wdc$ET0 <-with(wdc,               
-                ((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
-# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
-
-wdc$AI <- with(wdc, pr/(ET0*365))
-
-breaks.unesco <- c(-0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
-
-wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
-  revalue(cat.unesco)
-
-
-
-ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
-  scale_fill_manual(values = col.cat)+
-  theme_void()+
-  theme(legend.position = "bottom")
-```
-
-### ET0 calculated from real Rn
-
 ```{r aridity-index-vapr}
 
-
-wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
 
 #wdc$ea <- with(wdc, 0.61078*exp(17.27*(tmin)/((tmin)+237.3))) # Tetens 1930
 
@@ -229,7 +189,8 @@ wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
 
 
 
-wdc <- wdc %>% mutate(psi = pi/180*lat, # latitude in radian
+wdc <- wdc %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                    psi = pi/180*lat, # latitude in radian
                     es_01 = 0.61078*exp(17.27*(tas_01)/((tas_01)+237.3)),
                     es_02 = 0.61078*exp(17.27*(tas_02)/((tas_02)+237.3)),
                     es_03 = 0.61078*exp(17.27*(tas_03)/((tas_03)+237.3)),
@@ -445,44 +406,98 @@ wdc$mean.delta <- rowMeans(select(wdc,c("delta_01", "delta_02", "delta_03", "del
 wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
 wdc$mean.gamma <- rowMeans(select(wdc,c("gamma_01", "gamma_02", "gamma_03", "gamma_04", "gamma_05", "gamma_06", "gamma_07", "gamma_08", "gamma_09", "gamma_10", "gamma_11", "gamma_12")), na.rm = T) # the higher gamma, the higher the variability
 
-wdc$mET0 <-with(wdc,((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
-wdc$mAI <- with(wdc, pr/(mET0*365))
+wdc$mET0 <-with(wdc,((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-mean.vapr))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+wdc$mAI <- with(wdc, pr/(mET0*365)) # AI = mean(P/PET) over 30 years
 
-wdc$ET0 <- rowSums(select(wdc,c("ET0_01", "ET0_02", "ET0_03", "ET0_04", "ET0_05", "ET0_06", "ET0_07", "ET0_08", "ET0_09", "ET0_10", "ET0_11", "ET0_12")), na.rm = T)
+wdc$ET0 <- rowSums(select(wdc,c("ET0_01", "ET0_02", "ET0_03", "ET0_04", "ET0_05", "ET0_06", "ET0_07", "ET0_08", "ET0_09", "ET0_10", "ET0_11", "ET0_12")), na.rm = T) 
 
-wdc$AI <-with(wdc, pr/ET0)
+wdc$AI <-with(wdc, pr/ET0) # AI = mean annual P / mean annual PET, as the sum of monthly PET
 
-wdc$AI2 <- rowMeans(select(wdc,c("AI_01", "AI_02", "AI_03", "AI_04", "AI_05", "AI_06", "AI_07", "AI_08", "AI_09", "AI_10", "AI_11", "AI_12")), na.rm = T)
+wdc$AI2 <- rowMeans(select(wdc,c("AI_01", "AI_02", "AI_03", "AI_04", "AI_05", "AI_06", "AI_07", "AI_08", "AI_09", "AI_10", "AI_11", "AI_12")), na.rm = T) # AI is the mean of the monthly AI. 
 
-breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
 
 wdc$cat.mAI <- wdc$mAI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
 wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+wdc$cat.AI[which(wdc$ET0 < 400)] <- "Cold"
 
 wdc$cat.AI2 <- wdc$AI2 %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
 write.table(wdc, "wdc_AI.txt")
+```
 
-ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = cat.mAI))+
-  scale_fill_manual(values = col.cat)+
+```{r plot-maps}
+#wdc <- read.table("wdc_AI.txt")
+
+ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = ET0))+
+  scale_fill_binned(type = "viridis", breaks = c(0, 400, 800, 1200, 1600))+
   theme_void()+
   theme(legend.position = "bottom")
 
-ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
+ggplot() + geom_raster(data = subset(wdc, lm == 1), aes(x=lon, y = lat,  fill = cat.AI))+
+  geom_raster(data = subset(wdc, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
   scale_fill_manual(values = col.cat)+
+  labs(fill = "")+
+  ylim(-55,90)+
   theme_void()+
   theme(legend.position = "bottom")
 
-ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = cat.AI2))+
+
+```
+
+
+
+
+
+
+```{r knit-exit}
+knitr::knit_exit()
+
+```
+
+### ea calculated from srad
+
+```{r aridity-index}
+wdc$Rn <- with(wdc, srad * 1e-3)  # conversion from kJ/m2/day to MJ/m2/day
+wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
+
+wdc$ea <- with(wdc, vapr)
+
+wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
+
+
+wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
+
+wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
+
+                      
+wdc$ET0 <-with(wdc,               
+                ((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
+
+wdc$AI <- with(wdc, pr/(ET0*365))
+
+breaks.unesco <- c(-0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+
+wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+
+
+ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
   theme_void()+
   theme(legend.position = "bottom")
 ```
+
+### ET0 calculated from real Rn
+
 
 ```{r study-plots}
 na2 <- subset(wdc, is.na(cat.AI2))

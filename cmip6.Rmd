@@ -29,6 +29,8 @@ library(RColorBrewer)
 library(sf)
 library(stringr)
 
+memory.limit(size = 160000)
+
 #display.brewer.pal(n = 11, name ="RdYlBu")
 colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 ```
@@ -52,36 +54,245 @@ ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lo
 
 ```{r cmip6-data, eval = F}
 tas.all_annual <- read.table("CMIP6/tas/tas.all_annual.txt")
-ts.all_annual <- read.table("CMIP6/ts/ts.all_annual.txt")
 pr.all_annual <- read.table("CMIP6/pr/pr.all_annual.txt")
-rsds.all_annual <- read.table("CMIP6/rsds/rsds.all_annual.txt") # units: W/m2
 sfcWind.all_annual <- read.table("CMIP6/sfcWind/sfcWind.all_annual.txt")
-ts_month <- read.table("CMIP6/ts/ts_month.txt")
-tas_month <- read.table("CMIP6/tas/tas_month.txt")
 hfls.all_annual <- read.table("CMIP6/hfls/hfls.all_annual.txt")
 hfss.all_annual <- read.table("CMIP6/hfss/hfss.all_annual.txt")
-tasmin.all_annual <- read.table("CMIP6/tasmin/tasmin.all_annual.txt")
-```
+hurs.all_annual <- read.table("CMIP6/hurs/hurs.all_annual.txt")
 
-```{r make-cmip6, eval = F}
-cmip6 <- tas.all_annual %>%
-  merge(tas_month, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(tasmin.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source"), all = T) %>%
-  merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(rsds.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm","Continent","Type","Name","Acronym","source"))%>%
+cmip6_annual <- tas.all_annual %>% merge(pr.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(hfls.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
   merge(hfss.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>%
-  merge(elev.df, by = c("lon","lat"))
+  merge(hurs.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6, "cmip6.txt")
+write.table(cmip6_annual, "cmip6_annual.txt")
 ```
+
+```{r cmip6-january}
+tas.all_january <- read.table("CMIP6/tas/tas.all_january.txt")
+pr.all_january <- read.table("CMIP6/pr/pr.all_january.txt")
+sfcWind.all_january <- read.table("CMIP6/sfcWind/sfcWind.all_january.txt")
+hfls.all_january <- read.table("CMIP6/hfls/hfls.all_january.txt")
+hfss.all_january <- read.table("CMIP6/hfss/hfss.all_january.txt")
+hurs.all_january <- read.table("CMIP6/hurs/hurs.all_january.txt")
+
+cmip6_january <- tas.all_january %>% merge(pr.all_january, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_january, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_january, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_january, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_january, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_january, "cmip6_january.txt")
+```
+
+```{r cmip6-february}
+tas.all_february <- read.table("CMIP6/tas/tas.all_february.txt")
+pr.all_february <- read.table("CMIP6/pr/pr.all_february.txt")
+sfcWind.all_february <- read.table("CMIP6/sfcWind/sfcWind.all_february.txt")
+hfls.all_february <- read.table("CMIP6/hfls/hfls.all_february.txt")
+hfss.all_february <- read.table("CMIP6/hfss/hfss.all_february.txt")
+hurs.all_february <- read.table("CMIP6/hurs/hurs.all_february.txt")
+
+cmip6_february <- tas.all_february %>% merge(pr.all_february, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_february, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_february, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_february, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_february, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_february, "cmip6_february.txt")
+```
+
+```{r cmip6-march}
+tas.all_march <- read.table("CMIP6/tas/tas.all_march.txt")
+pr.all_march <- read.table("CMIP6/pr/pr.all_march.txt")
+sfcWind.all_march <- read.table("CMIP6/sfcWind/sfcWind.all_march.txt")
+hfls.all_march <- read.table("CMIP6/hfls/hfls.all_march.txt")
+hfss.all_march <- read.table("CMIP6/hfss/hfss.all_march.txt")
+hurs.all_march <- read.table("CMIP6/hurs/hurs.all_march.txt")
+
+cmip6_march <- tas.all_march %>% merge(pr.all_march, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_march, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_march, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_march, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_march, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_march, "cmip6_march.txt")
+```
+
+```{r cmip6-april}
+tas.all_april <- read.table("CMIP6/tas/tas.all_april.txt")
+pr.all_april <- read.table("CMIP6/pr/pr.all_april.txt")
+sfcWind.all_april <- read.table("CMIP6/sfcWind/sfcWind.all_april.txt")
+hfls.all_april <- read.table("CMIP6/hfls/hfls.all_april.txt")
+hfss.all_april <- read.table("CMIP6/hfss/hfss.all_april.txt")
+hurs.all_april <- read.table("CMIP6/hurs/hurs.all_april.txt")
+
+cmip6_april <- tas.all_april %>% merge(pr.all_april, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_april, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_april, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_april, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_april, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_april, "cmip6_april.txt")
+```
+
+```{r cmip6-may}
+tas.all_may <- read.table("CMIP6/tas/tas.all_may.txt")
+pr.all_may <- read.table("CMIP6/pr/pr.all_may.txt")
+sfcWind.all_may <- read.table("CMIP6/sfcWind/sfcWind.all_may.txt")
+hfls.all_may <- read.table("CMIP6/hfls/hfls.all_may.txt")
+hfss.all_may <- read.table("CMIP6/hfss/hfss.all_may.txt")
+hurs.all_may <- read.table("CMIP6/hurs/hurs.all_may.txt")
+
+cmip6_may <- tas.all_may %>% merge(pr.all_may, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_may, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_may, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_may, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_may, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_may, "cmip6_may.txt")
+```
+
+```{r cmip6-june}
+tas.all_june <- read.table("CMIP6/tas/tas.all_june.txt")
+pr.all_june <- read.table("CMIP6/pr/pr.all_june.txt")
+sfcWind.all_june <- read.table("CMIP6/sfcWind/sfcWind.all_june.txt")
+hfls.all_june <- read.table("CMIP6/hfls/hfls.all_june.txt")
+hfss.all_june <- read.table("CMIP6/hfss/hfss.all_june.txt")
+hurs.all_june <- read.table("CMIP6/hurs/hurs.all_june.txt")
+
+cmip6_june <- tas.all_june %>% merge(pr.all_june, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_june, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_june, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_june, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_june, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_june, "cmip6_june.txt")
+```
+
+```{r cmip6-july}
+tas.all_july <- read.table("CMIP6/tas/tas.all_july.txt")
+pr.all_july <- read.table("CMIP6/pr/pr.all_july.txt")
+sfcWind.all_july <- read.table("CMIP6/sfcWind/sfcWind.all_july.txt")
+hfls.all_july <- read.table("CMIP6/hfls/hfls.all_july.txt")
+hfss.all_july <- read.table("CMIP6/hfss/hfss.all_july.txt")
+hurs.all_july <- read.table("CMIP6/hurs/hurs.all_july.txt")
+
+cmip6_july <- tas.all_july %>% merge(pr.all_july, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_july, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_july, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_july, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_july, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+ 
+write.table(cmip6_july, "cmip6_july.txt")
+```
+
+```{r cmip6-august}
+tas.all_august <- read.table("CMIP6/tas/tas.all_august.txt")
+pr.all_august <- read.table("CMIP6/pr/pr.all_august.txt")
+sfcWind.all_august <- read.table("CMIP6/sfcWind/sfcWind.all_august.txt")
+hfls.all_august <- read.table("CMIP6/hfls/hfls.all_august.txt")
+hfss.all_august <- read.table("CMIP6/hfss/hfss.all_august.txt")
+hurs.all_august <- read.table("CMIP6/hurs/hurs.all_august.txt")
+
+cmip6_august <- tas.all_august %>% merge(pr.all_august, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_august, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_august, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_august, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_august, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_august, "cmip6_august.txt")
+```
+
+```{r cmip6-september}
+tas.all_september <- read.table("CMIP6/tas/tas.all_september.txt")
+pr.all_september <- read.table("CMIP6/pr/pr.all_september.txt")
+sfcWind.all_september <- read.table("CMIP6/sfcWind/sfcWind.all_september.txt")
+hfls.all_september <- read.table("CMIP6/hfls/hfls.all_september.txt")
+hfss.all_september <- read.table("CMIP6/hfss/hfss.all_september.txt")
+hurs.all_september <- read.table("CMIP6/hurs/hurs.all_september.txt")
+
+cmip6_september <- tas.all_september %>% merge(pr.all_september, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_september, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_september, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_september, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_september, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_september, "cmip6_september.txt")
+```
+
+```{r cmip6-october}
+tas.all_october <- read.table("CMIP6/tas/tas.all_october.txt")
+pr.all_october <- read.table("CMIP6/pr/pr.all_october.txt")
+sfcWind.all_october <- read.table("CMIP6/sfcWind/sfcWind.all_october.txt")
+hfls.all_october <- read.table("CMIP6/hfls/hfls.all_october.txt")
+hfss.all_october <- read.table("CMIP6/hfss/hfss.all_october.txt")
+hurs.all_october <- read.table("CMIP6/hurs/hurs.all_october.txt")
+
+cmip6_october <- tas.all_october %>% merge(pr.all_october, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_october, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_october, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_october, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_october, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_october, "cmip6_october.txt")
+```
+
+```{r cmip6-november}
+tas.all_november <- read.table("CMIP6/tas/tas.all_november.txt")
+pr.all_november <- read.table("CMIP6/pr/pr.all_november.txt")
+sfcWind.all_november <- read.table("CMIP6/sfcWind/sfcWind.all_november.txt")
+hfls.all_november <- read.table("CMIP6/hfls/hfls.all_november.txt")
+hfss.all_november <- read.table("CMIP6/hfss/hfss.all_november.txt")
+hurs.all_november <- read.table("CMIP6/hurs/hurs.all_november.txt")
+
+cmip6_november <- tas.all_november %>% merge(pr.all_november, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_november, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_november, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_november, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_november, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_november, "cmip6_november.txt")
+```
+
+```{r cmip6-december}
+tas.all_december <- read.table("CMIP6/tas/tas.all_december.txt")
+pr.all_december <- read.table("CMIP6/pr/pr.all_december.txt")
+sfcWind.all_december <- read.table("CMIP6/sfcWind/sfcWind.all_december.txt")
+hfls.all_december <- read.table("CMIP6/hfls/hfls.all_december.txt")
+hfss.all_december <- read.table("CMIP6/hfss/hfss.all_december.txt")
+hurs.all_december <- read.table("CMIP6/hurs/hurs.all_december.txt")
+
+cmip6_december <- tas.all_december %>% merge(pr.all_december, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(sfcWind.all_december, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfls.all_december, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hfss.all_december, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>%
+  merge(hurs.all_december, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
+  merge(elev.df, by = c("lon", "lat"))
+
+write.table(cmip6_december, "cmip6_december.txt")
+```
+
+
 
 # Aridity Index
 
 ```{r data-and-colors}
 
-cmip6 <- read.table("cmip6.txt")
+cmip6 <- read.table("cmip6_annual.txt")
 
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
@@ -120,69 +331,187 @@ Refs
 https://www.nature.com/articles/s41598-023-40499-6 : Allen and Tetens
 
 
-### With rsds
+### ET0 by month
 
-```{r aridity-index-rsds}
-
-cmip6$Rn <- with(cmip6, rsds) * 86400 * 1e-6 # conversion from W/m2 to MJ/m2/day.
-
-cmip6$P <- with(cmip6, 101.3 * ((293-0.0065*z)/293)^(5.26))
-
-
-cmip6$ea <- with(cmip6, 0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3))) # Tetens 1930
-
-cmip6$es <- with(cmip6, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
-
-
-cmip6$delta <- with(cmip6, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
-cmip6$gamma <- with(cmip6, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
-
-cmip6$ET0 <-with(cmip6, ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
-
-cmip6$AI <- with(cmip6, pr*60*60*24*365/(ET0*365))
-
-
-
-cmip6$cat.AI <- cmip6$AI %>% cut(breaks = breaks.unesco) %>% 
-  revalue(cat.unesco)
-
-for(i in unique(cmip6$source)){
-g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-  scale_fill_manual(values = col.cat)+
-  labs(title = i)+
-  theme_void()+
-  theme(legend.position = "bottom")
-plot(g)
-}
-```
-
-## With heat fluxes
 
 ```{r aridity-index-unesco}
-cmip6$Rn <- with(cmip6, hfls + hfss) * 86400 * 1e-6 # conversion from W/m2 to MJ/m2/day.
+id_vars <- c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")
 
-cmip6$P <- with(cmip6, 101.3 * ((293-0.0065*z)/293)^(5.26))
+cmip6_annual <- mutate(read.table("cmip6_annual.txt"),
+                  t = tas - 273.15,
+                  Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                  P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                  es = 0.61078*exp(17.27*t/(t+237.3)),
+                  ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_annual = ((0.408*delta*Rn+gamma*900/((t)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) 
 
+cmip6_01 <- mutate(read.table("cmip6_january.txt"),
+                   t = tas - 273.15,
+                   pr_01 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_01 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
 
-cmip6$ea <- with(cmip6, ifelse(is.na(tasmin) == T, 
-                           0.61078*exp(17.27*(tas_min-273.15)/((tas_min-273.15)+237.3)),
-                           0.61078*exp(17.27*(tasmin-273.15)/((tasmin-273.15)+237.3)))) # Tetens 1930
+cmip6_02 <- mutate(read.table("cmip6_february.txt"),
+                   t = tas - 273.15,
+                   pr_02 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_02 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6$es <- with(cmip6, 0.61078*exp(17.27*(tas-273.15)/((tas-273.15)+237.3)))
+cmip6_03 <- mutate(read.table("cmip6_march.txt"),
+                   t = tas - 273.15,
+                   pr_03 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_03 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
+cmip6_04 <- mutate(read.table("cmip6_april.txt"),
+                   t = tas - 273.15,
+                   pr_04 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                  es = 0.61078*exp(17.27*t/(t+237.3)),
+                  ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_04 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6$delta <- with(cmip6, 4098*es/((tas-273.15)+237.3)^2) #slope vapor pressure
-cmip6$gamma <- with(cmip6, 0.00163*P/(2.501-52.6361e-3*(tas-273.15))) #psychrometric constant
+cmip6_05 <- mutate(read.table("cmip6_may.txt"),
+                   t = tas - 273.15,
+                   pr_05 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_05 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6$ET0 <-with(cmip6, ((0.408*delta*Rn+gamma*900/((tas-273.15)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
+cmip6_06 <- mutate(read.table("cmip6_june.txt"),
+                   t = tas - 273.15,
+                   pr_06 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_06 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6$AI <- with(cmip6, pr*60*60*24*365/(ET0*365))
+cmip6_07 <- mutate(read.table("cmip6_july.txt"),
+                   t = tas - 273.15,
+                   pr_07 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_07 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
+cmip6_08 <- mutate(read.table("cmip6_august.txt"),
+                   t = tas - 273.15,
+                   pr_08 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_08 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+
+cmip6_09 <- mutate(read.table("cmip6_september.txt"),
+                   t = tas - 273.15,
+                   pr_09 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_09 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+
+cmip6_10 <- mutate(read.table("cmip6_october.txt"),
+                   t = tas - 273.15,
+                   pr_10 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_10 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+
+cmip6_11 <- mutate(read.table("cmip6_november.txt"),
+                   t = tas - 273.15,
+                   pr_11 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_11 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+
+cmip6_12 <- mutate(read.table("cmip6_december.txt"),
+                   t = tas - 273.15,
+                   pr_12 = pr*60*60*24, # mm/day
+                   Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
+                   P = 101.3 * ((293-0.0065*z)/293)^(5.26),
+                   es = 0.61078*exp(17.27*t/(t+237.3)),
+                   ea = (hurs/100)*es,
+                  delta = 4098*es/(t+237.3)^2, #slope vapor pressure
+                  gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
+                  ET0_12 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
+
+et0_monthly <- select(cmip6_annual, id_vars) %>%
+  merge(select(cmip6_01, c(id_vars, "ET0_01", "pr_01")), by = id_vars) %>%
+  merge(select(cmip6_02, c(id_vars, "ET0_02", "pr_02")), by = id_vars) %>%
+  merge(select(cmip6_03, c(id_vars, "ET0_03", "pr_03")), by = id_vars) %>%
+  merge(select(cmip6_04, c(id_vars, "ET0_04", "pr_04")), by = id_vars) %>%
+  merge(select(cmip6_05, c(id_vars, "ET0_05", "pr_05")), by = id_vars) %>%
+  merge(select(cmip6_06, c(id_vars, "ET0_06", "pr_06")), by = id_vars) %>%
+  merge(select(cmip6_07, c(id_vars, "ET0_07", "pr_07")), by = id_vars) %>%
+  merge(select(cmip6_08, c(id_vars, "ET0_08", "pr_08")), by = id_vars) %>%
+  merge(select(cmip6_09, c(id_vars, "ET0_09", "pr_09")), by = id_vars) %>%
+  merge(select(cmip6_10, c(id_vars, "ET0_10", "pr_10")), by = id_vars) %>%   
+  merge(select(cmip6_11, c(id_vars, "ET0_11", "pr_11")), by = id_vars) %>%
+  merge(select(cmip6_12, c(id_vars, "ET0_12", "pr_12")), by = id_vars)
+
+et0_monthly$spr <- with(et0_monthly, pr_01*31 + pr_02 * 28 + pr_03 * 31 + pr_04 * 30 + pr_05 * 31 + pr_06 * 30 +
+                           pr_07 * 31 + pr_08 * 31 + pr_09 * 30 + pr_10 * 31 + pr_11 * 30 + pr_12 * 31)
+et0_monthly$sET0 <- with(et0_monthly, ET0_01*31 + ET0_02 * 28 + ET0_03 * 31 + ET0_04 * 30 + ET0_05 * 31 + ET0_06 * 30 +
+                           ET0_07 * 31 + ET0_08 * 31 + ET0_09 * 30 + ET0_10 * 31 + ET0_11 * 30 + ET0_12 * 31)
+
+cmip6 <- merge(cmip6_annual, et0_monthly, by = id_vars)
+cmip6$AI <- with(cmip6, abs(spr/sET0))  
+cmip6$AI_annual <- with(cmip6, abs((pr*60*60*24*365)/(ET0_annual*365)))
+
+breaks.unesco <- c(-Inf,-0.03,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(-Inf,-0.03]"= "Hyperarid","(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
 
 cmip6$cat.AI <- cmip6$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
+
+cmip6$cat.AI_annual <- cmip6$AI_annual %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+
+View(subset(select(cmip6, c("lon","lat","sET0","AI","cat.AI","ET0_annual","ET0_annual","cat.AI_annual")), cat.AI_annual == "Hyperarid"))
 
 for(i in unique(cmip6$source)){
 g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
@@ -193,5 +522,196 @@ g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_ra
 print(g)
 }
 
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = i)+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+
+cmip6 <- read.table("cmip6_AI.txt")
 write.table(cmip6, "cmip6_AI.txt")
 ```
+
+
+# Maps ETO monthly 
+
+```{r maps-hist-1850-1880}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1850_1880" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "1850-1880", sep = ", "))+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-hist-1985-2015}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1985_2015" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "1985-2015", sep = ", "))+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+```{r maps-ssp245-2030-2060}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2030_2060" & model == "SSP245" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 2-4.5, 2030-2060", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp245-2070-2100}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2070_2100" & model == "SSP245" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 2-4.5, 2070-2100", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp370-2030-2060}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2030_2060" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 3-7.0, 2030-2060", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp370-2070-2100}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2070_2100" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 3-7.0, 2070-2100", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp585-2030-2060}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2030_2060" & model == "SSP585" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 5-8.5, 2030-2060", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp585-2070-2100}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2070_2100" & model == "SSP585" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 5-8.5, 2070-2100", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+# Maps ETO annual
+
+```{r maps-hist-1850-1880-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1850_1880" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "1850-1880", sep = ", "))+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-hist-1985-2015-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "1985_2015" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "1985-2015", sep = ", "))+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+```{r maps-ssp245-2030-2060-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2030_2060" & model == "SSP245" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 2-4.5, 2030-2060", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp245-2070-2100-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2070_2100" & model == "SSP245" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 2-4.5, 2070-2100", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp370-2030-2060-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2030_2060" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 3-7.0, 2030-2060", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp370-2070-2100-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2070_2100" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 3-7.0, 2070-2100", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp585-2030-2060-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2030_2060" & model == "SSP585" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 5-8.5, 2030-2060", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+```{r maps-ssp585-2070-2100-annual}
+for(i in unique(cmip6$source)){
+g <- ggplot(data = subset(cmip6, period == "2070_2100" & model == "SSP585" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+  scale_fill_manual(values = col.cat)+
+  labs(title = paste(i, "SSP 5-8.5, 2070-2100", sep = ", "), fill = "")+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+```
+
+
