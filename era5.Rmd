@@ -31,8 +31,8 @@ library(RColorBrewer)
 library(sf)
 library(stringr)
 
-#display.brewer.pal(n = 11, name ="RdYlBu")
-colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+#display.brewer.pal(n = 11, name ="RdYlGn")
+colorvec <- brewer.pal(n = 11, name ="RdYlGn")
 ```
 
 Notes on ERA5
@@ -926,18 +926,56 @@ era5_bymonth <- era5_bymonth %>% filter(lm != 0) %>% group_by(lon,lat,lm, Contin
                         es = 0.61078*exp(17.27*(t2m-273.15)/((t2m-273.15)+237.3)),
                         delta = 4098*es/((t2m-273.15)+237.3)^2,
                         gamma = 0.00163*P/(2.501-52.6361e-3*(t2m-273.15)),
-                        ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)))
+                        ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind))*30, #mm/month
+                        pr = mpr*60*60*24*30)
 
-era5_AI <- era5_bymonth %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z, month)
+write.table(era5_bymonth, "ERA5/era5_bymonth.txt")
+
+era5_AI <- era5_bymonth %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% summarise(across(c(ET0, pr), sum), across(c(t2m,wind,ea,Rn), mean))
+era5_AI$AI <- with(era5_AI, pr/ET0)
 # find a way to sum the ETO and pr by month
 
-breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
 
-era5_AI$cat.AI <- era5_AI$AI %>% cut(breaks = breaks.unesco) %>% 
-  revalue(cat.unesco)
+era5_AI$cat.AI <- era5_AI$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+era5_AI$cat.AI[which(era5_AI$ET0 < 400)] <- "Cold"
+era5_AI$cat.AI %>% unique()
 
-write.table(et0_30y, "ERA5/et0_30y.txt")
+ggplot() + geom_raster(data = subset(era5_AI, lm == 1), aes(x=lon, y = lat,  fill = cat.AI))+
+  geom_raster(data = subset(era5_AI, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
+  scale_fill_manual(values = col.cat, na.translate = F)+
+  labs(fill = "")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = era5_AI, aes(x=lon, y = lat,  fill = cat.AI))+
+  scale_fill_manual(values = col.cat, na.translate = F)+
+  labs(fill = "")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(era5_AI, lm == 1), aes(x=lon, y = lat,  fill = ET0))+
+  geom_raster(data = subset(era5_AI, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
+  scale_fill_binned(type = "viridis", breaks = c(0,400,800,1200,1600))+
+  labs(fill = "")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "top")
+
+ggplot() + geom_raster(data = subset(era5_AI, lm == 1), aes(x=lon, y = lat,  fill = pr))+
+  geom_raster(data = subset(era5_AI, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
+  scale_fill_binned(type = "viridis", breaks = c(0,400,800,1200,1600))+
+  labs(fill = "")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+
+write.table(era5_AI, "ERA5/era5_AI.txt")
 ```
 
 
@@ -1477,7 +1515,7 @@ ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AI))+
   theme(legend.position = "bottom")
 
 ```
-
+,
 ## AI computed from potential evaporation in ERA5 
 
 ```{r aridity-index-mpevap}
