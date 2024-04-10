@@ -767,9 +767,9 @@ for(i in 1:nrow(cmip6s)){
   cmip6s$anomalies[i] <- AIi-AIref
   
   catAIi = cmip6s$cat.AI[i]
-  catAIref = cmip6s$cat.AI[i]
-  cmip6s$change.cat[i] <- ifelse(catAIi == catAIref, 0, 1)
-  cmip6s$cat.AI.ref <- catAIref
+  catAIrefi = subset(cmip6s, lat == lati & lon == loni & period =="1970_2000") %>% pull(cat.AI) 
+  cmip6s$change.cat[i] <- ifelse(catAIi == catAIrefi, 0, 1)
+  cmip6s$cat.AI.ref[i] <- catAIrefi
 }
 
 write.table(cmip6s, "cmip6s.txt")
@@ -779,8 +779,19 @@ write.table(cmip6s, "cmip6s.txt")
 cmip6s <- read.table("cmip6s.txt")
 
 
+ggplot(cmip6s)+geom_boxplot(aes(x=period, y = anomalies))
+ggplot(subset(cmip6s, anomalies < 1 & anomalies > -1))+geom_boxplot(aes(x=period, y = anomalies))
+
 for(i in unique(cmip6s$period)){
 g <- ggplot(data = subset(cmip6s, period == i)) + geom_tile(aes(x=lon, y = lat,  fill = anomalies))+
+  labs(title = paste("AI changes between",i, "and 1970-2000", sep = " "))+
+  theme_void()+
+  theme(legend.position = "bottom")
+print(g)
+}
+
+for(i in unique(cmip6s$period)){
+g <- ggplot(data = subset(cmip6s, period == i)) + geom_tile(aes(x=lon, y = lat,  fill = change.cat))+
   labs(title = paste("AI changes between",i, "and 1970-2000", sep = " "))+
   theme_void()+
   theme(legend.position = "bottom")

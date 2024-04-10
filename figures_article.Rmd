@@ -108,7 +108,7 @@ comp <- merge(select(era5vA, c("lon","lat","source","Continent","z","Rn","ET0","
 subset(comp, is.na(cat.AI.x) & !is.na(cat.AI.y)) %>% View()
 ```
 
-```{r plot-compare, fig.dim = c(12,9)}
+```{r plot-compare}
 
 calib <- rbind(cmip6vA, era5vA, wdcvA)
 
@@ -119,37 +119,55 @@ col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorve
 calib$cat.AI <- calib$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 calib$cat.AI[which(calib$ET0 < 400)] <- "Cold"
 
-ggarrange(ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+#ggarrange(
+  
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
     labs(title = "Wordclim, 1970-2000", fill = "")+
     ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "none"),
+    theme_void(base_size = 15)+
+    theme(legend.position = "none")
 
 ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
     labs(title = "ERA5, 1970-2000", fill = "")+
     ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "none"),
+    theme_void(base_size = 15)+
+    theme(legend.position = "none")
 
 ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
     labs(title = "CMIP6, 1970-2000", fill = "")+
     ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "none"),
+    theme_void(base_size = 15)+
+    theme(legend.position = "none")
 
 ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   geom_raster(aes(x = lon, y = lat), fill = "white")+
     scale_fill_manual(values = col.cat)+
     labs(title = "", fill = "")+
-    theme_void()+
+    theme_void(base_size = 15)+
     theme(legend.position = "left")
 
-)
+#)
 ```
+```{r compare-cat}
+calib$same.cat <- NA
+calib$cat.ref <- NA
 
+for(i in 1:nrow(calib)){
+  loni = calib$lon[i]
+  lati = calib$lat[i]
+  catrefi <- subset(calib, lon == loni & lat == lati & source == "CMIP6")$cat.AI %>% as.character()
+  catrefi <- ifelse(catrefi )
+  cati <- calib$cat.AI[i] %>% as.character()
+  calib$same.cat[i] <- ifelse(cati == catrefi, "y",
+                              ifelse(cat!= catrefi, "n", ifelse(is.na(catrefi) == logical(0), "n")))
+  calib$cat.ref[i] <- catrefi
+}
+
+write.table(calib, "calib.txt")
+```
 
 ```{r compare-by-region, eval = T}
 # table_calib_c <- calib %>% select(c("Continent","source","cat.AI")) %>%
@@ -187,7 +205,7 @@ table_calib$Continent <- factor(table_calib$Continent, levels = c("AFRICA","EURO
 ggplot(table_calib)+
   geom_col(aes(x = Acronym, y = perc, fill = value, position = "fill"))+
   scale_fill_manual(values = col.cat, breaks = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","NA"))+
-  theme_minimal()+
+  theme_minimal(base_size = 12)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         legend.position = "bottom", 
         strip.text.x = element_text(size = 6))+
@@ -198,13 +216,23 @@ ggplot(table_calib)+
   geom_col(aes(x = Acronym, y = count, fill = value, position = "fill"))+
   scale_fill_manual(values = col.cat, breaks = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","NA"))+
   scale_y_continuous(position = "right")+
-  theme_minimal()+
+  theme_minimal(base_size = 12)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         legend.position = "bottom", 
         strip.text.x = element_text(size = 6))+
   facet_grid(source ~ Continent, switch = "y", scales = "free_x", space = "free")+
   labs(x = "", y = "Count", fill = "Aridity\ncategory")
 
+```
+
+```{r pie-chart}
+ggplot(table_calib)+geom_bar(aes(x = "", y = count, fill = value), width = 1, stat = "identity")+
+  coord_polar("y", start = 0)+
+  scale_fill_manual(values = col.cat)+
+  facet_grid(cols = vars(source))+
+  geom_text(aes(x = "", label = perc), color = "white")+
+  labs(fill = "")+
+  theme_void()+theme(legend.position = "bottom")
 ```
 
 # Comparison of datasets 
@@ -362,6 +390,30 @@ ggplot(calib.wide,aes(x = ET0.wdc))+geom_point(aes(y = ET0.era5, col = "ERA5"), 
 
 ncol = 2
 )
+
+```
+
+### Aridity category difference
+
+```{r map-difference-cmip6-era5}
+calib.wide$same.cat.era5 <- with(calib.wide, ifelse(cat.AI.cmip6 == cat.AI.era5, "y","n"))
+calib.wide$change.cat.era5 <- with(calib.wide, paste(cat.AI.era5, cat.AI.cmip6, sep = " to "))
+table(calib.wide$change.cat.era5)
+
+ggplot(filter(calib.wide, same.cat == "n"))+geom_tile(aes(x = lon, y = lat, fill = cat.AI.cmip6, col = cat.AI.era5))+
+  scale_fill_manual(values = col.cat)+
+  scale_color_manual(values = col.cat)+
+  borders()+
+  ylim(-55,90)+
+  theme_void()
+
+ggplot(filter(calib.wide, same.cat == "n"))+geom_tile(aes(x = lon, y = lat, fill = change.cat.era5))+
+  scale_fill_discrete_diverging(palette = "Cork")+
+  borders()+
+  labs(fill = "Change of category between ERA5 and CMIP6")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "bottom")
 
 ```
 
