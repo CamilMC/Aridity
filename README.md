@@ -1,11 +1,8 @@
-# Main page
+# Aridity
 
-https://camilmc.github.io/Aridity/
 
-# Comparison between CMIP6, ERA5 and Worldclim for reference period
+1. [Comparison between CMIP6, ERA5 and Worldclim for reference period](https://camilmc.github.io/Aridity/figures_article.html)
 
-https://camilmc.github.io/Aridity/figures_article.html
+2. [Future CMIP6](https://camilmc.github.io/Aridity/cmip6.html)
 
-# Future CMIP6
-
-https://camilmc.github.io/Aridity/cmip6.html
+Share link: https://camilmc.github.io/Aridity/
