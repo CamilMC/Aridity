@@ -31,8 +31,8 @@ library(stringr)
 
 memory.limit(size = 160000)
 
-#display.brewer.pal(n = 11, name ="RdYlBu")
-colorvec <- brewer.pal(n = 11, name ="RdYlBu")
+#display.brewer.pal(n = 11, name ="RdYlBGn)
+colorvec <- brewer.pal(n = 11, name ="RdYlGn")
 ```
 
 # Data
@@ -70,7 +70,7 @@ cmip6_annual <- tas.all_annual %>% merge(pr.all_annual, by = c("lon","lat","mode
 write.table(cmip6_annual, "cmip6_annual.txt")
 ```
 
-```{r cmip6-january}
+```{r cmip6-january, eval = F}
 tas.all_january <- read.table("CMIP6/tas/tas.all_january.txt")
 pr.all_january <- read.table("CMIP6/pr/pr.all_january.txt")
 sfcWind.all_january <- read.table("CMIP6/sfcWind/sfcWind.all_january.txt")
@@ -88,7 +88,7 @@ cmip6_january <- tas.all_january %>% merge(pr.all_january, by = c("lon","lat","m
 write.table(cmip6_january, "cmip6_january.txt")
 ```
 
-```{r cmip6-february}
+```{r cmip6-february, eval = F}
 tas.all_february <- read.table("CMIP6/tas/tas.all_february.txt")
 pr.all_february <- read.table("CMIP6/pr/pr.all_february.txt")
 sfcWind.all_february <- read.table("CMIP6/sfcWind/sfcWind.all_february.txt")
@@ -106,7 +106,7 @@ cmip6_february <- tas.all_february %>% merge(pr.all_february, by = c("lon","lat"
 write.table(cmip6_february, "cmip6_february.txt")
 ```
 
-```{r cmip6-march}
+```{r cmip6-march, eval = F}
 tas.all_march <- read.table("CMIP6/tas/tas.all_march.txt")
 pr.all_march <- read.table("CMIP6/pr/pr.all_march.txt")
 sfcWind.all_march <- read.table("CMIP6/sfcWind/sfcWind.all_march.txt")
@@ -124,7 +124,7 @@ cmip6_march <- tas.all_march %>% merge(pr.all_march, by = c("lon","lat","model",
 write.table(cmip6_march, "cmip6_march.txt")
 ```
 
-```{r cmip6-april}
+```{r cmip6-april, eval = F}
 tas.all_april <- read.table("CMIP6/tas/tas.all_april.txt")
 pr.all_april <- read.table("CMIP6/pr/pr.all_april.txt")
 sfcWind.all_april <- read.table("CMIP6/sfcWind/sfcWind.all_april.txt")
@@ -142,7 +142,7 @@ cmip6_april <- tas.all_april %>% merge(pr.all_april, by = c("lon","lat","model",
 write.table(cmip6_april, "cmip6_april.txt")
 ```
 
-```{r cmip6-may}
+```{r cmip6-may, eval = F}
 tas.all_may <- read.table("CMIP6/tas/tas.all_may.txt")
 pr.all_may <- read.table("CMIP6/pr/pr.all_may.txt")
 sfcWind.all_may <- read.table("CMIP6/sfcWind/sfcWind.all_may.txt")
@@ -160,7 +160,7 @@ cmip6_may <- tas.all_may %>% merge(pr.all_may, by = c("lon","lat","model","perio
 write.table(cmip6_may, "cmip6_may.txt")
 ```
 
-```{r cmip6-june}
+```{r cmip6-june, eval = F}
 tas.all_june <- read.table("CMIP6/tas/tas.all_june.txt")
 pr.all_june <- read.table("CMIP6/pr/pr.all_june.txt")
 sfcWind.all_june <- read.table("CMIP6/sfcWind/sfcWind.all_june.txt")
@@ -178,7 +178,7 @@ cmip6_june <- tas.all_june %>% merge(pr.all_june, by = c("lon","lat","model","pe
 write.table(cmip6_june, "cmip6_june.txt")
 ```
 
-```{r cmip6-july}
+```{r cmip6-july, eval = F}
 tas.all_july <- read.table("CMIP6/tas/tas.all_july.txt")
 pr.all_july <- read.table("CMIP6/pr/pr.all_july.txt")
 sfcWind.all_july <- read.table("CMIP6/sfcWind/sfcWind.all_july.txt")
@@ -196,7 +196,7 @@ cmip6_july <- tas.all_july %>% merge(pr.all_july, by = c("lon","lat","model","pe
 write.table(cmip6_july, "cmip6_july.txt")
 ```
 
-```{r cmip6-august}
+```{r cmip6-august, eval = F}
 tas.all_august <- read.table("CMIP6/tas/tas.all_august.txt")
 pr.all_august <- read.table("CMIP6/pr/pr.all_august.txt")
 sfcWind.all_august <- read.table("CMIP6/sfcWind/sfcWind.all_august.txt")
@@ -214,7 +214,7 @@ cmip6_august <- tas.all_august %>% merge(pr.all_august, by = c("lon","lat","mode
 write.table(cmip6_august, "cmip6_august.txt")
 ```
 
-```{r cmip6-september}
+```{r cmip6-september, eval = F}
 tas.all_september <- read.table("CMIP6/tas/tas.all_september.txt")
 pr.all_september <- read.table("CMIP6/pr/pr.all_september.txt")
 sfcWind.all_september <- read.table("CMIP6/sfcWind/sfcWind.all_september.txt")
@@ -232,7 +232,7 @@ cmip6_september <- tas.all_september %>% merge(pr.all_september, by = c("lon","l
 write.table(cmip6_september, "cmip6_september.txt")
 ```
 
-```{r cmip6-october}
+```{r cmip6-october, eval = F}
 tas.all_october <- read.table("CMIP6/tas/tas.all_october.txt")
 pr.all_october <- read.table("CMIP6/pr/pr.all_october.txt")
 sfcWind.all_october <- read.table("CMIP6/sfcWind/sfcWind.all_october.txt")
@@ -250,7 +250,7 @@ cmip6_october <- tas.all_october %>% merge(pr.all_october, by = c("lon","lat","m
 write.table(cmip6_october, "cmip6_october.txt")
 ```
 
-```{r cmip6-november}
+```{r cmip6-november, eval = F}
 tas.all_november <- read.table("CMIP6/tas/tas.all_november.txt")
 pr.all_november <- read.table("CMIP6/pr/pr.all_november.txt")
 sfcWind.all_november <- read.table("CMIP6/sfcWind/sfcWind.all_november.txt")
@@ -268,7 +268,7 @@ cmip6_november <- tas.all_november %>% merge(pr.all_november, by = c("lon","lat"
 write.table(cmip6_november, "cmip6_november.txt")
 ```
 
-```{r cmip6-december}
+```{r cmip6-december, eval = F}
 tas.all_december <- read.table("CMIP6/tas/tas.all_december.txt")
 pr.all_december <- read.table("CMIP6/pr/pr.all_december.txt")
 sfcWind.all_december <- read.table("CMIP6/sfcWind/sfcWind.all_december.txt")
@@ -334,7 +334,7 @@ https://www.nature.com/articles/s41598-023-40499-6 : Allen and Tetens
 ### ET0 by month
 
 
-```{r aridity-index-unesco}
+```{r aridity-index-unesco, eval = F}
 id_vars <- c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")
 
 cmip6_annual <- mutate(read.table("cmip6_annual.txt"),
@@ -539,7 +539,10 @@ print(g)
 write.table(cmip6, "cmip6_AI.txt")
 ```
 
-```{r summarises-ref}
+```{r summarises-ref, eval = F}
+
+cmip6 <- read.table("cmip6_AI.txt")
+
 cmip6_AI <- cmip6 %>% subset(period == "1970_2000") %>%
    group_by(lon,lat,Continent, Type, Name, Acronym, lm, model, z) %>% 
    dplyr::summarise(tas = mean(tas, na.rm = T) - 273.15, pr = mean(pr, na.rm = T) * 60 * 60 * 24 * 365,
@@ -550,14 +553,19 @@ cmip6_AI <- cmip6 %>% subset(period == "1970_2000") %>%
    select(c("lon","lat","Continent","Type","Name","Acronym","lm","model","source","pr","tas","sfcWind","Rn", "ea","z","ET0","AI"))
 
 
-boxplot(cmip6_AI$ea)
+write.table(cmip6_AI, "cmip6ref.txt")
 ```
 
-# Maps ETO monthly 
+# Maps ETO by model 
+
+```{r read-data}
+cmip6 <- read.table("cmip6_AI.txt")
+
+```
 
 ```{r maps-hist-1850-1880}
 for(i in unique(cmip6$source)){
-g <- ggplot(data = subset(cmip6, period == "1850_1880" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+g <- ggplot(data = subset(cmip6, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
   labs(title = paste(i, "1850-1880", sep = ", "))+
   theme_void()+
@@ -642,11 +650,134 @@ print(g)
 }
 ```
 
+# Anomalies
+
+```{r summary-periods, eval = F}
+cmip6s <- read.table("cmip6_AI.txt") %>% group_by(lon,lat,Continent, Type, Name, Acronym, lm, model, z, period) %>% 
+   dplyr::summarise(t = mean(t, na.rm = T), tas.sd = sd(t, na.rm = T), # t in °C
+                    pr = mean(spr, na.rm = T) , pr.sd = sd(spr, na.rm = T),  # pr in mm/y
+                   sfcWind = mean(sfcWind, na.rm = T), sfcWind.sd = sd(sfcWind, na.rm = T),
+                   Rn = mean(Rn, na.rm = T), Rn.sd = sd(Rn, na.rm = T), # in MJ/m2/day
+                   ea = mean(ea, na.rm = T), ea.sd = sd(ea, na.rm = T), # in kPa
+                   ET0 = mean(sET0, na.rm = T), ET0.sd = sd(sET0, na.rm = T), # in mm/y
+                   AI = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T))
+
+cmip6s$AI2 <- with(cmip6s, pr/ET0)
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+
+cmip6s$cat.AI <- cmip6s$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6s$cat.AI[which(cmip6s$ET0 < 400)] <- "Cold"
+
+cmip6s <- read.table("cmip6s.txt")
+cmip6s$anomalies <- NA
+cmip6s$change.cat <- NA
+cmip6s$cat.AI.ref <- NA
+cmip6s$change <- NA
+
+for(i in 1:nrow(cmip6s)){
+  AIi = cmip6s$AI[i]
+  lati = cmip6s$lat[i]
+  loni = cmip6s$lon[i]
+  AIref = subset(cmip6s, lat == lati & lon == loni & period =="1970_2000") %>% pull(AI) 
+  cmip6s$anomalies[i] <- AIi-AIref
+  
+  catAIi = cmip6s$cat.AI[i]
+  catAIrefi = subset(cmip6s, lat == lati & lon == loni & period =="1970_2000") %>% pull(cat.AI) 
+  cmip6s$change.cat[i] <- ifelse(catAIi == catAIrefi, 0, 1)
+  cmip6s$cat.AI.ref[i] <- catAIrefi
+  cmip6s$change[i] <- paste(catAIrefi, catAIi, collapse = " ", sep = " to ")
+}
+
+write.table(cmip6s, "cmip6s.txt")
+```
+
+```{r read-summary-cmip6}
+cmip6s <- read.table("cmip6s.txt")
+
+cmip6s$dryer <- with(cmip6s, ifelse(change == "Arid to Humid", "no",
+                                ifelse(change == "Arid to Semi-arid", "no",
+                                ifelse(change == " Arid to Dry subhumid", "no", 
+                                ifelse(change == "Arid to Hyperarid", "yes",
+                                ifelse(change == "Arid to Cold", "no",       
+                                ifelse(change == "Cold to Humid", "no",
+                                ifelse(change == "Cold to Hyperarid", "yes",
+                                ifelse(change == "Dry subhumid to Cold", "no",
+                                ifelse(change == "Dry subhumid to Humid", "no",
+                                ifelse(change == "Dry subhumid to Arid", "yes",
+                                ifelse(change == "Dry subhumid to Semi-arid", "yes",
+                                ifelse(change == "Humid to arid", "yes",
+                                ifelse(change == "Humid to Semi-arid", "yes",
+                                ifelse(change == "Humid to Cold","no",
+                                ifelse(change == "Humid to Dry subhumid","yes",
+                                ifelse(change == "Semi-arid to Dry subhumid", "no",
+                                ifelse(change == "Semi-arid to Arid", "yes",
+                                ifelse(change == "Semi-arid to Humid", "no",
+                                ifelse(change == "Semi-arid to Cold", "no",
+                                ifelse(change == "Hyperarid to Arid", "no",
+                                ifelse(change == "Hyperarid to Semi-arid", "no",
+                                ifelse(change == "Hyperarid to Dry subhumid", "no",
+                                ifelse(change == "Hyperarid to Humid", "no",
+                                NA))))))))))))))))))))))))
+
+```
+
+## Difference between future and reference AI
+
+
+```{r boxplot-diff}
+
+ggplot(subset(cmip6s, anomalies < 1 & anomalies > -1))+geom_boxplot(aes(x=period, y = anomalies))
+
+# for(i in unique(cmip6s$period)){
+# g <- ggplot(data = subset(cmip6s, period == i)) + geom_raster(aes(x=lon, y = lat,  fill = anomalies))+
+#   labs(title = paste("AI changes between",i, "and 1970-2000", sep = " "))+
+#   theme_void()+
+#   theme(legend.position = "bottom")
+# print(g)
+# }
+
+```
+
+```{r map-historical-changes}
+for(i in c("1850_1880","1985_2015")){
+g <- ggplot(data = subset(cmip6s, period == i & model == "historical" & change.cat == 1)) + geom_raster(aes(x=lon, y = lat,  fill = dryer))+
+  borders()+
+  scale_fill_manual(values =  c(colorvec[7], colorvec[4]), na.translate = F)+
+  labs(title = paste("Is",i, "dryer than 1970-2000", sep = " "))+
+  theme_void()+ylim(-55,90)+
+  theme(legend.position = "bottom")
+print(g)
+}
+
+```
+
+```{r map-future-changes}
+
+for(i in c("2030_2060","2070_2100")){
+  for (j in c("SSP245","SSP370","SSP585")){
+g <- ggplot(data = subset(cmip6s, period == i & model == j)) + geom_raster(aes(x=lon, y = lat,  fill = dryer))+
+  borders()+
+  scale_fill_manual(values =c(colorvec[7], colorvec[4]), na.translate = F)+
+  labs(title = paste("AI changes between",i, "and 1970-2000,", j, sep = " "))+
+  theme_void()+ylim(-55,90)+
+  theme(legend.position = "bottom")
+print(g)
+  }
+}
+
+```
+
+```{r exit}
+knitr::knit_exit()
+```
+
 # Maps ETO annual
 
 ```{r maps-hist-1850-1880-annual}
 for(i in unique(cmip6$source)){
-g <- ggplot(data = subset(cmip6, period == "1850_1880" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI_annual))+
+g <- ggplot(data = subset(cmip6, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI_annual))+
   scale_fill_manual(values = col.cat)+
   labs(title = paste(i, "1850-1880", sep = ", "))+
   theme_void()+
@@ -734,68 +865,3 @@ print(g)
 
 
 
-# Anomalies
-
-```{r summary-periods, eval = F}
-cmip6s <- read.table("cmip6_AI.txt") %>% group_by(lon,lat,Continent, Type, Name, Acronym, lm, model, z, period) %>% 
-   dplyr::summarise(t = mean(t, na.rm = T), tas.sd = sd(t, na.rm = T), # t in °C
-                    pr = mean(spr, na.rm = T) , pr.sd = sd(spr, na.rm = T),  # pr in mm/y
-                   sfcWind = mean(sfcWind, na.rm = T), sfcWind.sd = sd(sfcWind, na.rm = T),
-                   Rn = mean(Rn, na.rm = T), Rn.sd = sd(Rn, na.rm = T), # in MJ/m2/day
-                   ea = mean(ea, na.rm = T), ea.sd = sd(ea, na.rm = T), # in kPa
-                   ET0 = mean(sET0, na.rm = T), ET0.sd = sd(sET0, na.rm = T), # in mm/y
-                   AI = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T))
-
-cmip6s$AI2 <- with(cmip6s, pr/ET0)
-breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
-
-cmip6s$cat.AI <- cmip6s$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6s$cat.AI[which(cmip6s$ET0 < 400)] <- "Cold"
-
-
-cmip6s$anomalies <- NA
-cmip6s$change.cat <- NA
-cmip6s$cat.AI.ref <- NA
-
-for(i in 1:nrow(cmip6s)){
-  AIi = cmip6s$AI[i]
-  lati = cmip6s$lat[i]
-  loni = cmip6s$lon[i]
-  AIref = subset(cmip6s, lat == lati & lon == loni & period =="1970_2000") %>% pull(AI) 
-  cmip6s$anomalies[i] <- AIi-AIref
-  
-  catAIi = cmip6s$cat.AI[i]
-  catAIrefi = subset(cmip6s, lat == lati & lon == loni & period =="1970_2000") %>% pull(cat.AI) 
-  cmip6s$change.cat[i] <- ifelse(catAIi == catAIrefi, 0, 1)
-  cmip6s$cat.AI.ref[i] <- catAIrefi
-}
-
-write.table(cmip6s, "cmip6s.txt")
-```
-
-```{r cmip6}
-cmip6s <- read.table("cmip6s.txt")
-
-
-ggplot(cmip6s)+geom_boxplot(aes(x=period, y = anomalies))
-ggplot(subset(cmip6s, anomalies < 1 & anomalies > -1))+geom_boxplot(aes(x=period, y = anomalies))
-
-for(i in unique(cmip6s$period)){
-g <- ggplot(data = subset(cmip6s, period == i)) + geom_tile(aes(x=lon, y = lat,  fill = anomalies))+
-  labs(title = paste("AI changes between",i, "and 1970-2000", sep = " "))+
-  theme_void()+
-  theme(legend.position = "bottom")
-print(g)
-}
-
-for(i in unique(cmip6s$period)){
-g <- ggplot(data = subset(cmip6s, period == i)) + geom_tile(aes(x=lon, y = lat,  fill = change.cat))+
-  labs(title = paste("AI changes between",i, "and 1970-2000", sep = " "))+
-  theme_void()+
-  theme(legend.position = "bottom")
-print(g)
-}
-
-```
