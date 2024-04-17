@@ -8,3 +8,4 @@ https://camilmc.github.io/Aridity/figures_article.html
 
 # Future CMIP6
 
+https://camilmc.github.io/Aridity/cmip6.html
