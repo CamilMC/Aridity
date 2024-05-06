@@ -12,7 +12,8 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T)
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F, error = F, fig.align = "center", collapse = T,
+                      cache = T)
 ```
 
 ```{r libraries}
@@ -93,7 +94,7 @@ write.table(cmip6vA, "cmip6vA.txt")
 ```
 
 
-```{r load-data}
+```{r load-data, cache.extra = tools::md5sum("cmip6vA.txt")}
 era5vA <- read.table("era5vA.txt")
 wdcvA <- read.table("wdcvA.txt")
 cmip6vA <- read.table("cmip6vA.txt")
@@ -133,21 +134,21 @@ ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,
     scale_fill_manual(values = col.cat)+
     labs(title = "ERA5, 1970-2000", fill = "")+
     ylim(-55,90)+
-    theme_void(base_size = 15)+
+    theme_void()+
     theme(legend.position = "none"),
 
 ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
     labs(title = "CMIP6, 1970-2000", fill = "")+
     ylim(-55,90)+
-    theme_void(base_size = 15)+
+    theme_void()+
     theme(legend.position = "none"),
 
 ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   geom_raster(aes(x = lon, y = lat), fill = "white")+
     scale_fill_manual(values = col.cat)+
     labs(title = "", fill = "")+
-    theme_void(base_size = 15)+
+    theme_void()+
     theme(legend.position = "left")
 
 )
@@ -258,95 +259,320 @@ calib.wide <- select(era5vA, vars) %>%
                      "tas.cmip6","pr.cmip6", "sfcWind.cmip6","Rn.cmip6","ea.cmip6","ET0.cmip6","AI.cmip6","cat.AI.cmip6"))
 ```
 
-## CMIP6 compared to WDC
+## Scatterplots
 
 
-### Scatterplot 
+### ERA5 compared to WDC
 
-Representing for scatterplot only tas, pr and sfcWind (Rn need checking in Wdc, ea needs checking in CMIP6)
+Rn is computed differently for ERA5 and WDC, hence the discrepancy for low values. 
 
-```{r scatterplot-diff, fig.dim = c(8,12)}
+### ERA5 and WDC
+
+```{r scatterplot-diff-ref, fig.dim = c(9,6)}
 ggarrange(
 
 ggplot(calib.wide,aes(x = tas.wdc))+geom_point(aes( y = tas.era5, col = "ERA5"), alpha =0.4, shape = 1)+
-  geom_point(aes(y=tas.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   stat_poly_eq(aes(y = tas.era5, col = "ERA5")) +
-  stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Temperature in °C, WDC", y = "Temperature in °C", col = "Dataset")+
+  labs(x="Temperature in °C, WDC", y = "Temperature in °C, ERA5", col = "Dataset")+
   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
   theme_minimal()+
   theme(legend.position = "none"),
 
 ggplot(calib.wide,aes(x = pr.wdc))+geom_point(aes( y = pr.era5, col = "ERA5"), alpha =0.4, shape = 1)+
-  geom_point(aes(y=pr.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   stat_poly_eq(aes(y = pr.era5, col = "ERA5")) +
-  stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm", col = "Dataset")+
+  labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, ERA5", col = "Dataset")+
   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
   theme_minimal()+
   theme(legend.position = "none"),
 
 ggplot(calib.wide,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5, col = "ERA5"), alpha =0.4, shape = 1)+
-  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   stat_poly_eq(aes(y = sfcWind.era5, col = "ERA5")) +
-  stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s", col = "Dataset")+
+  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, ERA5", col = "Dataset")+
   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
   theme_minimal()+
   theme(legend.position = "none"),
 
 ggplot(calib.wide,aes(x = Rn.wdc))+geom_point(aes( y = Rn.era5, col = "ERA5"), alpha =0.4, shape = 1)+
-   geom_point(aes(y=Rn.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   stat_poly_eq(aes(y = Rn.era5, col = "ERA5")) +
-  stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="Rn, MJ/m2/day, WDC, °C", y = "Rn, MJ/m2/day", col = "Dataset")+
+   labs(x="Rn, MJ/m2/day, WDC, °C", y = "Rn, MJ/m2/day, ERA5", col = "Dataset")+
    scale_color_manual(values = c(colorvec[1], colorvec[4]))+
    theme_minimal()+
   theme(legend.position = "none"),
 
 ggplot(calib.wide,aes(x = ea.wdc))+geom_point(aes(y = ea.era5, col = "ERA5"), alpha =0.4, shape = 1)+
-   geom_point(aes(y=ea.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   stat_poly_eq(aes(y = ea.era5, col = "ERA5")) +
-  stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="ea, kPa, WDC, °C", y = "ea, kPa", col = "Dataset")+
+   labs(x="ea, kPa, WDC, °C", y = "ea, kPa, ERA5", col = "Dataset")+
    scale_color_manual(values = c(colorvec[1], colorvec[4]))+
    theme_minimal()+
   theme(legend.position = "none"),
 
 ggplot(calib.wide,aes(x = ET0.wdc))+geom_point(aes(y = ET0.era5, col = "ERA5"), alpha =0.4, shape = 1)+
-   geom_point(aes(y=ET0.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
   stat_poly_eq(aes(y = ET0.era5, col = "ERA5")) +
-  stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="ET0, mm/day, WDC", y = "ET0, mm/day", col = "Dataset")+
+   labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, ERA5", col = "Dataset")+
    scale_color_manual(values = c(colorvec[1], colorvec[4]))+
    theme_minimal()+
   theme(legend.position = "none"),
 
-  ggplot(calib.wide,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5, col = "ERA5"))+
-  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"))+
-  geom_point(aes( y = sfcWind.era5), col = "white")+
-  geom_point(aes(y=sfcWind.cmip6), col = "white")+
-  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-  theme_void(base_size=15)+
-  theme(legend.position = "top"),
 
-ncol = 2, nrow = 4, heights = c(1,1,1,0.2)
+ncol = 3, nrow = 2
 )
 
 ```
 
-### Aridity category difference
+```{r density-plots-ref, fig.dim = c(9,6), eval = F}
+ggplot(calib.wide) + geom_density(aes(x = tas.wdc, col = "WDC"))+
+  geom_density(aes(x=tas.era5, col = "ERA5"))+
+  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none")
+
+
+ggarrange(
+
+ggplot(calib.wide) + geom_density(aes(x = tas.wdc, col = "WDC"))+
+  geom_density(aes(x=tas.era5, col = "ERA5"))+
+  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = pr.wdc))+geom_point(aes( y = pr.era5, col = "ERA5"), alpha =0.4, shape = 1)+
+  stat_poly_eq(aes(y = pr.era5, col = "ERA5")) +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, ERA5", col = "Dataset")+
+  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5, col = "ERA5"), alpha =0.4, shape = 1)+
+  stat_poly_eq(aes(y = sfcWind.era5, col = "ERA5")) +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, ERA5", col = "Dataset")+
+  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = Rn.wdc))+geom_point(aes( y = Rn.era5, col = "ERA5"), alpha =0.4, shape = 1)+
+  stat_poly_eq(aes(y = Rn.era5, col = "ERA5")) +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="Rn, MJ/m2/day, WDC, °C", y = "Rn, MJ/m2/day, ERA5", col = "Dataset")+
+   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = ea.wdc))+geom_point(aes(y = ea.era5, col = "ERA5"), alpha =0.4, shape = 1)+
+  stat_poly_eq(aes(y = ea.era5, col = "ERA5")) +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="ea, kPa, WDC, °C", y = "ea, kPa, ERA5", col = "Dataset")+
+   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = ET0.wdc))+geom_point(aes(y = ET0.era5, col = "ERA5"), alpha =0.4, shape = 1)+
+  stat_poly_eq(aes(y = ET0.era5, col = "ERA5")) +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, ERA5", col = "Dataset")+
+   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+
+ncol = 3, nrow = 2
+)
+
+```
 
 
 
-```{r map-difference-cmip6-wdc}
+### CMIP6 and WDC
+
+```{r scatterplot-cmip6-wdc, fig.dim = c(9,6)}
+ggarrange(
+
+ggplot(calib.wide,aes(x = tas.wdc))+
+  geom_point(aes(y=tas.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Temperature in °C, WDC", y = "Temperature in °C, CMIP6")+
+  scale_color_manual(values = c(colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = pr.wdc))+
+  geom_point(aes(y=pr.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, CMIP6")+
+  scale_color_manual(values = c(colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = sfcWind.wdc))+
+  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, CMIP6")+
+  scale_color_manual(values = c(colorvec[4]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = Rn.wdc))+
+   geom_point(aes(y=Rn.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="Rn, MJ/m2/day, WDC, °C", y = "Rn, MJ/m2/day, CMIP6")+
+   scale_color_manual(values = c(colorvec[4]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = ea.wdc))+
+   geom_point(aes(y=ea.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="ea, kPa, WDC, °C", y = "ea, kPa, CMIP6")+
+   scale_color_manual(values = c(colorvec[4]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = ET0.wdc))+
+   geom_point(aes(y=ET0.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, CMIP6")+
+   scale_color_manual(values = c(colorvec[4]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ncol = 3, nrow = 2
+)
+
+```
+
+### CMIP6 and ERA5 
+
+```{r scatterplot-cmip6-era5, fig.dim = c(9,6)}
+
+ggarrange(
+  
+ggplot(calib.wide,aes(x = tas.era5))+
+  geom_point(aes(y=tas.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Temperature in °C, ERA5", y = "Temperature in °C, CMIP6", col = "Dataset")+
+  scale_color_manual(values = colorvec[7])+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = pr.era5))+
+  geom_point(aes(y=pr.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Annual precipitation, mm, ERA5", y = "Annual precipitation, mm, CMIP6", col = "Dataset")+
+  scale_color_manual(values = c(colorvec[7]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = sfcWind.era5))+
+  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+  geom_abline(slope = 1, intercept = 0)+
+  labs(x="Wind speed m/s, ERA5", y = "Wind speed m/s, CMIP6", col = "Dataset")+
+  scale_color_manual(values = c(colorvec[7]))+
+  theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = Rn.era5))+
+   geom_point(aes(y=Rn.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+   stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="Rn, MJ/m2/day, ERA5, °C", y = "Rn, W/MJ/m2/day, CMIP6", col = "Dataset")+
+   scale_color_manual(values = c(colorvec[7]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = ea.era5))+
+   geom_point(aes(y=ea.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="ea, kPa, ERA5", y = "ea, kPa, CMIP6", col = "Dataset")+
+   scale_color_manual(values = c(colorvec[7]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ggplot(calib.wide,aes(x = ET0.era5))+
+   geom_point(aes(y=ET0.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
+  stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+   geom_abline(slope = 1, intercept = 0)+
+   labs(x="ET0, mm/day, ERA5", y = "ET0, mm/day, CMIP6", col = "Dataset")+
+   scale_color_manual(values = c(colorvec[7]))+
+   theme_minimal()+
+  theme(legend.position = "none"),
+
+ncol = 3, nrow = 2)
+
+
+```
+
+## Aridity category difference
+### ERA5 and WDC
+
+```{r map-difference-era5-wdc, fig.dim = c(16,6)}
+calib.wide$same.cat.wdc <- with(calib.wide, ifelse(cat.AI.era5 == cat.AI.wdc, "y","n"))
+calib.wide$change.cat.wdc <- with(calib.wide, paste(cat.AI.era5, cat.AI.wdc, sep = " to "))
+table(calib.wide$change.cat.wdc)
+calib.wide$dryer.wdc <- with(calib.wide, ifelse(change.cat.wdc == "Arid to Humid", "dryer",
+                                ifelse(change.cat.wdc == "Arid to Semi-arid", "dryer",
+                                ifelse(change.cat.wdc == " Arid to Dry subhumid", "dryer", 
+                                ifelse(change.cat.wdc == "Arid to Hyperarid", "wetter",
+                                ifelse(change.cat.wdc == "Arid to Cold", "dryer",       
+                                ifelse(change.cat.wdc == "Cold to Humid", "dryer",
+                                ifelse(change.cat.wdc == "Cold to Hyperarid", "wetter",
+                                ifelse(change.cat.wdc == "Dry subhumid to Cold", "dryer",
+                                ifelse(change.cat.wdc == "Dry subhumid to Humid", "dryer",
+                                ifelse(change.cat.wdc == "Dry subhumid to Arid", "wetter",
+                                ifelse(change.cat.wdc == "Dry subhumid to Semi-arid", "wetter",
+                                ifelse(change.cat.wdc == "Humid to arid", "wetter",
+                                ifelse(change.cat.wdc == "Humid to Semi-arid", "wetter",
+                                ifelse(change.cat.wdc == "Humid to Cold","dryer",
+                                ifelse(change.cat.wdc == "Humid to Dry subhumid","wetter",
+                                ifelse(change.cat.wdc == "Semi-arid to Dry subhumid", "dryer",
+                                ifelse(change.cat.wdc == "Semi-arid to Arid", "wetter",
+                                ifelse(change.cat.wdc == "Semi-arid to Humid", "dryer",
+                                ifelse(change.cat.wdc == "Semi-arid to Cold", "dryer",
+                                ifelse(change.cat.wdc == "Hyperarid to Arid", "dryer",
+                                ifelse(change.cat.wdc == "Hyperarid to Semi-arid", "dryer",
+                                ifelse(change.cat.wdc == "Hyperarid to Dry subhumid", "dryer",
+                                ifelse(change.cat.wdc == "Hyperarid to Humid", "dryer",
+                                NA))))))))))))))))))))))))
+
+ggarrange(
+ggplot(filter(calib.wide, same.cat.wdc == "n"))+geom_tile(aes(x = lon, y = lat, fill = dryer.wdc))+
+  scale_fill_manual(values = c( "#ef8a62", "#67a9cf"), na.translate = F)+
+  borders()+
+  labs(fill = "ERA5 compared to WDC", title = "Change of category")+
+  ylim(-55,90)+
+  theme_void(base_size = 15)+
+  theme(legend.position = "bottom"),
+
+ggplot() + geom_raster(data = calib.wide, aes(x=lon, y = lat,  fill = AI.era5-AI.wdc))+
+  binned_scale(aesthetics = "fill", breaks = c(-1, -0.1, -0.01, 0, 0.01, 0.1, 1), 
+               palette = function(x) rev(c("#08519c", "#2166ac", "#67a9cf", "aliceblue","bisque", "#ef8a62", "#b2182b", "#67001f")),
+               guide = guide_legend(label.theme = element_text(angle = 0))
+               )+
+  labs(title = "Changes in AI", fill = "ERA5 compared to WDC")+
+  theme_void(base_size = 15)+ylim(-55,90)+
+  theme(legend.position = "bottom"),
+ncol = 2)
+```
+
+### CMIP6 and WDC
+
+```{r map-difference-cmip6-wdc, fig.dim = c(16,6)}
 calib.wide$same.cat.wdc <- with(calib.wide, ifelse(cat.AI.cmip6 == cat.AI.wdc, "y","n"))
 calib.wide$change.cat.wdc <- with(calib.wide, paste(cat.AI.cmip6, cat.AI.wdc, sep = " to "))
 table(calib.wide$change.cat.wdc)
@@ -375,104 +601,30 @@ calib.wide$dryer.wdc <- with(calib.wide, ifelse(change.cat.wdc == "Arid to Humid
                                 ifelse(change.cat.wdc == "Hyperarid to Humid", "dryer",
                                 NA))))))))))))))))))))))))
 
-
-ggplot(filter(calib.wide, same.cat.wdc == "n"))+geom_tile(aes(x = lon, y = lat, fill = dryer.wdc))+
-  scale_fill_manual(values = c(colorvec[4], colorvec[7]), na.translate = F)+
-  borders()+
-  labs(fill = "CMIP6 compared to WDC")+
-  ylim(-55,90)+
-  theme_void()+
-  theme(legend.position = "bottom")
-```
-
-## CMIP6 & WDC compared to ERA5
-
-### Scatterplot 
-
-Representing for scatterplot only tas, pr and sfcWind (Rn need checking in Wdc, ea needs checking in CMIP6)
-
-```{r scatterplot-diff-2, fig.dim = c(8,12)}
 ggarrange(
-  
-ggplot(calib.wide,aes(x = tas.era5))+geom_point(aes(y = tas.wdc, col = "WDC"), alpha =0.4, shape = 1)+
-  geom_point(aes(y=tas.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
-  stat_poly_eq(aes(y = tas.wdc, col = "WDC")) +
-  stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
-  geom_abline(slope = 1, intercept = 0)+
-  labs(x="Temperature in °C, ERA5", y = "Temperature in °C", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-  theme_minimal()+
-  theme(legend.position = "none"),
+ggplot(filter(calib.wide, same.cat.wdc == "n"))+geom_tile(aes(x = lon, y = lat, fill = dryer.wdc))+
+  scale_fill_manual(values = c( "#ef8a62", "#67a9cf"), na.translate = F)+
+  borders()+
+  labs(fill = "CMIP6 compared to WDC", "Change of category")+
+  ylim(-55,90)+
+  theme_void(base_size = 15)+
+  theme(legend.position = "bottom"),
 
-ggplot(calib.wide,aes(x = pr.era5))+geom_point(aes( y = pr.wdc, col = "WDC"), alpha =0.4, shape = 1)+
-  geom_point(aes(y=pr.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
-    stat_poly_eq(aes(y = pr.wdc, col = "WDC")) +
-  stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
-  geom_abline(slope = 1, intercept = 0)+
-  labs(x="Annual precipitation, mm, ERA5", y = "Annual precipitation, mm", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-  theme_minimal()+
-  theme(legend.position = "none"),
+ggplot() + geom_raster(data = calib.wide, aes(x=lon, y = lat,  fill = AI.cmip6-AI.wdc))+
+   borders()+
+  binned_scale(aesthetics = "fill", breaks = c(-1, -0.1, -0.01, 0, 0.01, 0.1, 1), palette = function(x) rev(c("#08519c", "#2166ac", "#67a9cf", "aliceblue","bisque", "#ef8a62", "#b2182b", "#67001f")), 
+                                                                                                              guide = guide_legend(label.theme = element_text(angle = 0)))+
+  labs(title = "Change in AI", fill = "CMIP6 compared to WDC")+
+  theme_void(base_size = 15)+ylim(-55,90)+
+  theme(legend.position = "bottom"),
 
-ggplot(calib.wide,aes(x = sfcWind.era5))+geom_point(aes( y = sfcWind.wdc, col = "WDC"), alpha =0.4, shape = 1)+
-  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
-    stat_poly_eq(aes(y = sfcWind.wdc, col = "WDC")) +
-  stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
-  geom_abline(slope = 1, intercept = 0)+
-  labs(x="Wind speed m/s, ERA5", y = "Wind speed m/s", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-  theme_minimal()+
-  theme(legend.position = "none"),
-
-ggplot(calib.wide,aes(x = Rn.era5))+geom_point(aes( y = Rn.wdc, col = "WDC"), alpha =0.4, shape = 1)+
-   geom_point(aes(y=Rn.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
-    stat_poly_eq(aes(y = Rn.wdc, col = "WDC")) +
-  stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
-   geom_abline(slope = 1, intercept = 0)+
-   labs(x="Rn, MJ/m2/day, ERA5, °C", y = "Rn, W/MJ/m2/day", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-   theme_minimal()+
-  theme(legend.position = "none"),
-
-ggplot(calib.wide,aes(x = ea.era5))+geom_point(aes( y = ea.wdc, col = "WDC"), alpha =0.4, shape = 1)+
-   geom_point(aes(y=ea.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
-    stat_poly_eq(aes(y = ea.wdc, col = "WDC")) +
-  stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
-   geom_abline(slope = 1, intercept = 0)+
-   labs(x="ea, kPa, ERA5", y = "ea, kPa", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-   theme_minimal()+
-  theme(legend.position = "none"),
-
-ggplot(calib.wide,aes(x = ET0.era5))+geom_point(aes(y = ET0.wdc, col = "WDC"), alpha =0.4, shape = 1)+
-   geom_point(aes(y=ET0.cmip6, col = "CMIP6"), alpha = 0.4, shape = 1)+
-    stat_poly_eq(aes(y = ET0.wdc, col = "WDC")) +
-  stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
-   geom_abline(slope = 1, intercept = 0)+
-   labs(x="ET0, mm/day, ERA5", y = "ET0, mm/day", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-   theme_minimal()+
-  theme(legend.position = "none"),
-
-ggplot(calib.wide,aes(x = sfcWind.era5))+geom_point(aes( y = sfcWind.wdc, col = "WDC"))+
-  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"))+
-  geom_point(aes( y = sfcWind.wdc), col = "white")+
-  geom_point(aes(y=sfcWind.cmip6), col = "white")+
-  labs(x="Wind speed m/s, ERA5", y = "Wind speed m/s", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
-  theme_void(base_size=15)+
-  theme(legend.position = "top"),
-
-
-ncol = 2, nrow = 4, heights = c(1,1,1,0.2)
-)
-
-
+ncol = 2)
 ```
 
-### Aridity category difference
 
-```{r map-difference-cmip6-era5}
+## CMIP6 and ERA5
+
+```{r map-difference-cmip6-era5, fig.dim = c(16,6)}
 calib.wide$same.cat.era5 <- with(calib.wide, ifelse(cat.AI.cmip6 == cat.AI.era5, "y","n"))
 calib.wide$change.cat.era5 <- with(calib.wide, paste(cat.AI.cmip6, cat.AI.era5, sep = " to "))
 table(calib.wide$change.cat.era5)
@@ -496,17 +648,26 @@ calib.wide$dryer.era5 <- with(calib.wide, ifelse(change.cat.era5 == "Arid to Hum
                                 ifelse(change.cat.era5 == "Hyperarid to Semi-arid", "dryer",
                                 NA)))))))))))))))))))
 
+ggarrange(
 ggplot(filter(calib.wide, same.cat.era5 == "n"))+geom_tile(aes(x = lon, y = lat, fill = dryer.era5))+
-  scale_fill_manual(values = c(colorvec[4], colorvec[7]), na.translate = F)+
+  scale_fill_manual(values = c( "#ef8a62", "#67a9cf"), na.translate = F)+
   borders()+
-  labs(fill = "CMIP6 compared to ERA5")+
+  labs(fill = "CMIP6 compared to ERA5", "Change of aridity category")+
   ylim(-55,90)+
   theme_void()+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom"),
 
 
+ggplot() + geom_raster(data = calib.wide, aes(x=lon, y = lat,  fill = AI.cmip6-AI.era5))+
+   borders()+
+  binned_scale(aesthetics = "fill", breaks =c(-1, -0.1, -0.01, 0, 0.01, 0.1, 1), palette = function(x) rev(c("#08519c", "#2166ac", "#67a9cf", "aliceblue","bisque", "#ef8a62", "#b2182b", "#67001f")))+
+  labs(title = "Change of AI", fill = "CMIP6 compared to ERA5")+
+  theme_void()+ylim(-55,90)+
+  theme(legend.position = "bottom"),
+ncol = 2)
 
 ```
+
 
 
 

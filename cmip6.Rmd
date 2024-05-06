@@ -1377,3 +1377,17 @@ for(i in names(tab_list)){
   print(k)
 }
 ```
+
+
+```{r cat-changes-by-continent-in-graph}
+
+for(i in names(tab_list)){
+    df <- tab_list[[i]]
+    g <- ggplot(data = df, aes(x=period,y= get("Sum drylands"), col = model))+geom_point()+
+      geom_line(aes(group = model))+
+    labs(x="",y = "Percent of drylands", title = i)
+  print(g)
+}
+
+
+```
