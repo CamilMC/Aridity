@@ -605,6 +605,7 @@ pie_list[[i]] <- p
 
 ggpubr::ggarrange(plotlist = pie_list, nrow = 4, ncol = 4, common.legend = T, legend = "bottom")
 ```
+
 ```{r table-of-percent-ref}
 
 multimodel <- cmip6 %>% subset(period == "1970_2000" & !Continent %in% c("SOUTHERN","PACIFIC","POLAR","ATLANTIC","INDIAN","ARCTIC")) %>%
@@ -849,6 +850,12 @@ cmip6s$dryer <- with(cmip6s, ifelse(catAIref == "Arid" & cat.AI %in% c("Cold","H
                                        NA)))))))))))
 
 
+cmip6s$catmajref <- revalue(cmip6s$catmajref, c("hyperarid" = "Hyperarid", "arid" = "Arid", "semiarid" = "Semi-arid", "drysubhumid" = "Dry subhumid", "humid" = "Humid", "cold" = "Cold"))
+
+cmip6s$cat.maj <- revalue(cmip6s$cat.maj, c("hyperarid" = "Hyperarid", "arid" = "Arid", "semiarid" = "Semi-arid", "drysubhumid" = "Dry subhumid", "humid" = "Humid", "cold" = "Cold"))
+
+
+
 cmip6s$dryer.maj <- with(cmip6s, ifelse(catmajref == "Arid" & cat.maj %in% c("Cold","Humid","Dry subhumid","Semi-arid"), "wetter", 
                                 ifelse(catmajref == "Arid" & cat.maj == "Hyperarid", "dryer",
                                 ifelse(catmajref == "Semi-arid" & cat.maj %in% c("Cold","Humid","Dry subhumid"), "wetter",
@@ -871,7 +878,7 @@ cmip6s$dryer.maj <- with(cmip6s, ifelse(catmajref == "Arid" & cat.maj %in% c("Co
 ### Where are cat mean and cat maj different
 
 ```{r where-is-at-maj-the-same-as-cat-mean, fig.dim = c(16,8)}
-cmip6s$cat.maj <- revalue(cmip6s$cat.maj, c("hyperarid" = "Hyperarid", "arid" = "Arid", "semiarid" = "Semi-arid", "drysubhumid" = "Dry subhumid", "humid" = "Humid", "cold" = "Cold"))
+
 
 cmip6s$same.catAI <- with(cmip6s, ifelse(cat.maj == cat.AI, "same", "diff"))
 
@@ -1175,6 +1182,8 @@ ggpubr::ggarrange(plotlist = map_list,ncol = 3, nrow = 2, common.legend = T, leg
 
 ## Difference between future and reference category of AI (using cat maj)
 
+### Dryer or wetter category
+
 ```{r map-historical-changes, fig.dim = c(8, 4)}
 
 cmip6s$change.catmaj <- with(cmip6s, ifelse(cat.maj == catmajref, 0, 1))
@@ -1182,7 +1191,7 @@ cmip6s$change.catmaj <- with(cmip6s, ifelse(cat.maj == catmajref, 0, 1))
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
-g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == "historical" & change.catmaj == 1), aes(x=lon, y = lat,  fill = dryer))+
+g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == "historical" & change.catmaj == 1), aes(x=lon, y = lat,  fill = dryer.maj))+
   borders()+
   scale_fill_manual(values =  c("#F46D43", "#74ADD1"), na.translate = F)+
   labs(title = paste("AI changes between",i , "and 1970-2000", sep = " "), fill = "")+
@@ -1202,7 +1211,7 @@ map_list <- list()
 for(i in c("2030_2060","2070_2100")){
   for (j in c("SSP245","SSP370","SSP585")){
 index <- paste(i, j, sep = " , ")
-g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == j), aes(x=lon, y = lat,  fill = dryer))+
+g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == j), aes(x=lon, y = lat,  fill = dryer.maj))+
    geom_raster(data = subset(cmip6s, period == i & model == "historical" & change.catmaj == 1 & nb.maj > 10), aes(x= lon, y = lat, fill = "'"))+
   borders()+
   scale_fill_manual(values = c("#F46D43", "#74ADD1"), na.translate = F)+
@@ -1216,7 +1225,76 @@ map_list[[index]] <- g
 
 ggpubr::ggarrange(plotlist = map_list,ncol = 3, nrow = 2, common.legend = T, legend = "bottom", labels = c("SSP 2-4.5", "SSP 3-7.0", "SSP 5.85"))
 ```
+### All differences 
 
+```{r detailed-cat-change}
+cmip6s$change.cat.maj <- with(cmip6s, ifelse(catmajref == "Arid" & cat.maj %in% c("Cold","Humid"),"Arid to Cold or Humid",
+                                      ifelse(catmajref == "Arid" & cat.maj %in% c("Semi-Arid","Dry subhumid"), "Arid to Semi-arid or Dry subhumid",
+                                      ifelse(catmajref == "Arid" & cat.maj == "Hyperarid", "Arid to Hyperarid",
+                                      ifelse(catmajref == "Semi-arid" & cat.maj == "Dry subhumid", "Semi-arid to Dry subhumid",
+                                      ifelse(catmajref == "Semi-arid" & cat.maj %in% c("Arid", "Hyperarid"),"Semi-arid to arid or hyperarid",
+                                      ifelse(catmajref == "Semi-arid" & cat.maj %in% c("Humid","Cold"), "Semi-arid to Humid or Cold",
+                                      ifelse(catmajref == "D"))))
+                                        
+                                      ))
+                                             
+                                             
+                                             
+                                             ,"Dry subhumid","Semi-arid"), "wetter", 
+                                ifelse(catmajref == "Arid" & cat.maj == "Hyperarid", "dryer",
+                                ifelse(catmajref == "Semi-arid" & cat.maj %in% c("Cold","Humid","Dry subhumid"), "wetter",
+                                ifelse(catmajref == "Semi-arid" & cat.maj %in% c("Hyperarid","Arid"), "dryer",
+                                ifelse(catmajref == "Dry subhumid" & cat.maj %in% c("Cold","Humid"), "wetter",
+                                ifelse(catmajref == "Dry subhumid" & cat.maj %in% c("Semi-arid","Arid","Hyperarid"), "dryer",
+                                ifelse(catmajref == "Humid" & cat.maj == "Cold","wetter",
+                                ifelse(catmajref == "Humid" & cat.maj %in% c("Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+                                ifelse(catmajref == "Cold" & cat.maj %in% c("Humid","Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+                                ifelse(catmajref == "Hyperarid" & cat.maj %in% c("Cold","Humid","Dry subhumid","Semi-arid","Arid"), "wetter",
+                                       NA)))))))))))
+
+```
+
+```{r map-historical-changes-dry, fig.dim = c(8, 4)}
+
+cmip6s$change.catmaj <- with(cmip6s, ifelse(cat.maj == catmajref, 0, 1))
+
+map_list <- list()
+
+for(i in c("1850_1880","1985_2015")){
+g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == "historical" & change.catmaj == 1 & dryer.maj == "dryer"), aes(x=lon, y = lat,  fill = dryer.maj))+
+  borders()+
+  scale_fill_manual(values =  c("#F46D43", "#74ADD1"), na.translate = F)+
+  labs(title = paste("AI changes between",i , "and 1970-2000", sep = " "), fill = "")+
+  theme_void()+ylim(-55,90)+
+  theme(legend.position = "bottom")
+map_list[[i]] <- g
+}
+
+ggarrange(plotlist = map_list, ncol = 2, common.legend = T)
+
+```
+
+```{r map-future-changes-dry, fig.dim = c(16,8)}
+
+map_list <- list()
+
+for(i in c("2030_2060","2070_2100")){
+  for (j in c("SSP245","SSP370","SSP585")){
+index <- paste(i, j, sep = " , ")
+g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == j), aes(x=lon, y = lat,  fill = dryer.maj))+
+   geom_raster(data = subset(cmip6s, period == i & model == "historical" & change.catmaj == 1 & nb.maj > 10), aes(x= lon, y = lat, fill = "'"))+
+  borders()+
+  scale_fill_manual(values = c("#F46D43", "#74ADD1"), na.translate = F)+
+  labs(fill = "Compared to 1970-2000")+
+  theme_void()+ylim(-55,90)+
+  theme(legend.position = "bottom")
+map_list[[index]] <- g
+  }}
+
+
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 3, nrow = 2, common.legend = T, legend = "bottom", labels = c("SSP 2-4.5", "SSP 3-7.0", "SSP 5.85"))
+```
 
 # Tables
 
@@ -1237,20 +1315,19 @@ tab.future <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","POLAR","
 kable(tab.future[order(tab.future$model, decreasing = F),]) %>% kable_styling(bootstrap_options = "bordered") %>%
     column_spec(c(7,10), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
 
-
-ggplot(tab.future, aes(x = period))+
-  geom_point(aes(y = Hyperarid, col = "Hyperarid", shape = model))+
-  geom_line(aes(y=Hyperarid, col = "Hyperarid", group = model, lty = model))+
-  geom_point(aes(y = Arid, col = "Arid", shape = model))+
-  geom_line(aes(y=Arid, col = "Arid", group = model, lty = model))+
-  geom_point(aes(y = get('Semi-arid'), col = "Semi-arid", shape = model))+
-  geom_line(aes(y=get('Semi-arid'), col = "Semi-arid", group = model, lty = model))+
-  geom_point(aes(y = get('Dry subhumid'), col = "Dry subhumid", shape = model))+
-  geom_line(aes(y=get('Dry subhumid'), col = "Dry subhumid", group = model, lty = model))+
-  geom_point(aes(y = Humid, col = "Humid", shape = model))+
-  geom_line(aes(y= Humid, col = "Humid", group = model, lty = model))+
-  scale_color_manual(values = col.cat)+
-  theme_minimal()
+# ggplot(tab.future, aes(x = period))+
+#   geom_point(aes(y = Hyperarid, col = "Hyperarid", shape = model))+
+#   geom_line(aes(y=Hyperarid, col = "Hyperarid", group = model, lty = model))+
+#   geom_point(aes(y = Arid, col = "Arid", shape = model))+
+#   geom_line(aes(y=Arid, col = "Arid", group = model, lty = model))+
+#   geom_point(aes(y = get('Semi-arid'), col = "Semi-arid", shape = model))+
+#   geom_line(aes(y=get('Semi-arid'), col = "Semi-arid", group = model, lty = model))+
+#   geom_point(aes(y = get('Dry subhumid'), col = "Dry subhumid", shape = model))+
+#   geom_line(aes(y=get('Dry subhumid'), col = "Dry subhumid", group = model, lty = model))+
+#   geom_point(aes(y = Humid, col = "Humid", shape = model))+
+#   geom_line(aes(y= Humid, col = "Humid", group = model, lty = model))+
+#   scale_color_manual(values = col.cat)+
+#   theme_minimal()
 ```
 
 ## Changes of aridity category using cat maj
@@ -1271,20 +1348,62 @@ kable(tab.future.maj[order(tab.future.maj$model, decreasing = F),]) %>% kable_st
     column_spec(c(7,10), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
 
 
-ggplot(tab.future.maj, aes(x = period))+
-  geom_point(aes(y = Hyperarid, col = "Hyperarid", shape = model))+
-  geom_line(aes(y=Hyperarid, col = "Hyperarid", group = model, lty = model))+
-  geom_point(aes(y = Arid, col = "Arid", shape = model))+
-  geom_line(aes(y=Arid, col = "Arid", group = model, lty = model))+
-  geom_point(aes(y = get('Semi-arid'), col = "Semi-arid", shape = model))+
-  geom_line(aes(y=get('Semi-arid'), col = "Semi-arid", group = model, lty = model))+
-  geom_point(aes(y = get('Dry subhumid'), col = "Dry subhumid", shape = model))+
-  geom_line(aes(y=get('Dry subhumid'), col = "Dry subhumid", group = model, lty = model))+
-  geom_point(aes(y = Humid, col = "Humid", shape = model))+
-  geom_line(aes(y= Humid, col = "Humid", group = model, lty = model))+
-  scale_color_manual(values = col.cat)+
-  theme_minimal()
+# ggplot(tab.future.maj, aes(x = period))+
+#   geom_point(aes(y = Hyperarid, col = "Hyperarid", shape = model))+
+#   geom_line(aes(y=Hyperarid, col = "Hyperarid", group = model, lty = model))+
+#   geom_point(aes(y = Arid, col = "Arid", shape = model))+
+#   geom_line(aes(y=Arid, col = "Arid", group = model, lty = model))+
+#   geom_point(aes(y = get('Semi-arid'), col = "Semi-arid", shape = model))+
+#   geom_line(aes(y=get('Semi-arid'), col = "Semi-arid", group = model, lty = model))+
+#   geom_point(aes(y = get('Dry subhumid'), col = "Dry subhumid", shape = model))+
+#   geom_line(aes(y=get('Dry subhumid'), col = "Dry subhumid", group = model, lty = model))+
+#   geom_point(aes(y = Humid, col = "Humid", shape = model))+
+#   geom_line(aes(y= Humid, col = "Humid", group = model, lty = model))+
+#   scale_color_manual(values = col.cat)+
+#   theme_minimal()
 ```
+
+```{r colplots-futurecat, fig.dim = c(10,5)}
+tab.flow <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","POLAR","ATLANTIC","INDIAN","ARCTIC")) %>%
+  group_by(period, model, cat.maj) %>%
+  summarise(count = n()) %>%
+  ungroup() %>% group_by(period, model) %>% mutate(percent = round(count/sum(count)*100, 1), count = NULL)
+
+df245 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP245")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b245 <- ggplot(data = df245, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  labs(title = "SSP 2-4.5", y = "%", x = "")+
+  theme_minimal()
+
+df370 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP370")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b370 <- ggplot(data = df370, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  labs(title = "SSP 3-7.0", y = "%", x = "")+
+  theme_minimal()
+
+
+df585 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP585")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b585 <- ggplot(data = df585, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  labs(title = "SSP 5-8.5", y = "%", x = "")+
+  theme_minimal()
+
+
+ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom", ncol = 3)
+```
+
 
 ## Temporal evolution of percentages, cat.maj
 
@@ -1379,7 +1498,7 @@ for(i in names(tab_list)){
 ```
 
 
-```{r cat-changes-by-continent-in-graph}
+```{r cat-changes-by-continent-in-graph, eval = F}
 
 for(i in names(tab_list)){
     df <- tab_list[[i]]
@@ -1390,4 +1509,49 @@ for(i in names(tab_list)){
 }
 
 
+```
+
+```{r colplots-futurecat-continent, fig.dim = c(15,25)}
+tab.flow <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","POLAR","ATLANTIC","INDIAN","ARCTIC")) %>%
+  group_by(period, model, Continent, cat.maj) %>%
+  summarise(count = n()) %>%
+  ungroup() %>% group_by(period, model, Continent) %>% mutate(percent = round(count/sum(count)*100, 1), count = NULL)
+
+df245 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP245")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b245 <- ggplot(data = df245, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  facet_grid(rows = vars(Continent), switch = "y")+
+  scale_y_continuous(position = "right")+
+  labs(title = "SSP 2-4.5", y = "%", x = "")+
+  theme_minimal()
+
+df370 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP370")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b370 <- ggplot(data = df370, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  facet_grid(rows = vars(Continent), switch = "y")+
+  scale_y_continuous(position = "right")+  labs(title = "SSP 3-7.0", y = "%", x = "")+
+  theme_minimal()
+
+
+df585 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP585")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b585 <- ggplot(data = df585, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  facet_grid(rows = vars(Continent), switch = "y")+
+  scale_y_continuous(position = "right")+  labs(title = "SSP 5-8.5", y = "%", x = "")+
+  theme_minimal()
+
+
+ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom", ncol = 3)
 ```
