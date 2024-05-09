@@ -101,6 +101,28 @@ cmip6vA <- read.table("cmip6vA.txt")
 
 ```
 
+# Regions and Continents
+
+```{r plot-continents}
+
+colors_continents <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+                  "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+                  "#aec7e8", "#ffbb78", "#98df8a", "#ff9896")
+ggplot(era5vA)+geom_raster(aes(x= lon, y = lat, fill = Continent))+
+  scale_fill_discrete(type = colors_continents)+
+  theme_void()
+
+
+```
+"Continents" to remove are: 
+* Arctic (too little gridcells)
+* Atlantic (ocean)
+* Indian (ocean)
+* Pacific (ocean)
+* Southern (ocean)
+
+Polar groups Groenland and Antartica and should be kept
+
 # Aridity Index 
 
 ```{r test-na}
@@ -153,6 +175,47 @@ ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y
 
 )
 ```
+
+```{r plot-compare-with-antarctica}
+
+calib <- rbind(cmip6vA, era5vA, wdcvA)
+
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+
+calib$cat.AI <- calib$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+calib$cat.AI[which(calib$ET0 < 400)] <- "Cold"
+
+ggarrange(
+  
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "Wordclim, 1970-2000", fill = "")+
+    theme_void(base_size = 15)+
+    theme(legend.position = "none"),
+
+ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "ERA5, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "none"),
+
+ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "CMIP6, 1970-2000", fill = "")+
+    theme_void()+
+    theme(legend.position = "none"),
+
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
+  geom_raster(aes(x = lon, y = lat), fill = "white")+
+    scale_fill_manual(values = col.cat)+
+    labs(title = "", fill = "")+
+    theme_void()+
+    theme(legend.position = "left")
+
+)
+```
 ```{r compare-cat, eval = F}
 calib$same.cat <- NA
 calib$cat.ref <- NA
@@ -192,9 +255,10 @@ write.table(calib, "calib.txt")
 
 table_calib <- calib %>% select(c("Continent","Name","Acronym","source","cat.AI")) %>%
   reshape2::melt(id.vars = c("Continent","Name","Acronym","source")) %>%
+  filter(!is.na(value)) %>%
   group_by(Continent,Name,Acronym,source,value) %>%
   summarise(count = n()) %>% mutate(perc = round(count/sum(count)*100,1)) %>%
-  ungroup() %>% filter(!Continent %in% c("SOUTHERN","PACIFIC","POLAR","ATLANTIC","INDIAN","ARCTIC"))
+  ungroup() %>% filter(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC"))
 
 table_calib$value[is.na(table_calib$value) == T] <- "NA"
 table_calib$Continent[which(table_calib$Continent == "EUROPE-AFRICA")] <- "EUROPE"
@@ -234,7 +298,7 @@ pie_calib <- table_calib %>% group_by(source, value) %>% summarise(gridcells = s
 
 ggplot(pie_calib)+geom_bar(aes(x = "", y = gridcells, fill = value), width = 1, stat = "identity")+
   coord_polar("y", start = 0)+
-  scale_fill_manual(values = col.cat)+
+  scale_fill_manual(values = col.cat, na.translate = T)+
   facet_grid(cols = vars(source))+
   geom_label_repel(aes(x = "", y = lab.y, label = percent), nudge_x = 0.5)+
   labs(fill = "")+
