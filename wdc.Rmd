@@ -29,6 +29,7 @@ library(colorspace)
 library(lubridate)
 
 ```
+
 # Worldclim: réanalyse pour la période 1970-2000 -----
 
 ```{r dowload-wdc, eval = F}
@@ -148,7 +149,7 @@ write.table(wdc,"wdc.txt")
 
 # Aridity
 
-```{r load-wdc, eval = F}
+```{r load-wdc, eval = T}
 wdc <- read.table("wdc.txt")
 ```
 
@@ -276,8 +277,8 @@ wdc <- wdc %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26),
                     Rs_11 = srad_11*1e-3,
                     Rs_12 = srad_12*1e-3,
                     Rs.Rso_01 = ifelse((Rs_01)/Rso_01 < 1, Rs_01/Rso_01, 1),
-                    Rs.Rso_02 = ifelse((Rs_02)/Rso_02 < 1, Rs_01/Rso_02, 1),
-                    Rs.Rso_03 = ifelse((Rs_03)/Rso_03 < 1, Rs_01/Rso_03, 1),
+                    Rs.Rso_02 = ifelse((Rs_02)/Rso_02 < 1, Rs_02/Rso_02, 1),
+                    Rs.Rso_03 = ifelse((Rs_03)/Rso_03 < 1, Rs_03/Rso_03, 1),
                     Rs.Rso_04 = ifelse((Rs_04)/Rso_04 < 1, (Rs_04)/Rso_04, 1),
                     Rs.Rso_05 = ifelse((Rs_05)/Rso_05 < 1, (Rs_05)/Rso_05, 1),
                     Rs.Rso_06 = ifelse((Rs_06)/Rso_06 < 1, (Rs_06)/Rso_06, 1),
