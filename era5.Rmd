@@ -63,10 +63,11 @@ elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% 
 
 
 ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
+
 ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
-
 ```
+
 ### Comparison with ERA5
 
 ```{r land-mask-era5}
