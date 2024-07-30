@@ -2129,7 +2129,7 @@ nrow = 5, common.legend = T, legend = "right"
 
 ## Changes by continent, cat.maj
 
-```{r changes-in-table-by-continent-mean, eval = T}
+```{r changes-in-table-by-continent-maj, eval = T}
 tab.future.cont <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>%
   group_by(period, model, Continent, cat.maj) %>%
   summarise(count = n()) %>%
@@ -2142,6 +2142,174 @@ for(i in unique(tab.future.cont$Continent)){
 
     df <- tab.i %>%
   reshape2::dcast(period + model ~ cat.maj)
+  tab_list[[i]] <- df
+
+  drycats <- which(names(df) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
+
+  df <- df %>% mutate("Sum drylands" = rowSums(.[drycats], na.rm = T))
+  
+  df$Cold <- ifelse(is.null(df$Cold) == T, 0, df$Cold)
+  df$Hyperarid <- ifelse(is.null(df$Hyperarid) == T, 0, df$Hyperarid)
+  df$Arid <- ifelse(is.null(df$Arid) == T, 0, df$Arid)
+  df$'Semi-arid' <- ifelse(is.null(df$'Semi-arid') == T, 0, df$'Semi-arid')
+  df$'Dry subhumid' <- ifelse(is.null(df$'Dry subhumid') == T, 0, df$'Dry subhumid')
+  df <- df %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
+  
+  tab_list[[i]] <- df
+}
+  
+for(i in names(tab_list)){
+  df <- tab_list[[i]]
+
+  k <- kable(df[order(df$model, decreasing = F),], caption = i) %>% kable_styling(bootstrap_options = "bordered") %>%
+    column_spec(c(8,11), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
+  print(k)
+}
+```
+
+
+```{r catmaj-changes-by-continent-in-graph, eval = T}
+
+for(i in names(tab_list)){
+    df <- tab_list[[i]]
+    g <- ggplot(data = df, aes(x=period,y= get("Sum drylands"), col = model))+geom_point(shape = "\u2605", size = 5)+
+      scale_color_manual(values = colorvec[c(1,3,9,11)])+
+    labs(x="",y = "Percent of drylands", title = i)+
+    theme_minimal()
+  print(g)
+}
+
+
+```
+
+```{r colplots-futurecat-continent-catmaj, fig.dim = c(15,25)}
+tab.flow <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","POLAR","ATLANTIC","INDIAN","ARCTIC")) %>%
+  group_by(period, model, Continent, cat.maj) %>%
+  summarise(count = n()) %>%
+  ungroup() %>% group_by(period, model, Continent) %>% mutate(percent = round(count/sum(count)*100, 1), count = NULL)
+
+df245 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP245")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b245 <- ggplot(data = df245, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  facet_grid(rows = vars(Continent), switch = "y")+
+  scale_y_continuous(position = "right")+
+  labs(title = "SSP 2-4.5", y = "%", x = "")+
+  theme_minimal()
+
+df370 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP370")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b370 <- ggplot(data = df370, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  facet_grid(rows = vars(Continent), switch = "y")+
+  scale_y_continuous(position = "right")+  labs(title = "SSP 3-7.0", y = "%", x = "")+
+  theme_minimal()
+
+
+df585 <- rbind(subset(tab.flow, model == "historical" & period %in% c("1850_1880", "1970_2000")), subset(tab.flow, model == "SSP585")) %>% mutate(lab.y = (rev(cumsum(rev(percent)))) - percent*0.5) %>% 
+  subset(cat.maj %in% c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid","Cold"))
+
+b585 <- ggplot(data = df585, aes(x = period, y = percent))+
+  geom_col(aes(group = cat.maj, col = cat.maj, fill = cat.maj))+
+  geom_label(aes(y = lab.y, label = percent))+
+  scale_color_manual(values = col.cat, aesthetics = c("col", "fill"), na.translate = F)+
+  facet_grid(rows = vars(Continent), switch = "y")+
+  scale_y_continuous(position = "right")+  labs(title = "SSP 5-8.5", y = "%", x = "")+
+  theme_minimal()
+
+
+ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom", ncol = 3)
+```
+
+
+
+## Changes by continent, cat mean
+
+```{r tab-percent-continent-catmean, eval = F}
+
+cmip6$cat.AI <- factor(cmip6$cat.AI, levels = c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid", "Cold"))
+tab.percent.cont <- cmip6 %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","POLAR","ATLANTIC","INDIAN","ARCTIC")) %>%
+  group_by(period, model, Continent, cat.AI, source) %>%
+  summarise(count = n()) %>%
+  ungroup() %>% 
+  group_by(period, model, Continent, cat.AI) %>% 
+  summarise(mmmean = mean(count, na.rm = T), mmsd = sd(count, na.rm = T)) %>%
+  mutate(percent = round(mmmean/sum(mmmean)*100, 1), sd.percent = round(mmsd/sum(mmmean)*100,1)) 
+write.table(tab.percent.cont, "tab.percent.continent.txt")
+```
+
+```{r changes-in-table-by-continent-mean, eval = T}
+tab.percent.cont <- read.table("tab.percent.continent.txt")
+
+tab_list_percent <- list()
+tab_list_sd <- list()
+
+for(i in unique(tab.percent.cont$Continent)){
+  tab.i <- subset(tab.percent.cont, Continent == i)
+
+  df.percent <- tab.i %>% reshape2::dcast(period + model ~ cat.AI, value.var = "percent")
+
+  df.sd <- tab.i %>% reshape2::dcast(period + model ~ cat.AI, value.var = "sd.percent")
+  # sd for a sum: square root of squared sd
+
+  drycats <- which(names(df) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
+
+  df.percent <- df.percent %>% mutate("Sum drylands" = rowSums(.[drycats], na.rm = T))
+  df.sd <- df.sd %>% mutate("Sum drylands" = round(sqrt(rowSums((.[drycats])^2, na.rm = T)),2))
+  
+  missing <- setdiff(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"), names(df.percent))
+
+  df.percent[, missing] <- 0
+  df.sd[,missing] <- 0
+                       
+  df.percent <- df.percent %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
+  
+  tab_list_percent[[i]] <- df.percent
+  
+  df.sd <- df.sd %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
+  
+  tab_list_sd[[i]] <- df.sd
+}
+  
+for(i in names(tab_list_percent)){
+  
+  df <- tab_list_percent[[i]] %>% select(c("model", "period"))
+  df$Hyperarid <- paste(tab_list_percent[[i]]$Hyperarid, tab_list_sd[[i]]$Hyperarid, sep = " ± ")
+  df$Arid <- paste(tab_list_percent[[i]]$Arid, tab_list_sd[[i]]$Arid, sep = " ± ")
+  df$'Semi-Arid' <- paste(tab_list_percent[[i]][,5], tab_list_sd[[i]][,5], sep = " ± ")
+  df$'Dry subhumid' <- paste(tab_list_percent[[i]][,6], tab_list_sd[[i]][,6], sep = " ± ")
+  df$'Sum drylands' <- paste(tab_list_percent[[i]][,7], tab_list_sd[[i]][,7], sep = " ± ")
+  df$Humid <- paste(tab_list_percent[[i]]$Humid, tab_list_sd[[i]]$Humid, sep = " ± ")
+  df$Cold <- paste(tab_list_percent[[i]]$Cold, tab_list_sd[[i]]$Cold, sep = " ± ")
+  
+
+  k <- kable(df[order(df$model, decreasing = F),], caption = i) %>% kable_styling(bootstrap_options = "bordered") #%>%
+ #   column_spec(c(8,11), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
+  print(k)
+}
+
+# pourquoi y a-t-il des NA?
+```
+
+```{r changes-in-table-by-continent-mean, eval = T}
+tab.future.cont <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>%
+  group_by(period, model, Continent, cat.AI) %>%
+  summarise(count = n()) %>%
+  ungroup() %>% group_by(period, model, Continent) %>% mutate(percent = round(count/sum(count)*100, 1), count = NULL)
+
+tab_list <- list()
+
+for(i in unique(tab.future.cont$Continent)){
+  tab.i <- subset(tab.future.cont, Continent == i)
+
+    df <- tab.i %>%
+  reshape2::dcast(period + model ~ cat.AI)
   tab_list[[i]] <- df
 
   drycats <- which(names(df) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
@@ -2226,6 +2394,7 @@ b585 <- ggplot(data = df585, aes(x = period, y = percent))+
 
 ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom", ncol = 3)
 ```
+
 
 
 # Changes of variables over time and scenarios 
