@@ -1510,7 +1510,7 @@ colscale <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#fddbc7", 
 
 "Anomalies" is the multimodel AI average minus the reference AI (period 1970-2000). More blue: AI mean is superior to AI ref, hence wetter than the ref. More red: the anomalie is negative, hence AI mean is inferior to AI ref, hence dryer. 
 
-```{r map-historical-changes-percent, fig.dim = c(5,10)}
+```{r map-historical-changes-percent, fig.dim = c(5,8)}
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
@@ -2256,9 +2256,9 @@ for(i in unique(tab.percent.cont$Continent)){
   df.percent <- tab.i %>% reshape2::dcast(period + model ~ cat.AI, value.var = "percent")
 
   df.sd <- tab.i %>% reshape2::dcast(period + model ~ cat.AI, value.var = "sd.percent")
-  # sd for a sum: square root of squared sd
+  # sd for a sum: square root of sum of squared sd
 
-  drycats <- which(names(df) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
+  drycats <- which(names(df.percent) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
 
   df.percent <- df.percent %>% mutate("Sum drylands" = rowSums(.[drycats], na.rm = T))
   df.sd <- df.sd %>% mutate("Sum drylands" = round(sqrt(rowSums((.[drycats])^2, na.rm = T)),2))
@@ -2269,10 +2269,12 @@ for(i in unique(tab.percent.cont$Continent)){
   df.sd[,missing] <- 0
                        
   df.percent <- df.percent %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
+  df.percent[is.na(df.percent)] <- 0
   
   tab_list_percent[[i]] <- df.percent
   
   df.sd <- df.sd %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
+  df.sd[is.na(df.sd)] <- 0
   
   tab_list_sd[[i]] <- df.sd
 }
@@ -2289,65 +2291,30 @@ for(i in names(tab_list_percent)){
   df$Cold <- paste(tab_list_percent[[i]]$Cold, tab_list_sd[[i]]$Cold, sep = " ± ")
   
 
-  k <- kable(df[order(df$model, decreasing = F),], caption = i) %>% kable_styling(bootstrap_options = "bordered") #%>%
- #   column_spec(c(8,11), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
-  print(k)
+  kable(df[order(df$model, decreasing = F),], caption = i) %>% kable_styling(bootstrap_options = "bordered") %>% row_spec(2, bold = T) 
 }
 
-# pourquoi y a-t-il des NA?
-```
-
-```{r changes-in-table-by-continent-mean, eval = T}
-tab.future.cont <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>%
-  group_by(period, model, Continent, cat.AI) %>%
-  summarise(count = n()) %>%
-  ungroup() %>% group_by(period, model, Continent) %>% mutate(percent = round(count/sum(count)*100, 1), count = NULL)
-
-tab_list <- list()
-
-for(i in unique(tab.future.cont$Continent)){
-  tab.i <- subset(tab.future.cont, Continent == i)
-
-    df <- tab.i %>%
-  reshape2::dcast(period + model ~ cat.AI)
-  tab_list[[i]] <- df
-
-  drycats <- which(names(df) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
-
-  df <- df %>% mutate("Sum drylands" = rowSums(.[drycats], na.rm = T))
-  
-  df$Cold <- ifelse(is.null(df$Cold) == T, 0, df$Cold)
-  df$Hyperarid <- ifelse(is.null(df$Hyperarid) == T, 0, df$Hyperarid)
-  df$Arid <- ifelse(is.null(df$Arid) == T, 0, df$Arid)
-  df$'Semi-arid' <- ifelse(is.null(df$'Semi-arid') == T, 0, df$'Semi-arid')
-  df$'Dry subhumid' <- ifelse(is.null(df$'Dry subhumid') == T, 0, df$'Dry subhumid')
-  df <- df %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
-  
-  tab_list[[i]] <- df
-}
-  
-for(i in names(tab_list)){
-  df <- tab_list[[i]]
-
-  k <- kable(df[order(df$model, decreasing = F),], caption = i) %>% kable_styling(bootstrap_options = "bordered") %>%
-    column_spec(c(8,11), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
-  print(k)
-}
 ```
 
 
 ```{r cat-changes-by-continent-in-graph, eval = T}
+list_plots <- list()
 
-for(i in names(tab_list)){
-    df <- tab_list[[i]]
-    g <- ggplot(data = df, aes(x=period,y= get("Sum drylands"), col = model))+geom_point(shape = "\u2605", size = 5)+
-      scale_color_manual(values = colorvec[c(1,3,9,11)])+
-    labs(x="",y = "Percent of drylands", title = i)+
+for(i in names(tab_list_percent)){
+    df.percent <- tab_list_percent[[i]]
+    df.sd <- tab_list_sd[[i]]
+    
+    df <- merge(df.percent, df.sd, by = c("model", "period"))
+    
+    g <- ggplot(data = df)+geom_point(aes(x=period,y= get("Sum drylands.x"), col = model), shape = "\u2605", size = 5, position = position_dodge(width = 0.5))+
+      geom_errorbar(aes(x = period, ymin = get("Sum drylands.x")-get("Sum drylands.y"), ymax = get("Sum drylands.x")+get("Sum drylands.y"), col = model), position = position_dodge(width = 0.5))+
+    scale_color_manual(values = colorvec[c(1,3,9,11)])+
+    labs(x="", y = "Percent of drylands", title = i)+
     theme_minimal()
-  print(g)
+  list_plots[[i]] <- g
 }
 
-
+ggarrange(plotlist = list_plots, ncol = 2, nrow = 4, common_legend = T, legend = "bottom")
 ```
 
 ```{r colplots-futurecat-continent, fig.dim = c(15,25)}
