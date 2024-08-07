@@ -1412,7 +1412,7 @@ ggpubr::ggarrange(plotlist = list(
 
 ## Strictly wetter or dryer (reference period: 1970-2000)
 
-```{r questcequinemarchepas}
+```{r questcequinemarchepas, eval = F}
 test <- cmip6s %>% select(c("lon","lat","model","period","dryer","cat.AI","catAIref","AI.mean", "AIref", "anomalies","plus.AI", "minus.AI"))
 
 View(subset(test, dryer == "dryer"))
