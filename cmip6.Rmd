@@ -1070,6 +1070,8 @@ write.table(cmip6s, "cmip6s.txt")
 ```{r read-cmip6s}
 cmip6s <- read.table("cmip6s.txt")
 
+cmip6s$Continent[which(cmip6s$Continent == "Europe-Africa")] <- "Mediterranea"
+
 ```
 
 
@@ -1523,7 +1525,7 @@ colscale <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef","white","whi
 
 "diff.AI.mean" is the multimodel AI average minus the reference AI (period 1970-2000). More blue: AI mean is superior to AI ref, hence wetter than the ref. More red: the anomalie is negative, hence AI mean is inferior to AI ref, hence dryer. 
 
-```{r map-historical-changes-percent, fig.dim = c(8,4)}
+```{r map-historical-changes-percent, fig.dim = c(8,3)}
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
@@ -1541,7 +1543,7 @@ for(i in c("1850_1880","1985_2015")){
   map_list[[i]] <- g
 }
 
-ggpubr::ggarrange(plotlist = map_list, ncol = 1, nrow = 2, common.legend = T, legend = "bottom") %>% annotate_figure(top = "% change of AI index compared to 1970-2000")
+ggpubr::ggarrange(plotlist = map_list, ncol = 2, common.legend = T, legend = "bottom") %>% annotate_figure(top = "% change of AI index compared to 1970-2000")
 
 #,guide = guide_legend(label.theme = element_text(angle = 0))
 ```
@@ -1618,7 +1620,7 @@ colors_changes <- c("Hyperarid to arid" = "#E7D7B6",
 
 ### Historical
 
-```{r map-historical-changes-dry-catmaj, fig.dim = c(8, 4)}
+```{r map-historical-changes-dry-catmaj, fig.dim = c(8,3)}
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
@@ -1666,7 +1668,7 @@ ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "b
 
 #### Historical
 
-```{r map-historical-changes-wet-catmaj, fig.dim = c(8, 4)}
+```{r map-historical-changes-wet-catmaj, fig.dim = c(8,2)}
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
@@ -1757,7 +1759,7 @@ colors_changes <- c("Hyperarid to Arid" = "#E7D7B6",
 ## Changes towards dryer categories cat mean
 ### Historical
 
-```{r map-historical-changes-dry-catmean, fig.dim = c(8, 4)}
+```{r map-historical-changes-dry-catmean, fig.dim = c(8,3)}
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
@@ -1802,7 +1804,7 @@ ggarrange(plotlist = map_list, ncol = 2, nrow = 3, common.legend = T, legend = "
 
 ### Historical
 
-```{r map-historical-changes-wet-, fig.dim = c(8, 3)}
+```{r map-historical-changes-wet-, fig.dim = c(8, 2)}
 map_list <- list()
 
 for(i in c("1850_1880","1985_2015")){
@@ -1847,7 +1849,7 @@ ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, leg
 
 ## Big map of SSP585 2070-2100
 
-```{r bigmap, fig.dim = c(10,5)}
+```{r bigmap, fig.dim = c(10,6)}
 
 g <- ggplot() + 
   geom_tile(data = subset(cmip6s, period == "2070_2100" & model == "SSP585" & change.catmean == 1), aes(x=lon, y = lat,  fill = change.cat.mean))+
@@ -2214,7 +2216,7 @@ for(i in unique(tab.cont.diff$Continent)){
   drycats <- which(names(df.percent) %in% c("Hyperarid","Arid","Semi-arid","Dry subhumid"))
   
   df.percent <- df.percent %>% mutate("Sum drylands" = rowSums(.[drycats], na.rm = T))
-  df.sd <- df.sd %>% mutate("Sum drylands" = round(sqrt(rowSums((.[drycats])^2, na.rm = T)),2))
+  df.sd <- df.sd %>% mutate("Sum drylands" = sqrt(rowSums((.[drycats])^2, na.rm = T)),2)
   
   missing <- setdiff(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"), names(df.percent))
   
@@ -2223,11 +2225,13 @@ for(i in unique(tab.cont.diff$Continent)){
   
   df.percent <- df.percent %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
   df.percent[is.na(df.percent)] <- 0
+  df.percent[,c(3:9)] <- round(df.percent[,c(3:9)], 1)
   
   tab_list_percent[[i]] <- df.percent
   
   df.sd <- df.sd %>% select(c("model","period","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
   df.sd[is.na(df.sd)] <- 0
+  df.sd[ , c(3:9)] <- round(df.sd[, c(3:9)], 1)
   
   tab_list_sd[[i]] <- df.sd
 }
@@ -2246,7 +2250,7 @@ for(i in names(tab_list_percent)){
   df$Humid <- paste(tab_list_percent[[i]]$Humid, tab_list_sd[[i]]$Humid, sep = " ± ")
   df$Cold <- paste(tab_list_percent[[i]]$Cold, tab_list_sd[[i]]$Cold, sep = " ± ")
   
-  k_list[[i]] <- kable(df[order(df$model, decreasing = F),], caption = i) %>% kable_styling(bootstrap_options = "bordered") %>%
+  k_list[[i]] <- kable(df[order(df$model, decreasing = F)], caption = i, digits = 2) %>% kable_styling(bootstrap_options = "bordered") %>%
     column_spec(8, italic = T, background = colorvec[5]) %>% row_spec(2, bold = T) 
   
 }
@@ -2255,7 +2259,9 @@ k_list
 
 ```
 
-### Changes in proportion of aridity categories, figure
+# Changes in proportion of aridity categories, figure
+
+## Mean changes of sum drylands by continent, period and model 
 
 ```{r cat-changes-by-continent-in-graph-catmean, fig.dim = c(8,10)}
 list_plots <- list()
@@ -2277,6 +2283,8 @@ for(i in names(tab_list_percent)){
 
 ggarrange(plotlist = list_plots, ncol = 2, nrow = 4, common.legend = T, legend = "bottom")
 ```
+
+## Colplot by continent
 
 ```{r colplots-futurecat-continent, fig.dim = c(15,25)}
 tab.flow <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 ) %>%
@@ -2323,22 +2331,193 @@ b585 <- ggplot(data = df585, aes(x = period, y = percent))+
 ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom", ncol = 3)
 ```
 
-
-
+## Evolution of aridity index by Continent and period
 
 ```{r plot-evolution}
 
-tab.percent.region <- cmip6 %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 ) %>%
-  group_by(period, model, Continent, Name, AI) %>%
-  summarise(AI.mean = mean(AI), AI.sd= sd(AI)) %>%
+tab.percent.region <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 & period != "1985_2015") %>%
+  group_by(period, model, Continent, Name) %>% select(c("diff.AI.mean.percent")) %>%
+  summarise(AI.diff.mean = mean(diff.AI.mean.percent, na.rm = T), AI.diff.sd= sd(diff.AI.mean.percent, na.rm = T)) %>%
   ungroup()
 
-  
-ggplot(subset(tab.percent.region, Continent == "AFRICA"))+
-  geom_point(aes(x=period, y = AI.mean, col = Name), position = "jitter", alpha = 0.5)
+ipcc_regions.sf <- st_as_sf(ipcc_regions)
+
+percent.region.sf <- merge(ipcc_regions.sf, tab.percent.region, all.y = T)
+
+
 
 ```
 
+```{r plot_sf_changes, fig.dim = c(10,10)}
+pbreaks <- c(-10, 0, 10, 20, 30, 40)
+colscale <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "azure","cornsilk", "#f4a582")
+#colscale <- c("#c6dbef","white","#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#993344")
+
+map_list <- list()
+
+for(i in c("SSP245","SSP370","SSP585")){
+  for (j in c("2030_2060","2070_2100")){
+    index <- paste(i, j, sep = " , ")
+    g <- ggplot(data = subset(percent.region.sf, period == j & model == i)) + geom_sf(aes(fill = AI.diff.mean))+
+          binned_scale(aesthetics = "fill", breaks = pbreaks, palette = function(x) rev(colscale))+
+      borders(colour = "grey60")+
+      geom_sf_label(aes(label = round(AI.diff.mean,1)),size = 2) +
+      labs(title = index)+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom")
+    map_list[[index]] <- g
+  }}
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+```{r plot_point_changes, fig.dim = c(10,10), eval = F}
+
+for(i in unique(percent.region.sf$Continent)){
+
+  df <- percent.region.sf %>% filter(Continent == i & period != "1850_1880") 
+ref <- df[which(df$model == "historical"),]
+ref1 <- ref %>% mutate(model = "SSP245")
+ref2 <- ref %>% mutate(model = "SSP370")
+ref3 <- ref %>% mutate(model = "SSP585")
+
+  dfref <- rbind(subset(df, model != "historical"), ref1) %>% rbind(ref2) %>% rbind(ref3)  
+    
+g <- ggplot(dfref)+geom_point(aes(x = period, y = AI.diff.mean, col = Name))+
+  geom_line(aes(x = period, y = AI.diff.mean, col = Name, group = Name))+
+  scale_color_manual(values = c(colscale <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef","#e8ecff", "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f")))+
+  facet_grid(cols = vars(model), scales = "free_x")+
+  theme_minimal()+
+  theme(legend.position = "right")
+  
+plot(g)
+}
+
+```
+
+
+```{r plot-evolution-continent, fig.dim = c(10,10)}
+
+tab.percent.continent <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 & period != "1985_2015") %>%
+  group_by(period, model, Continent) %>% select(c("diff.AI.mean.percent")) %>%
+  summarise(AI.diff.mean = mean(diff.AI.mean.percent, na.rm = T), AI.diff.sd= sd(diff.AI.mean.percent, na.rm = T)) %>%
+  ungroup()
+
+
+df <- tab.percent.continent %>% filter(period != "1850_1880" & Continent != "POLAR") 
+ref <- df[which(df$model == "historical"),]
+ref1 <- ref %>% mutate(model = "SSP245")
+ref2 <- ref %>% mutate(model = "SSP370")
+ref3 <- ref %>% mutate(model = "SSP585")
+
+dfref <- rbind(subset(df, model != "historical"), ref1) %>% rbind(ref2) %>% rbind(ref3)  
+
+dfref$Continent <- str_replace(dfref$Continent, "-", "\n")
+    
+ggplot(dfref, aes(x = period, y = AI.diff.mean))+
+  geom_point(aes(size = AI.diff.sd, col = Continent))+
+  geom_line(aes(group = Continent), size = 0.1)+
+  facet_grid(rows = vars(model), cols = vars(Continent))+
+  scale_size_continuous(breaks = c(0,1,5,10,100), transform = "pseudo_log", name = "Standard deviation")+
+  scale_color_viridis_d(end = 0.8)+
+  labs(y = "Difference in aridity index compared to 1970-2000, %", x = "")+
+  guides(color = F)+
+  ylim(-40,25)+
+  theme_minimal()+
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))
+```
+
+```{r plot-evolution-subregion, fig.dim = c(10,40)}
+
+tab.percent.continent <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 & period != "1985_2015") %>%
+  group_by(period, model, Name) %>% select(c("diff.AI.mean.percent")) %>%
+  summarise(AI.diff.mean = mean(diff.AI.mean.percent, na.rm = T), AI.diff.sd= sd(diff.AI.mean.percent, na.rm = T)) %>%
+  ungroup()
+
+
+df <- tab.percent.continent %>% filter(period != "1850_1880") 
+ref <- df[which(df$model == "historical"),]
+ref1 <- ref %>% mutate(model = "SSP245")
+ref2 <- ref %>% mutate(model = "SSP370")
+ref3 <- ref %>% mutate(model = "SSP585")
+
+dfref <- rbind(subset(df, model != "historical"), ref1) %>% rbind(ref2) %>% rbind(ref3)  
+
+dfref$Name <- str_replace(dfref$Name, "-", "\n") 
+
+ggplot(dfref, aes(x = period, y = AI.diff.mean))+
+  geom_point(aes(size = AI.diff.sd, col = Name))+
+  geom_line(aes(group = Name), size = 0.1)+
+  facet_grid(cols = vars(model), rows = vars(Name), switch = "both")+
+  scale_size_continuous(breaks = c(0,1,5,10,100), transform = "pseudo_log", name = "Standard deviation")+
+  scale_color_viridis_d()+
+labs(y = "Difference in aridity index compared to 1970-2000, %", x = "")+
+  guides(color = F)+
+  theme_minimal()+
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))+  
+  scale_y_continuous(position = "right", limits = c(-40,30))
+```
+
+```{r same-with-boxplot, fig.dim = c(10,10)}
+tab.percent.continent <- cmip6s %>% 
+  subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 & period %in% c("1970_2000","2030_2060","2070_2100"))
+
+df <- tab.percent.continent %>% filter(Continent != "POLAR") 
+ref <- df[which(df$model == "historical"),]
+ref1 <- ref %>% mutate(model = "SSP245")
+ref2 <- ref %>% mutate(model = "SSP370")
+ref3 <- ref %>% mutate(model = "SSP585")
+
+dfref <- rbind(subset(df, model != "historical"), ref1) %>% rbind(ref2) %>% rbind(ref3)  
+
+dfref$Continent <- str_replace(dfref$Continent, "-", "\n")
+
+ggplot(dfref, aes(x = period, y = diff.AI.mean.percent))+
+  geom_boxplot(aes(col = Continent), outliers = F)+
+  facet_grid(rows = vars(model), cols = vars(Continent), space = "free_y")+
+  scale_color_viridis_d(end = 0.8)+
+  labs(y = "Difference in aridity index compared to 1970-2000, %", x = "")+
+  guides(color = F)+
+  theme_minimal()+
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))
+  
+```
+```{r plot-evolution-temp-precip-continent, fig.dim = c(10,10)}
+cmip6s$pr.percent <- with(cmip6s, diff.pr.mean/spr.ref.mean*100)
+
+tab.percent.continent <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 & period != "1985_2015") %>%
+  group_by(period, model, Continent) %>% select(c("diff.t.mean", "pr.percent")) %>%
+  summarise(t.diff.mean = mean(diff.t.mean, na.rm = T), t.diff.sd= sd(diff.t.mean, na.rm = T),
+            pr.diff.mean = mean(pr.percent, na.rm = T), pr.diff.sd= sd(pr.percent, na.rm = T)) %>%
+  ungroup()
+
+
+df <- tab.percent.continent %>% filter(period != "1850_1880" & Continent != "POLAR") 
+ref <- df[which(df$model == "historical"),]
+ref1 <- ref %>% mutate(model = "SSP245")
+ref2 <- ref %>% mutate(model = "SSP370")
+ref3 <- ref %>% mutate(model = "SSP585")
+
+dfref <- rbind(subset(df, model != "historical"), ref1) %>% rbind(ref2) %>% rbind(ref3)  
+
+dfref$Continent <- str_replace(dfref$Continent, "-", "\n")
+    
+ggplot(dfref, aes(x = period))+
+  geom_point(aes(y = t.diff.mean*3, size = t.diff.sd, col = "Temperature, °C"), alpha = 0.5)+
+  geom_line(aes(y = t.diff.mean*3, group = Continent, col = "Temperature, °C"), size = 0.1)+
+  
+  geom_point(aes(y = pr.diff.mean, size = pr.diff.sd, col = "Precipitation, %"), alpha = 0.5)+
+  geom_line(aes(y = pr.diff.mean, group = Continent, col = "Precipitation, %"), size = 0.1)+
+  
+  scale_color_manual(values = c("#3182bd", "#d6604d"))+
+  facet_grid(rows = vars(model), cols = vars(Continent))+
+  labs(y = "Precipitation anomalies, %", x = "", size = "Standard deviation", color = "")+
+  ylim(-45,25)+
+  theme_minimal()+
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))+
+  
+  scale_y_continuous(sec.axis = sec_axis(trans = ~./3, name = "Temperature anomalies, °C"))
+```
 
 # Changes of variables over time and scenarios 
 
@@ -2411,10 +2590,10 @@ map_list <- list()
 for(i in c("1850_1880", "1970_2000","1985_2015")){
   g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == "historical"), aes(x=lon, y = lat,  fill = diff.t.mean))+
     borders(colour = "grey60")+
-   scale_fill_gradient2(low = "#3182bd",mid = "white", high = "#b2182b", midpoint = 0)+
-    labs(title = i, fill = "Temperature anomalies compared to 1970-2000, °C")+
-    theme_void()+ylim(-55,90)+
-    theme(legend.position = "right", legend.text =  element_text(angle = 0))
+   scale_fill_gradient2(low = "#08519c",mid = "white", high = "#b2182b", midpoint = 0, transform = "pseudo_log", breaks = c(-2, -1, 0, 1, 2, 3, 4))+
+      labs(fill = "Precipitation anomalies in %", title = i)+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom", legend.text =  element_text(angle = 0))
   map_list[[i]] <- g
 }
 
@@ -2431,8 +2610,8 @@ for(i in c("SSP245","SSP370","SSP585")){
     index <- paste(i, j, sep = " , ")
     g <- ggplot() + geom_tile(data = subset(cmip6s, period == j & model == i), aes(x=lon, y = lat,  fill = diff.t.mean))+
       borders(colour = "grey60")+
-   scale_fill_gradient2(low = "#3182bd",mid = "white", high = "#b2182b", midpoint = 0)+
-      labs(fill = "Temperature anomalies compared to 1970-2000, °C", title = index)+
+   scale_fill_gradient2(low = "#08519c",mid = "white", high = "#b2182b", midpoint = 0, transform = "pseudo_log", breaks = c(-2, -1, 0, 1, 2, 3, 4))+
+      labs(fill = "Temperature anomalies in °C", title = index)+
       theme_void()+ylim(-55,90)+
       theme(legend.position = "bottom", legend.text =  element_text(angle = 0))
     map_list[[index]] <- g
@@ -2440,6 +2619,32 @@ for(i in c("SSP245","SSP370","SSP585")){
 
 ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
 
+```
+### Binned anomalies
+
+```{r map-future-changes-quantiles-temperature-anomalies-binned, fig.dim = c(10,10)}
+YOR <- brewer.pal(n = 11, name ="YlOrRd")
+coltemp <- c("[0,1]" = YOR[1], "(1,2]" = YOR[2], "(2,3]" = YOR[3], "(3,4]" = YOR[4], "(4,5]" = YOR[5], "(5,6]" = YOR[6], "(6,7]" = YOR[7], "(7,8]" = YOR[8], "(8,9]" = YOR[9], "(9,10]" = "grey20")
+
+
+map_list <- list()
+
+for(i in c("SSP245","SSP370","SSP585")){
+  for (j in c("2030_2060","2070_2100")){
+    index <- paste(i, j, sep = " , ")
+    g <- ggplot(data = subset(cmip6s, period == j & model == i), 
+                aes(x=lon, y = lat,  fill = cut(diff.t.mean, breaks = c(0,1,2,3,4,5,6,7,8,9,10), include.lowest = T))) + 
+      geom_tile(show.legend = T)+
+      borders(colour = "grey60")+
+      scale_fill_manual(values = coltemp, drop = F)+
+      labs(fill = "Temperature\nanomalies in °C", title = index)+
+      theme_void()+ylim(-55,90)+
+     theme(legend.position = "bottom", legend.text =  element_text(angle = 0))+
+    guides(fill = guide_legend(nrow = 2))
+    map_list[[index]] <- g
+  }}
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
 ```
 
 ## Precipitation 
@@ -2508,10 +2713,10 @@ map_list <- list()
 for(i in c("1850_1880","1970_2000","1985_2015")){
   g <- ggplot() + geom_raster(data = subset(cmip6s, period == i & model == "historical"), aes(x=lon, y = lat,  fill = pr.percent))+
     borders(colour = "grey60")+
-   scale_fill_gradient2(high = "#3182bd",mid = "white", low = "#b2182b", midpoint = 0)+
-    labs(title = i, fill = "Precipitation anomalies in %")+
-    theme_void()+ylim(-55,90)+
-    theme(legend.position = "right", legend.text =  element_text(angle = 0))
+   scale_fill_gradient2(high = "#08519c", mid = "white", low = "#b2182b", midpoint = 0, transform = "pseudo_log", breaks = c(-10, -5, -1, 0, 1, 5, 10, 15, 30))+
+      labs(fill = "Precipitation anomalies in %", title = i)+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom", legend.text =  element_text(angle = 0))
   map_list[[i]] <- g
 }
 
@@ -2528,7 +2733,7 @@ for(i in c("SSP245","SSP370","SSP585")){
     index <- paste(i, j, sep = " , ")
     g <- ggplot() + geom_raster(data = subset(cmip6s, period == j & model == i), aes(x=lon, y = lat,  fill = pr.percent))+
       borders(colour = "grey60")+
-   scale_fill_gradient2(high = "#3182bd", mid = "white", low = "#b2182b", midpoint = 0)+
+   scale_fill_gradient2(high = "#08519c", mid = "white", low = "#b2182b", midpoint = 0, transform = "pseudo_log", breaks = c(-10, -5, -1, 0, 1, 5, 10, 15, 30))+
       labs(fill = "Precipitation anomalies in %", title = index)+
       theme_void()+ylim(-55,90)+
       theme(legend.position = "bottom", legend.text =  element_text(angle = 0))
@@ -2548,7 +2753,7 @@ for(i in c("SSP245","SSP370","SSP585")){
     index <- paste(i, j, sep = " , ")
     g <- ggplot() + geom_raster(data = subset(cmip6s, period == j & model == i), aes(x=lon, y = lat,  fill = pr.percent))+
       borders(colour = "grey60")+
-   scale_fill_binned_divergingx(mid = 0, palette = "RdBu", rev = F, n_interp = 15)+
+   scale_fill_binned_divergingx(mid = 0, palette = "RdBu", rev = F, n_interp = 7, breaks = c(-20, -10, 0, 10, 20, 30, 40, 50, 60))+
       labs(fill = "Precipitation anomalies in %", title = index)+
       theme_void()+ylim(-55,90)+
       theme(legend.position = "bottom", legend.text =  element_text(angle = 0))
@@ -2557,3 +2762,4 @@ for(i in c("SSP245","SSP370","SSP585")){
 
 ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
 ```
+
