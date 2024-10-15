@@ -23,6 +23,7 @@ library(sf)
 library(ggplot2)
 library(ggpubr)
 library(viridisLite)
+library(RColorBrewer)
 library(lemon)
 
 library(geodata)
@@ -189,7 +190,11 @@ fra <- readRDS("Worldclim/fra.rds")
 civ <- readRDS("Worldclim/civ.rds")
 world.df <- readRDS("Worldclim/world.df.rds")
 
-colorvec <- viridis(n = 8, direction = -1)
+colorvec <- brewer.pal(n = 11, name ="RdYlGn")
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
 ```
 
 # Définition de l'aridité
@@ -210,7 +215,7 @@ Il sert à décrire, en se basant sur des paramètres facilement accessibles, le
 ```{r categories-lang}
 breaks.lang <- c(0,20,40,60,100,160,Inf)
 cat.lang <- c("(0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,Inf]"="Hyper humid")
-col.cat <- c("Deserts" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Hyper humid"= colorvec[6])
+col.cat <- c("Deserts" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Semi-humid" = colorvec[8], "Humid"= colorvec[10],"Hyper humid"= "powderblue")
 ```
 
 Detailed in @Thornthwaite1948 and [here]<https://iast.univ-setif.dz/documents/Cours/Cours6BioclimatologieL2GAT21.pdf> 
@@ -290,11 +295,12 @@ Usage et détails: @Baltas2007.
 ```{r categories-martonne}
 breaks.baltas <- c(0,5,10,20,24,28,35,55,Inf)
 cat.baltas <- c("[0,5]" = "Desert", "(5,10]"= "Dry", "(10,20]" = "Semi-dry","(20,24]" = "Mediterranean", "(24,28]" = "Semi-humid", "(28,35]" = "Humid","(35,55]" = "Very humid (a)", "(55,Inf]" = "Very humid (b)")
-col.baltas <- c("Desert" = colorvec[1],"Dry" = colorvec[2], "Semi-dry"= colorvec[3],"Meditarranean"= colorvec[4], "Semi-humid" = colorvec[5], "Humid"= colorvec[6],"Very humid (a)"= colorvec[7], "Very humid (b)" = colorvec[8])
+col.baltas <- c("Desert" = colorvec[2],"Dry" = colorvec[4], "Semi-dry"= colorvec[5],"Meditarranean"= colorvec[6], "Semi-humid" = colorvec[8], "Humid"= colorvec[10],"Very humid (a)"= colorvec[11], "Very humid (b)" = "#004615")
 
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
-col.martonne <- c("Desert" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Temperate" = colorvec[4], "Humid"= colorvec[5],"Forest"= colorvec[6])
+col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
+
 
 ```
 
@@ -409,7 +415,8 @@ La température max utilisée est la température moyenne du mois le plus chaud,
 ```{r categories-emberger}
 breaks.emberger <- c(-Inf, 0,10,45,70,110,150, +Inf)
 cat.emberger <- c("(-Inf,0]" = NA,"(0,10]"= "Hyperarid", "(10,45]" = "Arid", "(45,70]" = "Semi-arid", "(70,110]" = "Subhumid","(110,150]" = "Humid","(150, Inf]" = "Hyper-humid")
-col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Subhumid" = colorvec[4], "Humid"= colorvec[5],"Hyper-humid"= colorvec[6])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Subhumid" = colorvec[8], "Humid"= colorvec[10],"Hyper-humid"= colorvec[11])
+
 ```
 
 ```{r emberger-civ }
@@ -450,6 +457,7 @@ g2f <- ggplot(emberger.fra)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
   labs(title = "Emberger Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
 
 ```
+
 ```{r plot-emberger, fig.dim = c(8,4)}
 ggarrange(g1f,g1c, common.legend = T, legend = "bottom")
 ggarrange(g2f,g2c, common.legend = T, legend = "bottom")
@@ -463,18 +471,20 @@ emberger.w$tmin <- apply(dplyr::select(world.df, c("tmean_01", "tmean_02", "tmea
 emberger.w$Em <- with(emberger.w, pre*100/(tmax^2-tmin^2)) # Formulation from Marres1972. 
 
 
-ggplot(emberger.w)+geom_raster(aes(x = lon, y = lat, fill = Em))+
+ggplot(subset(emberger.w, Em > -500 & Em < 2000))+geom_raster(aes(x = lon, y = lat, fill = Em))+
   labs(fill = "Em")+scale_fill_viridis_c(direction = -1)+theme_void(base_size = 10)+theme(legend.position = "bottom")
 
 emberger.w$cat.AI <- cut(emberger.w$Em, breaks = breaks.emberger) %>% revalue(cat.emberger)
 
 ggplot(emberger.w)+geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
-  labs(title = "Emberger Aridity Index", fill = "")+scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 2))
+  labs(title = "Emberger Aridity Index", fill = "")+
+  scale_fill_manual(values = col.cat)+theme_void(base_size = 10)+theme(legend.position = "bottom")+
+  guides(fill = guide_legend(nrow = 2))
 
 saveRDS(emberger.w, "Worldclim/emberger.w.rds")
 ```
 
-Encore une fois, ne fonctionne pas si la température annuelle moyenne (ou tmax-tmin) est < 0: l'indice devient négatif
+Encore une fois, ne fonctionne pas si la température annuelle moyenne (ou tmax-tmin) est < 0: l'indice devient négatif. Les NA pourraient être "Cold"
 
 # Ångström, 1936
 
@@ -485,7 +495,8 @@ Il note la similitude de l’indice avec celui de De Martonne. Utilisation des m
 ```{r categories-angstrom}
 breaks.angstrom <- c(0,20,40,60,100,160,Inf)
 cat.angstrom <- c("[0,20]"= "Deserts", "(20,40]" = "Arid", "(40,60]" = "Semi-arid", "(60,100]" = "Semi-humid","(100,160]" = "Humid", "(160,Inf]"= "Hyper-humid")
-col.cat <- c("Deserts" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Semi-humid" = colorvec[4], "Humid"= colorvec[5],"Hyper-humid"= colorvec[6])
+col.cat <- c("Deserts" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Semi-humid" = colorvec[8], "Humid"= colorvec[10],"Hyper-humid"= colorvec[11])
+
 ```
 
 ```{r angstrom-civ}
@@ -587,11 +598,15 @@ Formulas available at: https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20ba
 ```{r categories-unesco}
 breaks.unesco <- c(0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("[0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
-col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
 ```
 
 ```{r PM-perso-civ} 
 unesco.civ <- civ %>% mutate(P = 101.3 * ((293-0.0065*z)/293)^(5.26)) #atm P based on Burman et al. 1987
+
+
+unesco.civ$tmin <-apply(dplyr::select(unesco.civ, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, max, na.rm = T)
+unesco.civ$tmin <- apply(dplyr::select(unesco.civ, c("tmean_01", "tmean_02", "tmean_03", "tmean_04", "tmean_05", "tmean_06", "tmean_07", "tmean_08", "tmean_09", "tmean_10", "tmean_11", "tmean_12")), 1, min, na.rm = T)
 
 unesco.civ$es <- with(unesco.civ, ifelse(temp > 0, 0.61078*exp(17.27*temp/(temp+237.3)),  0.61078*exp(21.875*temp/(temp+265.5)))) # saturation vapor pressure Monteith-Unsworth pour >0, Murray pour T < 0
 unesco.civ$delta <- with(unesco.civ, 4098*es/(temp+237.3)^2) #slope vapor pressure
@@ -713,7 +728,7 @@ Catégorisation @Tsakiris2005
 ```{r categories-unep}
 breaks.unep <- c(0,0.05,0.2,0.5,0.65,Inf)
 cat.unep <- c("[0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
-col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
 ```
 
 ```{r thornthwaite-civ-by-hand }
@@ -825,7 +840,7 @@ thorn.w <- mutate(world.df,
                     i_10 = (tmean_10/5)^1.514,
                     i_11 = (tmean_11/5)^1.514,
                     i_12 = (tmean_12/5)^1.514,
-                    I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
+                    I = rowSums(across(starts_with("i_")), na.rm = T),
                     a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
                     e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*tmean_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
                     e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*tmean_02/I)^a,
@@ -839,7 +854,7 @@ thorn.w <- mutate(world.df,
                     e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*tmean_10/I)^a,
                     e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tmean_11/I)^a,
                     e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tmean_12/I)^a,
-                    ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
+                    ET = rowSums(across(starts_with("e_")), na.rm = T), # en mm
                     AI = pre/ET)
 
 thorn.w$cat.AI <- cut(thorn.w$AI, breaks = breaks.unep, include.lowest = T) %>% revalue(cat.unep) # cuts from Tsakiris2005
@@ -868,7 +883,7 @@ Ra formula: https://www.agraria.unirc.it/documentazione/materiale_didattico/1462
 ```{r categories-har}
 breaks.har <- c(0,0.05,0.2,0.5,0.65,Inf)
 cat.har <- c("[0,0.05]"= "Hyperarid", "(0.05,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
-col.cat <- c("Hyperarid" = colorvec[1], "Arid"= colorvec[2],"Semi-arid"= colorvec[3], "Dry subhumid" = colorvec[4], "Humid"= colorvec[5])
+col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
 ```
 
 ```{r hargreaves-civ-by-hand}
@@ -1249,7 +1264,7 @@ hg.w <- hg.w %>% mutate(psi = pi/180*lat, # latitude in radian
                     MAI_10 = pre_10/e_10,
                     MAI_11 = pre_11/e_11,
                     MAI_12 = pre_12/e_12,
-                    ET = (e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11+e_12)*365, # en mm/daye_01/p_01
+                    ET = rowSums(across(starts_with("e_")), na.rm = T)*365, # en mm/daye_01/p_01
                     AI = pre/ET)
 
 # Classification from Hargreaves 1974

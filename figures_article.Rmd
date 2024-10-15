@@ -23,6 +23,7 @@ library(plyr)
 library(dplyr)
 library(reshape)
 
+library(ggrepel)
 library(ggplot2)
 library(ggpmisc)
 library(ggpubr)
@@ -40,8 +41,11 @@ memory.limit(size = 160000)
 colorvec <- brewer.pal(n = 11, name ="RdYlGn")
 
 col.martonne <- c("Desert" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Temperate" = colorvec[8], "Humid"= colorvec[10],"Forest"= colorvec[11])
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "NA" = "#D5D8DC")
+#col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "NA" = "#D5D8DC")
+
+col.cat <- c("Hyperarid" = "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Dry subhumid" = "#ABD9E9", "Humid"= "#4575B4", "Cold" = "#DAE2F7")
 ```
+
 # Data 
 
 Liens utiles:
@@ -85,7 +89,8 @@ cmip6vA <- cmip6 %>% subset(period == "1970_2000") %>%
 
 breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+#col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+col.cat <- c("Hyperarid" = "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Dry subhumid" = "#ABD9E9", "Humid"= "#4575B4", "Cold" = "#DAE2F7")
 
 cmip6vA$cat.AI <- cmip6vA$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 cmip6vA$cat.AI[which(cmip6vA$ET0 < 400)] <- "Cold"
@@ -141,6 +146,8 @@ ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lo
 
 ipcc_sf <- st_as_sf(ipcc_regions)
 
+ipcc_sf$Name2 <- ipcc_sf$Name %>% str_wrap(width = 10)
+
 ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean")))+
   geom_sf(aes(fill=Continent))+
   scale_fill_manual(values = colorvec)+
@@ -158,21 +165,25 @@ ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean")))+
 comp <- merge(select(era5vA, c("lon","lat","source","Continent","z","Rn","ET0","AI","cat.AI")), 
                      select(wdcvA, c("lon","lat","source","Continent","z","Rn","ET0","AI","cat.AI")), by = c("lon","lat")) %>%
         merge(select(cmip6vA, c("lon","lat","source","Continent","z","ET0","AI","cat.AI")), by = c("lon","lat"))
-
 ```
+
+
 
 ## Comparison of WDC, ERA5 and CMIP6 for the reference period 1970-2000
 
-```{r plot-compare}
+```{r plot-compare, fig.dim = c(8,20)}
 
-calib <- rbind(cmip6vA, era5vA, wdcvA)
+calib <- rbind(cmip6vA, era5vA, wdcvA) %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC"))
 
 breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+#col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+col.cat <- c("Hyperarid" = "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Dry subhumid" = "#ABD9E9", "Humid"= "#4575B4", "Cold" = "#DAE2F7")
 
 calib$cat.AI <- calib$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 calib$cat.AI[which(calib$ET0 < 400)] <- "Cold"
+
+calib$cat.AI <- factor(calib$cat.AI, levels = c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid", "Cold"))
 
 ggarrange(
   
@@ -202,7 +213,9 @@ ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y
     scale_fill_manual(values = col.cat)+
     labs(title = "", fill = "")+
     theme_void()+
-    theme(legend.position = "left")
+    theme(legend.position = "bottom"),
+
+nrows = 4, ncol = 1
 
 )
 ```
@@ -215,16 +228,19 @@ calib <- rbind(cmip6vA, era5vA, wdcvA)
 
 breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+#col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+col.cat <- c("Hyperarid" = "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Dry subhumid" = "#ABD9E9", "Humid"= "#4575B4", "Cold" = "#DAE2F7")
 
 calib$cat.AI <- calib$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 calib$cat.AI[which(calib$ET0 < 400)] <- "Cold"
+
+calib$cat.AI <- factor(calib$cat.AI, levels = c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid", "Cold"))
 
 ggarrange(
   
 ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Wordclim, 1970-2000", fill = "")+
     ylim(-55,90)+
     theme_void()+
@@ -232,7 +248,7 @@ ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y =
 
 ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "ERA5, 1970-2000", fill = "")+
     ylim(-55,90)+
     theme_void()+
@@ -240,7 +256,7 @@ ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,
 
 ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "CMIP6, 1970-2000", fill = "")+
     ylim(-55,90)+
     theme_void()+
@@ -257,6 +273,47 @@ nrows = 4, ncol = 1
 
 )
 ```
+```{r plot-compare-AI-with-borders, fig.dim = c(8,20)}
+
+ggarrange(
+  
+ggplot(data = subset(calib, source == "Worldclim" & AI < 0.05 & AI > 0)) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
+    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
+    borders(colour= "grey60")+
+    labs(title = "Wordclim, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "none"),
+
+ggplot(data = subset(calib, source == "ERA5" & AI < 0.05 & AI > 0)) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
+    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
+    borders(colour= "grey60")+
+    labs(title = "ERA5, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "none"),
+
+ggplot(data = subset(calib, source == "CMIP6" & AI < 0.05 & AI > 0)) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
+    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
+    borders(colour= "grey60")+
+    labs(title = "CMIP6, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "none"),
+
+ggplot(data = subset(calib, source == "Worldclim" & AI < 0.05 & AI > 0)) + geom_raster(aes(x = lon, y = lat, fill = AI))+
+  geom_raster(aes(x = lon, y = lat), fill = "white")+
+    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
+    labs(title = "", fill = "")+
+    theme_void()+
+    theme(legend.position = "top"),
+
+nrows = 4, ncol = 1
+
+)
+```
+
+### Compare ETO and pr in WDC, ERA5, CMIP6
 
 ```{r plot-compare-precip-with-borders, fig.dim = c(8,4)}
 
@@ -269,7 +326,7 @@ calib$pr.cat <- calib$pr %>% cut(breaks = bpr)
 
 g.pr.wdc <- ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = pr.cat))+
     scale_fill_manual(values= col.pr, na.translate = F)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Annual precipitation in Wordclim", fill = "mm/day")+
     ylim(-55,90)+
     theme_void()+
@@ -277,7 +334,7 @@ g.pr.wdc <- ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(ae
 
 g.pr.era5 <- ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = pr.cat))+
       scale_fill_manual(values= col.pr, na.translate = F)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Annual precipitation in ERA5", fill = "mm/day")+
     ylim(-55,90)+
     theme_void()+
@@ -285,7 +342,7 @@ g.pr.era5 <- ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=
 
 g.pr.cmip6 <- ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = pr.cat))+
     scale_fill_manual(values= col.pr, na.translate = F)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Annual precipitation CMIP6", fill = "mm/day")+
     ylim(-55,90)+
     theme_void()+
@@ -311,7 +368,7 @@ calib$et0.cat <- calib$ET0 %>% cut(breaks = bpr)
 
 g.et0.wdc <- ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = et0.cat))+
    scale_fill_manual(values= col.et0, na.translate = F)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Annual evapotranspiration Wordclim", fill = "mm/day")+
     ylim(-55,90)+
     theme_void()+
@@ -319,7 +376,7 @@ g.et0.wdc <- ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(a
 
 g.et0.era5 <- ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = et0.cat))+
    scale_fill_manual(values= col.et0, na.translate = F)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Annual evapotranspiration ERA5", fill = "mm/day")+
     ylim(-55,90)+
     theme_void()+
@@ -327,7 +384,7 @@ g.et0.era5 <- ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x
 
 g.et0.cmip6 <- ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = et0.cat))+
    scale_fill_manual(values= col.et0, na.translate = F)+
-    borders(colour= "grey20")+
+    borders(colour= "grey60")+
     labs(title = "Annual evapotranspiration CMIP6", fill = "mm/day")+
     ylim(-55,90)+
     theme_void()+
@@ -351,16 +408,20 @@ ggarrange(
 
 ## Comparison of WDC, ERA5 and CMIP6 for the reference period 1970-2000 with Antarctica
 
-```{r plot-compare-with-antarctica}
+### Map aridity categories for the 3 databases
+
+```{r plot-compare-with-antarctica, fig.dim = c(8, 20)}
 
 calib <- rbind(cmip6vA, era5vA, wdcvA)
 
 breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
-col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+# col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
+col.cat <- c("Hyperarid" = "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Dry subhumid" = "#ABD9E9", "Humid"= "#4575B4", "Cold" = "#DAE2F7")
 
 calib$cat.AI <- calib$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 calib$cat.AI[which(calib$ET0 < 400)] <- "Cold"
+calib$cat.AI <- factor(calib$cat.AI, levels = c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid", "Cold"))
 
 ggarrange(
   
@@ -387,10 +448,14 @@ ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y
     scale_fill_manual(values = col.cat)+
     labs(title = "", fill = "")+
     theme_void()+
-    theme(legend.position = "left")
+    theme(legend.position = "bottom"),
+
+nrows = 4, ncol = 1
 
 )
 ```
+
+### Proportion aridity category by subregion, continent et database
 
 ```{r compare-cat, eval = F}
 calib$same.cat <- NA
@@ -442,11 +507,13 @@ table_calib$Continent[which(table_calib$Continent == "CENTRAL-AMERICA")] <- "CEN
 table_calib$Continent[which(table_calib$Continent == "NORTH-AMERICA")] <- "NORTH\nAMERICA"
 table_calib$Continent[which(table_calib$Continent == "SOUTH-AMERICA")] <- "SOUTH\nAMERICA"
 
-table_calib$Continent <- factor(table_calib$Continent, levels = c("AFRICA","EUROPE","ASIA","OCEANIA","NORTH\nAMERICA","CENTRAL\nAMERICA","SOUTH\nAMERICA"))
+table_calib$Continent <- factor(table_calib$Continent, levels = c("AFRICA","EUROPE","ASIA","OCEANIA","NORTH\nAMERICA","CENTRAL\nAMERICA","SOUTH\nAMERICA","POLAR","NA"))
+
+table_calib$value <- factor(table_calib$value, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
 
 ggplot(table_calib)+
   geom_col(aes(x = Acronym, y = perc, fill = value, position = "fill"))+
-  scale_fill_manual(values = col.cat, breaks = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","NA"))+
+  scale_fill_manual(values = col.cat, breaks = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))+
   theme_minimal(base_size = 12)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
         legend.position = "bottom", 
@@ -456,7 +523,7 @@ ggplot(table_calib)+
 
 ggplot(table_calib)+
   geom_col(aes(x = Acronym, y = count, fill = value, position = "fill"))+
-  scale_fill_manual(values = col.cat, breaks = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","NA"))+
+  scale_fill_manual(values = col.cat, breaks = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))+
   scale_y_continuous(position = "right")+
   theme_minimal(base_size = 12)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
@@ -467,20 +534,131 @@ ggplot(table_calib)+
 
 ```
 
-```{r pie-chart}
+### Pie chart 
+
+```{r pie-chart-with-antarctica}
 library(ggrepel)
 
-pie_calib <- table_calib %>% group_by(source, value) %>% summarise(gridcells = sum(count)) %>% mutate(percent = round(gridcells/sum(gridcells)*100, 1), lab.y = (rev(cumsum(rev(gridcells)))) - gridcells*0.5)
+pie_calib <- table_calib %>% group_by(source, value) %>% summarise(gridcells = sum(count)) %>% mutate(percent = round(gridcells/sum(gridcells)*100, 1), lab.y = (rev(cumsum(rev(percent)))) - percent*0.5)
 
-ggplot(pie_calib)+geom_bar(aes(x = "", y = gridcells, fill = value), width = 1, stat = "identity")+
+
+ggplot(pie_calib)+geom_bar(aes(x = "", y = percent, fill = value), width = 1, stat = "identity")+
   coord_polar("y", start = 0)+
-  scale_fill_manual(values = col.cat, na.translate = T)+
+  scale_fill_manual(values = col.cat, na.translate = F)+
   facet_grid(cols = vars(source))+
   geom_label_repel(aes(x = "", y = lab.y, label = percent), nudge_x = 0.5)+
   labs(fill = "")+
   theme_void()+theme(legend.position = "bottom")
+```
+
+```{r pie-chart-without-antarctica}
+pie_calib <- rbind(cmip6vA, era5vA, wdcvA)
+
+pie_calib$cat.AI <- factor(pie_calib$cat.AI, levels = c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid", "Cold")) 
+
+pie_calib <- pie_calib %>% 
+  subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55) %>%
+  select(c("source","cat.AI")) %>%
+   table() %>% as.data.frame() %>%
+   group_by(source) %>%
+    mutate(perc = round(Freq/sum(Freq)*100, 1),
+         lab.y = rev(cumsum(rev(Freq))) - Freq*0.5) 
 
 
+# table_calib2 <- calib %>% filter(lat > -55& !Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>% select(c("Continent","Name","Acronym","source","cat.AI")) %>%
+#   reshape2::melt(id.vars = c("Continent","Name","Acronym","source")) %>%
+#   filter(!is.na(value)) %>%
+#   group_by(Continent,Name,Acronym,source,value) %>%
+#   summarise(count = n()) %>% mutate(perc = round(count/sum(count)*100,1)) %>%
+#   ungroup() 
+# 
+# table_calib2$value[is.na(table_calib2$value) == T] <- "NA"
+# table_calib2$Continent[which(table_calib2$Continent == "EUROPE-AFRICA")] <- "EUROPE"
+# table_calib2$Continent[which(table_calib2$Continent == "CENTRAL-AMERICA")] <- "CENTRAL\nAMERICA"
+# table_calib2$Continent[which(table_calib2$Continent == "NORTH-AMERICA")] <- "NORTH\nAMERICA"
+# table_calib2$Continent[which(table_calib2$Continent == "SOUTH-AMERICA")] <- "SOUTH\nAMERICA"
+# 
+# table_calib2$Continent <- factor(table_calib2$Continent, levels = c("AFRICA","EUROPE","ASIA","OCEANIA","NORTH\nAMERICA","CENTRAL\nAMERICA","SOUTH\nAMERICA","POLAR","NA"))
+# 
+# table_calib2$value <- factor(table_calib2$value, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
+# 
+# pie_calib2 <- table_calib2 %>% group_by(source, value) %>% summarise(gridcells = sum(count)) %>% mutate(percent = round(gridcells/sum(gridcells)*100, 1), lab.y = (rev(cumsum(rev(percent)))) - percent*0.5)
+
+ggplot(pie_calib)+geom_bar(aes(x = "", y = Freq, fill = cat.AI), width = 1, stat = "identity")+
+  coord_polar("y", start = 0)+
+  scale_fill_manual(values = col.cat, na.translate = F)+
+  facet_grid(cols = vars(source))+
+  geom_label_repel(aes(x = "", y = lab.y, label = perc), nudge_x = 0.5)+
+  labs(fill = "")+
+  theme_void()+theme(legend.position = "bottom")
+
+```
+
+```{r proportion-of-each}
+
+cmip6 <- read.table("cmip6_AI.txt")
+
+cmip6.ref <- cmip6 %>% filter(period == "1970_2000") %>% select(c("lon","lat","model","period","source","AI","spr","t","sET0")) %>% setNames(c("lon","lat","model","period","source","AI.ref","spr.ref","t.ref","ET0.ref"))
+cmip6.ref$cat.AI <- cmip6.ref$AI.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6.ref$cat.AI[which(cmip6s$ET0.ref < 400)] <- "Cold"
+
+
+wdc <- filter(calib, source == "Worldclim") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.wdc"))
+era5 <- filter(calib, source == "ERA5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.era5"))
+cmip6 <- filter(calib, source == "CMIP6") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmip6"))
+
+casesm2 <- filter(cmip6.ref, source == "CAS-ESM2") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.casesm2"))
+cesm <- filter(cmip6.ref, source == "CESM") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cesm"))
+cmcc <- filter(cmip6.ref, source == "CMCC") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmcc"))
+cmccesm2 <- filter(cmip6.ref, source == "CMCC-ESM2") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmccesm2"))
+cnrm <- filter(cmip6.ref, source == "CNRM") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cnrm"))
+ecearth3 <- filter(cmip6.ref, source == "EC-Earth3") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.ecearth3"))
+fgoals <- filter(cmip6.ref, source == "FGOALS") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.fgoals"))
+gfdlesm4 <- filter(cmip6.ref, source == "GFDL-ESM4") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.gfdlesm4"))
+inm <- filter(cmip6.ref, source == "INM") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.inm"))
+inmcm5 <- filter(cmip6.ref, source == "INM-CM5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.inmcm5"))
+mpi <- filter(cmip6.ref, source == "MPI") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.mpi"))
+mri <- filter(cmip6.ref, source == "MRI") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.mri"))
+noresm <- filter(cmip6.ref, source == "NorESM-2-MM") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.noresm"))
+
+all <- merge(wdc, era5, by = c("lon","lat")) %>% merge(cmip6, by = c("lon","lat")) %>% 
+  merge(casesm2, by = c("lon","lat")) %>%
+  merge(cesm, by = c("lon","lat")) %>%
+  merge(cmccesm2, by = c("lon","lat")) %>%
+  merge(cnrm, by = c("lon","lat")) %>%
+  merge(ecearth3, by = c("lon","lat")) %>%
+  merge(fgoals, by = c("lon","lat")) %>%
+  merge(gfdlesm3, by = c("lon","lat")) %>%
+  merge(inm, by = c("lon","lat")) %>%
+  merge(inmcm5, by = c("lon","lat")) %>%
+  merge(mpi, by = c("lon","lat")) %>%
+  merge(mri, by = c("lon","lat")) %>%
+  merge(noresm, by = c("lon","lat"))
+
+all$cmip6vswdc <- with(all, ifelse(cat.AI.cmip6 == cat.AI.wdc, "same","diff"))
+all$cmip6vsera5 <- with(all, ifelse(cat.AI.cmip6 == cat.AI.era5, "same","diff"))
+
+all$casesm2.vswdc <- with(all, ifelse(cat.AI.casesm2 == cat.AI.wdc, "same","diff"))
+all$cesm.vswdc <- with(all, ifelse(cat.AI.cesm == cat.AI.wdc, "same","diff"))
+all$cmcc.vswdc <- with(all, ifelse(cat.AI.cmcc == cat.AI.wdc, "same","diff"))
+all$cmccesm2.vswdc <- with(all, ifelse(cat.AI.cmccesm2 == cat.AI.wdc, "same","diff"))
+all$cnrm.vswdc <- with(all, ifelse(cat.AI.cnrm == cat.AI.wdc, "same","diff"))
+all$ecearth3.vswdc <- with(all, ifelse(cat.AI.ecearth3 == cat.AI.wdc, "same","diff"))
+all$fgoals.vswdc <- with(all, ifelse(cat.AI.fgoals == cat.AI.wdc, "same","diff"))
+all$gfdlesm4.vswdc <- with(all, ifelse(cat.AI.gfdlesm4 == cat.AI.wdc, "same","diff"))
+all$inm.vswdc <- with(all, ifelse(cat.AI.inm == cat.AI.wdc, "same","diff"))
+all$inmcm5.vswdc <- with(all, ifelse(cat.AI.inmcm5 == cat.AI.wdc, "same","diff"))
+all$mpi.vswdc <- with(all, ifelse(cat.AI.mpi == cat.AI.wdc, "same","diff"))
+all$mri.vswdc <- with(all, ifelse(cat.AI.mri == cat.AI.wdc, "same","diff"))
+all$noresm.vswdc <- with(all, ifelse(cat.AI.noresm == cat.AI.wdc, "same","diff"))
+
+table(all$cmip6vswdc) %>% as.data.frame() %>% setNames(c("diffornot", "CMIP6-WDC")
+table(all$casesm2vswdc) %>% as.data.frame() %>% setNames(c("diffornot", "CASESM2-WDC")
+table(all$cmccvswdc) %>% as.data.frame() %>% setNames(c("diffornot", "CASESM2-WDC")
+
+
+
+table(all$cmip6vsera5)
 ```
 
 # Number of inhabitants by region
@@ -546,7 +724,7 @@ ggplot(calib.wide,aes(x = tas.wdc))+geom_point(aes( y = tas.era5, col = "ERA5"),
   stat_poly_eq(aes(y = tas.era5, col = "ERA5")) +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Temperature in °C, WDC", y = "Temperature in °C, ERA5", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  scale_color_manual(values = "#A50026")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -554,7 +732,7 @@ ggplot(calib.wide,aes(x = pr.wdc))+geom_point(aes( y = pr.era5, col = "ERA5"), a
   stat_poly_eq(aes(y = pr.era5, col = "ERA5")) +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, ERA5", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  scale_color_manual(values = "#A50026")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -562,7 +740,7 @@ ggplot(calib.wide,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5, col = 
   stat_poly_eq(aes(y = sfcWind.era5, col = "ERA5")) +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, ERA5", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  scale_color_manual(values = "#A50026")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -570,7 +748,7 @@ ggplot(calib.wide,aes(x = Rn.wdc))+geom_point(aes( y = Rn.era5, col = "ERA5"), a
   stat_poly_eq(aes(y = Rn.era5, col = "ERA5")) +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="Rn - G, MJ/m2/day, WDC, °C", y = "Rn - G, MJ/m2/day, ERA5", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   scale_color_manual(values = "#A50026")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -578,7 +756,7 @@ ggplot(calib.wide,aes(x = ea.wdc))+geom_point(aes(y = ea.era5, col = "ERA5"), al
   stat_poly_eq(aes(y = ea.era5, col = "ERA5")) +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ea, kPa, WDC, °C", y = "ea, kPa, ERA5", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   scale_color_manual(values = "#A50026")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -586,7 +764,7 @@ ggplot(calib.wide,aes(x = ET0.wdc))+geom_point(aes(y = ET0.era5, col = "ERA5"), 
   stat_poly_eq(aes(y = ET0.era5, col = "ERA5")) +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, ERA5", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   scale_color_manual(values = "#A50026")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -681,7 +859,7 @@ ggplot(calib.wide,aes(x = tas.wdc))+
   stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Temperature in °C, WDC", y = "Temperature in °C, CMIP6")+
-  scale_color_manual(values = c(colorvec[4]))+
+  scale_color_manual(values = "#FDAE61")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -690,7 +868,7 @@ ggplot(calib.wide,aes(x = pr.wdc))+
   stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, CMIP6")+
-  scale_color_manual(values = c(colorvec[4]))+
+  scale_color_manual(values = "#FDAE61")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -699,7 +877,7 @@ ggplot(calib.wide,aes(x = sfcWind.wdc))+
   stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, CMIP6")+
-  scale_color_manual(values = c(colorvec[4]))+
+  scale_color_manual(values = "#FDAE61")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -708,7 +886,7 @@ ggplot(calib.wide,aes(x = Rn.wdc))+
   stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="Rn - G, MJ/m2/day, WDC, °C", y = "Rn - G, MJ/m2/day, CMIP6")+
-   scale_color_manual(values = c(colorvec[4]))+
+   scale_color_manual(values = "#FDAE61")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -717,7 +895,7 @@ ggplot(calib.wide,aes(x = ea.wdc))+
   stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ea, kPa, WDC, °C", y = "ea, kPa, CMIP6")+
-   scale_color_manual(values = c(colorvec[4]))+
+   scale_color_manual(values = "#FDAE61")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -726,7 +904,7 @@ ggplot(calib.wide,aes(x = ET0.wdc))+
   stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, CMIP6")+
-   scale_color_manual(values = c(colorvec[4]))+
+   scale_color_manual(values = "#FDAE61")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -746,7 +924,7 @@ ggplot(calib.wide,aes(x = tas.era5))+
   stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Temperature in °C, ERA5", y = "Temperature in °C, CMIP6", col = "Dataset")+
-  scale_color_manual(values = colorvec[8])+
+  scale_color_manual(values = "#4575B4")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -755,7 +933,7 @@ ggplot(calib.wide,aes(x = pr.era5))+
   stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Annual precipitation, mm, ERA5", y = "Annual precipitation, mm, CMIP6", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[8]))+
+  scale_color_manual(values = "#4575B4")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -764,7 +942,7 @@ ggplot(calib.wide,aes(x = sfcWind.era5))+
   stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Wind speed m/s, ERA5", y = "Wind speed m/s, CMIP6", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[8]))+
+  scale_color_manual(values = "#4575B4")+
   theme_minimal()+
   theme(legend.position = "none"),
 
@@ -773,7 +951,7 @@ ggplot(calib.wide,aes(x = Rn.era5))+
    stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="Rn - G, MJ/m2/day, ERA5, °C", y = "Rn - G, W/MJ/m2/day, CMIP6", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[8]))+
+   scale_color_manual(values = "#4575B4")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -782,7 +960,7 @@ ggplot(calib.wide,aes(x = ea.era5))+
   stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ea, kPa, ERA5", y = "ea, kPa, CMIP6", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[8]))+
+   scale_color_manual(values = "#4575B4")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -791,7 +969,7 @@ ggplot(calib.wide,aes(x = ET0.era5))+
   stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ET0, mm/day, ERA5", y = "ET0, mm/day, CMIP6", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[8]))+
+   scale_color_manual(values = "#4575B4")+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -804,63 +982,175 @@ ncol = 3, nrow = 2)
 ## Scatterplots without Antarctica
 
 ```{r calib-noant}
-calib.noant <- calib.wide %>% filter(lat > -60)
+calib.noant <- calib.wide %>% filter(lat > -55)
 ```
+
+### Boxplots
+
+```{r violin-3-databases}
+ggarrange(
+  
+ggplot(calib.noant)+
+  geom_violin(aes(y = "Worldclim", x = pr.wdc, fill = "Worldclim"))+
+  geom_violin(aes(y = "ERA5", x = pr.era5, fill = "ERA5"))+
+  geom_violin(aes(y = "CMIP6", x = pr.cmip6, fill = "CMIP6"))+
+  labs(x = "Mean annual precipitation, mm", y = "", fill = "")+
+  xlim(0,6000)+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
+  theme_minimal(),
+
+ggplot(calib.noant)+
+  geom_violin(aes(y = "Worldclim", x = tas.wdc, fill = "Worldclim"))+
+  geom_violin(aes(y = "ERA5", x = tas.era5, fill = "ERA5"))+
+  geom_violin(aes(y = "CMIP6", x = tas.cmip6, fill = "CMIP6"))+
+  labs(x = "Surface temperature °C", y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
+  theme_minimal(),
+
+ggplot(calib.noant)+
+  geom_violin(aes(y = "Worldclim", x = sfcWind.wdc, fill = "Worldclim"))+
+  geom_violin(aes(y = "ERA5", x = sfcWind.era5, fill = "ERA5"))+
+  geom_violin(aes(y = "CMIP6", x = sfcWind.cmip6, fill = "CMIP6"))+
+  labs(x = "Surface wind speed, m/s", y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
+  theme_minimal(),
+
+ggplot(calib.noant)+
+  geom_violin(aes(y = "Worldclim", x = Rn.wdc, fill = "Worldclim"))+
+  geom_violin(aes(y = "ERA5", x = Rn.era5, fill = "ERA5"))+
+  geom_violin(aes(y = "CMIP6", x = Rn.cmip6, fill = "CMIP6"))+
+  labs(x = "Rn - G, MJ/m2/day", y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
+  theme_minimal(),
+
+ggplot(calib.noant)+
+  geom_violin(aes(y = "Worldclim", x = ea.wdc, fill = "Worldclim"))+
+  geom_violin(aes(y = "ERA5", x = ea.era5, fill = "ERA5"))+
+  geom_violin(aes(y = "CMIP6", x = ea.cmip6, fill = "CMIP6"))+
+  labs(x = "ea, kPa", y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
+  theme_minimal(),
+
+ggplot(calib.noant)+
+  geom_violin(aes(y = "Worldclim", x = ET0.wdc, fill = "Worldclim"))+
+  geom_violin(aes(y = "ERA5", x = ET0.era5, fill = "ERA5"))+
+  geom_violin(aes(y = "CMIP6", x = ET0.cmip6, fill = "CMIP6"))+
+  labs(x = "ET0, mm/day", y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
+  theme_minimal(),
+
+ncol = 3, nrow = 2, common.legend = T, legend = "bottom"
+)
+
+```
+```{r table-of-r-and-r2}
+
+library(SpatialPack)
+
+
+coords <- calib.noant[,c("lon","lat")]
+
+df.era5.wdc <- with(calib.noant, 
+                    data.frame(precipitation = c(cor(pr.wdc, pr.era5, use = "pairwise.complete.obs"), cor.test(pr.wdc, pr.era5, use = "pairwise.complete.obs")[[3]], cor(pr.wdc, pr.era5, use = "pairwise.complete.obs")^2, modified.ttest(pr.wdc, pr.era5, coords)$corr, modified.ttest(pr.wdc, pr.era5, coords)$p.value),
+                        temperature = c(cor(tas.wdc, tas.era5, use = "pairwise.complete.obs"), cor.test(tas.wdc, tas.era5, use = "pairwise.complete.obs")[[3]], cor(tas.wdc, tas.era5, use = "pairwise.complete.obs")^2, modified.ttest(tas.wdc, tas.era5, coords)$corr, modified.ttest(tas.wdc, tas.era5, coords)$p.value),
+                        wind = c(cor(sfcWind.wdc, sfcWind.era5, use = "pairwise.complete.obs"), cor.test(sfcWind.wdc, sfcWind.era5, use = "pairwise.complete.obs")[[3]], cor(sfcWind.wdc, sfcWind.era5, use = "pairwise.complete.obs")^2, modified.ttest(sfcWind.wdc, sfcWind.era5, coords)$corr, modified.ttest(sfcWind.wdc, sfcWind.era5, coords)$p.value),
+                        Rn = c(cor(Rn.wdc, Rn.era5, use = "pairwise.complete.obs"), cor.test(Rn.wdc, Rn.era5, use = "pairwise.complete.obs")[[3]], cor(Rn.wdc, Rn.era5, use = "pairwise.complete.obs")^2, modified.ttest(Rn.wdc, Rn.era5, coords)$corr, modified.ttest(Rn.wdc, Rn.era5, coords)$p.value),
+                        ea = c(cor(ea.wdc, ea.era5, use = "pairwise.complete.obs"), cor.test(ea.wdc, ea.era5, use = "pairwise.complete.obs")[[3]], cor(ea.wdc, ea.era5, use = "pairwise.complete.obs")^2, modified.ttest(ea.wdc, ea.era5, coords)$corr, modified.ttest(ea.wdc, ea.era5, coords)$p.value),
+                        ET0 = c(cor(ET0.wdc, ET0.era5, use = "pairwise.complete.obs"), cor.test(ET0.wdc, ET0.era5, use = "pairwise.complete.obs")[[3]], cor(ET0.wdc, ET0.era5, use = "pairwise.complete.obs")^2, modified.ttest(ET0.wdc, ET0.era5, coords)$corr, modified.ttest(ET0.wdc, ET0.era5, coords)$p.value)))
+
+df.era5.cmip6 <- with(calib.noant, 
+                    data.frame(precipitation = c(cor(pr.cmip6, pr.era5, use = "pairwise.complete.obs"), cor.test(pr.cmip6, pr.era5, use = "pairwise.complete.obs")[[3]], cor(pr.cmip6, pr.era5, use = "pairwise.complete.obs")^2, modified.ttest(pr.cmip6, pr.era5, coords)$corr, modified.ttest(pr.cmip6, pr.era5, coords)$p.value),
+                        temperature = c(cor(tas.cmip6, tas.era5, use = "pairwise.complete.obs"), cor.test(tas.cmip6, tas.era5, use = "pairwise.complete.obs")[[3]], cor(tas.cmip6, tas.era5, use = "pairwise.complete.obs")^2, modified.ttest(tas.cmip6, tas.era5, coords)$corr, modified.ttest(tas.cmip6, tas.era5, coords)$p.value),
+                        wind = c(cor(sfcWind.cmip6, sfcWind.era5, use = "pairwise.complete.obs"), cor.test(sfcWind.cmip6, sfcWind.era5, use = "pairwise.complete.obs")[[3]], cor(sfcWind.cmip6, sfcWind.era5, use = "pairwise.complete.obs")^2, modified.ttest(sfcWind.cmip6, sfcWind.era5, coords)$corr, modified.ttest(sfcWind.cmip6, sfcWind.era5, coords)$p.value),
+                        Rn = c(cor(Rn.cmip6, Rn.era5, use = "pairwise.complete.obs"), cor.test(Rn.cmip6, Rn.era5, use = "pairwise.complete.obs")[[3]], cor(Rn.cmip6, Rn.era5, use = "pairwise.complete.obs")^2, modified.ttest(Rn.cmip6, Rn.era5, coords)$corr, modified.ttest(Rn.cmip6, Rn.era5, coords)$p.value),
+                        ea = c(cor(ea.cmip6, ea.era5, use = "pairwise.complete.obs"), cor.test(ea.cmip6, ea.era5, use = "pairwise.complete.obs")[[3]], cor(ea.cmip6, ea.era5, use = "pairwise.complete.obs")^2, modified.ttest(ea.cmip6, ea.era5, coords)$corr, modified.ttest(ea.cmip6, ea.era5, coords)$p.value),
+                        ET0 = c(cor(ET0.cmip6, ET0.era5, use = "pairwise.complete.obs"), cor.test(ET0.cmip6, ET0.era5, use = "pairwise.complete.obs")[[3]], cor(ET0.cmip6, ET0.era5, use = "pairwise.complete.obs")^2, modified.ttest(ET0.cmip6, ET0.era5, coords)$corr, modified.ttest(ET0.cmip6, ET0.era5, coords)$p.value)))
+
+df.wdc.cmip6 <- with(calib.noant, 
+                    data.frame(precipitation = c(cor(pr.cmip6, pr.wdc, use = "pairwise.complete.obs"), cor.test(pr.cmip6, pr.wdc, use = "pairwise.complete.obs")[[3]], cor(pr.cmip6, pr.wdc, use = "pairwise.complete.obs")^2, modified.ttest(pr.cmip6, pr.wdc, coords)$corr, modified.ttest(pr.cmip6, pr.wdc, coords)$p.value),
+                        temperature = c(cor(tas.cmip6, tas.wdc, use = "pairwise.complete.obs"), cor.test(tas.cmip6, tas.wdc, use = "pairwise.complete.obs")[[3]], cor(tas.cmip6, tas.wdc, use = "pairwise.complete.obs")^2, modified.ttest(tas.cmip6, tas.wdc, coords)$corr, modified.ttest(tas.cmip6, tas.wdc, coords)$p.value),
+                        wind = c(cor(sfcWind.cmip6, sfcWind.wdc, use = "pairwise.complete.obs"), cor.test(sfcWind.cmip6, sfcWind.wdc, use = "pairwise.complete.obs")[[3]], cor(sfcWind.cmip6, sfcWind.wdc, use = "pairwise.complete.obs")^2, modified.ttest(sfcWind.cmip6, sfcWind.wdc, coords)$corr, modified.ttest(sfcWind.cmip6, sfcWind.wdc, coords)$p.value),
+                        Rn = c(cor(Rn.cmip6, Rn.wdc, use = "pairwise.complete.obs"), cor.test(Rn.cmip6, Rn.wdc, use = "pairwise.complete.obs")[[3]], cor(Rn.cmip6, Rn.wdc, use = "pairwise.complete.obs")^2, modified.ttest(Rn.cmip6, Rn.wdc, coords)$corr, modified.ttest(Rn.cmip6, Rn.wdc, coords)$p.value),
+                        ea = c(cor(ea.cmip6, ea.wdc, use = "pairwise.complete.obs"), cor.test(ea.cmip6, ea.wdc, use = "pairwise.complete.obs")[[3]], cor(ea.cmip6, ea.wdc, use = "pairwise.complete.obs")^2, modified.ttest(ea.cmip6, ea.wdc, coords)$corr, modified.ttest(ea.cmip6, ea.wdc, coords)$p.value),
+                        ET0 = c(cor(ET0.cmip6, ET0.wdc, use = "pairwise.complete.obs"), cor.test(ET0.cmip6, ET0.wdc, use = "pairwise.complete.obs")[[3]], cor(ET0.cmip6, ET0.wdc, use = "pairwise.complete.obs")^2, modified.ttest(ET0.cmip6, ET0.wdc, coords)$corr, modified.ttest(ET0.cmip6, ET0.wdc, coords)$p.value)))
+
+df.combined <- rbind(
+  cbind(Metric = c("r","p-value","r2","Dutilleul","p-value"), df.era5.wdc),
+  cbind(Metric = c("r","p-value","r2","Dutilleul","p-value"), df.era5.cmip6),
+  cbind(Metric = c("r","p-value","r2","Dutilleul","p-value"), df.wdc.cmip6)
+)
+
+knitr::kable(df.combined, 
+             digits = 2, caption = "Pearson correlation coefficients and r2 between ERA5, Worldclim and CMIP6") %>%
+  kableExtra::kable_styling(bootstrap_options = "bordered") %>%
+  kableExtra::group_rows(group_label = "ERA5 vs WDC", start_row = 1, end_row = 5) %>%
+  kableExtra::group_rows("ERA5 vs CMIP6", 6,10) %>%
+  kableExtra::group_rows("WDC vs CMIP6", 11,15)
+
+
+
+```
+
 
 ### ERA5 compared to WDC
 
 Rn is computed differently for ERA5 and WDC, hence the discrepancy for low values. 
 
-### ERA5 and WDC
-
 ```{r scatterplot-diff-ref-noant, fig.dim = c(9,6)}
 ggarrange(
 
-ggplot(calib.noant,aes(x = tas.wdc))+geom_point(aes( y = tas.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = tas.era5, col = "ERA5")) +
+ggplot(calib.noant,aes(x = tas.wdc))+geom_point(aes( y = tas.era5), alpha =0.1, shape = 16, size = 0.5, col = colorvec[1])+
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Temperature in °C, WDC", y = "Temperature in °C, ERA5", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  labs(x="Temperature in °C, WDC", y = "Temperature in °C, ERA5")+
+  lims(x = c(-30, 31), y = c(-30,31))+
+   annotate(geom = "text", x =  min(c(-30, 31)) + dist(c(-30, 31))*0.15, y =  max(c(-30, 31)) - dist(c(-30, 31))*0.15, 
+            label = paste("r = ", round(cor(calib.noant$tas.wdc, calib.noant$tas.era5, use = "pairwise.complete.obs"),2)), col = colorvec[1])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = pr.wdc))+geom_point(aes( y = pr.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = pr.era5, col = "ERA5")) +
+ggplot(calib.noant,aes(x = pr.wdc))+geom_point(aes( y = pr.era5), alpha =0.1, shape = 16, size = 0.5, col = colorvec[1])+
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, ERA5", col = "Dataset")+
+  labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, ERA5")+
   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  lims(x = c(-1, 6000), y = c(-1, 6000))+
+   annotate(geom = "text", x =  min(c(-1, 6000)) + dist(c(-1, 6000))*0.15, y =  max(c(-1, 6000)) - dist(c(-1, 6000))*0.15, 
+            label = paste("r = ", round(cor(calib.noant$pr.wdc, calib.noant$pr.era5, use = "pairwise.complete.obs"),2)), col = colorvec[1])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = sfcWind.era5, col = "ERA5")) +
+ggplot(calib.noant,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.era5), alpha =0.1, shape = 16, size = 0.5, col = colorvec[1])+
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, ERA5", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+  labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, ERA5")+
+  lims(x = c(0,10), y = c(0,10))+
+   annotate(geom = "text", x =  min(c(0,10)) + dist(c(0,10))*0.15, y =  max(c(0,10)) - dist(c(0,10))*0.15,
+            label = paste("r = ", round(cor(calib.noant$sfcWind.wdc, calib.noant$sfcWind.era5, use = "pairwise.complete.obs"),2)), col = colorvec[1])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = Rn.wdc))+geom_point(aes( y = Rn.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = Rn.era5, col = "ERA5")) +
+ggplot(calib.noant,aes(x = Rn.wdc))+geom_point(aes( y = Rn.era5), alpha = 0.1, shape = 16, size = 0.5, col = colorvec[1])+
    geom_abline(slope = 1, intercept = 0)+
    labs(x="Rn - G, MJ/m2/day, WDC, °C", y = "Rn - G, MJ/m2/day, ERA5", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   lims(x = c(-8,20), y = c(-8,20))+
+   annotate(geom = "text", x =  min(c(-8,20)) + dist(c(-8,20))*0.15, y =  max(c(-8,20)) - dist(c(-8,20))*0.15,
+            label = paste("r = ", round(cor(calib.noant$Rn.wdc, calib.noant$Rn.era5, use = "pairwise.complete.obs"),2)), col = colorvec[1])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = ea.wdc))+geom_point(aes(y = ea.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = ea.era5, col = "ERA5")) +
+ggplot(calib.noant,aes(x = ea.wdc))+geom_point(aes(y = ea.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5, col = colorvec[1])+
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="ea, kPa, WDC, °C", y = "ea, kPa, ERA5", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+   labs(x="ea, kPa, WDC", y = "ea, kPa, ERA5", col = "Dataset")+
+   lims(x = c(0,3), y = c(0,3))+
+   annotate(geom = "text",  x =  min(c(0,3)) + dist(c(0,3))*0.15, y =  max(c(0,3)) - dist(c(0,3))*0.15,
+            label = paste("r = ", round(cor(calib.noant$ea.wdc, calib.noant$ea.era5, use = "pairwise.complete.obs"),2)), col = colorvec[1])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = ET0.wdc))+geom_point(aes(y = ET0.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = ET0.era5, col = "ERA5")) +
+ggplot(calib.noant,aes(x = ET0.wdc))+geom_point(aes(y = ET0.era5, col = "ERA5"), alpha =0.1, shape = 16, size = 0.5, col = colorvec[1])+
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, ERA5", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[1], colorvec[4]))+
+lims(x = c(-261,4200), y = c(-261,4200))+
+   annotate(geom = "text",  x =  min(c(-261,4200)) + dist(c(-261,4200))*0.15, y =  max(c(-261,4200)) - dist(c(-261,4200))*0.15,
+            label = paste("r = ", round(cor(calib.noant$ET0.wdc, calib.noant$ET0.era5, use = "pairwise.complete.obs"),2)), col = colorvec[1])+
    theme_minimal()+
   theme(legend.position = "none"),
 
@@ -939,59 +1229,61 @@ ncol = 3, nrow = 2
 ```{r scatterplot-cmip6-wdc-noant, fig.dim = c(9,6)}
 ggarrange(
 
-ggplot(calib.noant,aes(x = tas.wdc))+
-  geom_point(aes(y=tas.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
+ggplot(calib.noant,aes(x = tas.wdc))+geom_point(aes( y = tas.cmip6), alpha =0.1, shape = 16, size = 0.5, col = colorvec[4])+
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Temperature in °C, WDC", y = "Temperature in °C, CMIP6")+
-  scale_color_manual(values = c(colorvec[4]))+
+  lims(x = c(-30, 31), y = c(-30,31))+
+   annotate(geom = "text", x =  min(c(-30, 31)) + dist(c(-30, 31))*0.15, y =  max(c(-30, 31)) - dist(c(-30, 31))*0.15, 
+            label = paste("r = ", round(cor(calib.noant$tas.wdc, calib.noant$tas.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[4])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = pr.wdc))+
-  geom_point(aes(y=pr.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right", label.y = "bottom") +
+ggplot(calib.noant,aes(x = pr.wdc))+geom_point(aes( y = pr.cmip6), alpha =0.1, shape = 16, size = 0.5, col = colorvec[4])+
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Annual precipitation, mm, WDC", y = "Annual precipitation, mm, CMIP6")+
-  scale_color_manual(values = c(colorvec[4]))+
+  scale_color_manual(values = c(colorvec[4], colorvec[4]))+
+  lims(x = c(-1, 6000), y = c(-1, 6000))+
+   annotate(geom = "text", x =  min(c(-1, 6000)) + dist(c(-1, 6000))*0.15, y =  max(c(-1, 6000)) - dist(c(-1, 6000))*0.15, 
+            label = paste("r = ", round(cor(calib.noant$pr.wdc, calib.noant$pr.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[4])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = sfcWind.wdc))+
-  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = sfcWind.wdc))+geom_point(aes( y = sfcWind.cmip6), alpha =0.1, shape = 16, size = 0.5, col = colorvec[4])+
   geom_abline(slope = 1, intercept = 0)+
   labs(x="Wind speed m/s, WDC", y = "Wind speed m/s, CMIP6")+
-  scale_color_manual(values = c(colorvec[4]))+
+  lims(x = c(0,10), y = c(0,10))+
+   annotate(geom = "text", x =  min(c(0,10)) + dist(c(0,10))*0.15, y =  max(c(0,10)) - dist(c(0,10))*0.15,
+            label = paste("r = ", round(cor(calib.noant$sfcWind.wdc, calib.noant$sfcWind.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[4])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = Rn.wdc))+
-   geom_point(aes(y=Rn.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = Rn.wdc))+geom_point(aes( y = Rn.cmip6), alpha = 0.1, shape = 16, size = 0.5, col = colorvec[4])+
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="Rn - G, MJ/m2/day, WDC, °C", y = "Rn - G, MJ/m2/day, CMIP6")+
-   scale_color_manual(values = c(colorvec[4]))+
+   labs(x="Rn - G, MJ/m2/day, WDC, °C", y = "Rn - G, MJ/m2/day, CMIP6", col = "Dataset")+
+   lims(x = c(-8,20), y = c(-8,20))+
+   annotate(geom = "text", x =  min(c(-8,20)) + dist(c(-8,20))*0.15, y =  max(c(-8,20)) - dist(c(-8,20))*0.15,
+            label = paste("r = ", round(cor(calib.noant$Rn.wdc, calib.noant$Rn.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[4])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = ea.wdc))+
-   geom_point(aes(y=ea.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = ea.wdc))+geom_point(aes(y = ea.cmip6, col = "cmip6"), alpha =0.1, shape = 16, size = 0.5, col = colorvec[4])+
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="ea, kPa, WDC, °C", y = "ea, kPa, CMIP6")+
-   scale_color_manual(values = c(colorvec[4]))+
+   labs(x="ea, kPa, WDC, °C", y = "ea, kPa, CMIP6", col = "Dataset")+
+   lims(x = c(0,3), y = c(0,3))+
+   annotate(geom = "text",  x =  min(c(0,3)) + dist(c(0,3))*0.15, y =  max(c(0,3)) - dist(c(0,3))*0.15,
+            label = paste("r = ", round(cor(calib.noant$ea.wdc, calib.noant$ea.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[4])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = ET0.wdc))+
-   geom_point(aes(y=ET0.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = ET0.wdc))+geom_point(aes(y = ET0.cmip6, col = "cmip6"), alpha =0.1, shape = 16, size = 0.5, col = colorvec[4])+
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, CMIP6")+
-   scale_color_manual(values = c(colorvec[4]))+
+   labs(x="ET0, mm/day, WDC", y = "ET0, mm/day, CMIP6", col = "Dataset")+
+lims(x = c(-261,4200), y = c(-261,4200))+
+   annotate(geom = "text",  x =  min(c(-261,4200)) + dist(c(-261,4200))*0.15, y =  max(c(-261,4200)) - dist(c(-261,4200))*0.15,
+            label = paste("r = ", round(cor(calib.noant$ET0.wdc, calib.noant$ET0.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[4])+
    theme_minimal()+
   theme(legend.position = "none"),
+
 
 ncol = 3, nrow = 2
 )
@@ -1004,61 +1296,65 @@ ncol = 3, nrow = 2
 
 ggarrange(
   
-ggplot(calib.noant,aes(x = tas.era5))+
-  geom_point(aes(y=tas.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = tas.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = tas.era5))+geom_point(aes( y = tas.cmip6), alpha =0.1, shape = 16, size = 0.5, col = colorvec[8])+
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Temperature in °C, ERA5", y = "Temperature in °C, CMIP6", col = "Dataset")+
-  scale_color_manual(values = colorvec[8])+
+  labs(x="Temperature in °C, ERA5", y = "Temperature in °C, CMIP6")+
+  lims(x = c(-30, 31), y = c(-30,31))+
+   annotate(geom = "text", x =  min(c(-30, 31)) + dist(c(-30, 31))*0.15, y =  max(c(-30, 31)) - dist(c(-30, 31))*0.15, 
+            label = paste("r = ", round(cor(calib.noant$tas.era5, calib.noant$tas.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[8])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = pr.era5))+
-  geom_point(aes(y=pr.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = pr.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = pr.era5))+geom_point(aes( y = pr.cmip6), alpha =0.1, shape = 16, size = 0.5, col = colorvec[8])+
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Annual precipitation, mm, ERA5", y = "Annual precipitation, mm, CMIP6", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[8]))+
+  labs(x="Annual precipitation, mm, ERA5", y = "Annual precipitation, mm, CMIP6")+
+  scale_color_manual(values = c(colorvec[4], colorvec[4]))+
+  lims(x = c(-1, 6000), y = c(-1, 6000))+
+   annotate(geom = "text", x =  min(c(-1, 6000)) + dist(c(-1, 6000))*0.15, y =  max(c(-1, 6000)) - dist(c(-1, 6000))*0.15, 
+            label = paste("r = ", round(cor(calib.noant$pr.era5, calib.noant$pr.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[8])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = sfcWind.era5))+
-  geom_point(aes(y=sfcWind.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = sfcWind.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = sfcWind.era5))+geom_point(aes( y = sfcWind.cmip6), alpha =0.1, shape = 16, size = 0.5, col = colorvec[8])+
   geom_abline(slope = 1, intercept = 0)+
-  labs(x="Wind speed m/s, ERA5", y = "Wind speed m/s, CMIP6", col = "Dataset")+
-  scale_color_manual(values = c(colorvec[8]))+
+  labs(x="Wind speed m/s, ERA5", y = "Wind speed m/s, CMIP6")+
+  lims(x = c(0,10), y = c(0,10))+
+   annotate(geom = "text", x =  min(c(0,10)) + dist(c(0,10))*0.15, y =  max(c(0,10)) - dist(c(0,10))*0.15,
+            label = paste("r = ", round(cor(calib.noant$sfcWind.era5, calib.noant$sfcWind.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[8])+
   theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = Rn.era5))+
-   geom_point(aes(y=Rn.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-   stat_poly_eq(aes(y = Rn.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = Rn.era5))+geom_point(aes( y = Rn.cmip6), alpha = 0.1, shape = 16, size = 0.5, col = colorvec[8])+
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="Rn - G, MJ/m2/day, ERA5, °C", y = "Rn - G, W/MJ/m2/day, CMIP6", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[8]))+
+   labs(x="Rn - G, MJ/m2/day, ERA5, °C", y = "Rn - G, MJ/m2/day, CMIP6", col = "Dataset")+
+   lims(x = c(-8,20), y = c(-8,20))+
+   annotate(geom = "text", x =  min(c(-8,20)) + dist(c(-8,20))*0.15, y =  max(c(-8,20)) - dist(c(-8,20))*0.15,
+            label = paste("r = ", round(cor(calib.noant$Rn.era5, calib.noant$Rn.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[8])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = ea.era5))+
-   geom_point(aes(y=ea.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = ea.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = ea.era5))+geom_point(aes(y = ea.cmip6, col = "cmip6"), alpha =0.1, shape = 16, size = 0.5, col = colorvec[8])+
    geom_abline(slope = 1, intercept = 0)+
-   labs(x="ea, kPa, ERA5", y = "ea, kPa, CMIP6", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[8]))+
+   labs(x="ea, kPa, ERA5, °C", y = "ea, kPa, CMIP6", col = "Dataset")+
+   lims(x = c(0,3), y = c(0,3))+
+   annotate(geom = "text",  x =  min(c(0,3)) + dist(c(0,3))*0.15, y =  max(c(0,3)) - dist(c(0,3))*0.15,
+            label = paste("r = ", round(cor(calib.noant$ea.era5, calib.noant$ea.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[8])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ggplot(calib.noant,aes(x = ET0.era5))+
-   geom_point(aes(y=ET0.cmip6, col = "CMIP6"), alpha =0.1, shape = 16, size = 0.5)+
-  stat_poly_eq(aes(y = ET0.cmip6, col = "CMIP6"), label.x = "right",label.y = "bottom") +
+ggplot(calib.noant,aes(x = ET0.era5))+geom_point(aes(y = ET0.cmip6, col = "cmip6"), alpha =0.1, shape = 16, size = 0.5, col = colorvec[8])+
    geom_abline(slope = 1, intercept = 0)+
    labs(x="ET0, mm/day, ERA5", y = "ET0, mm/day, CMIP6", col = "Dataset")+
-   scale_color_manual(values = c(colorvec[8]))+
+lims(x = c(-261,4200), y = c(-261,4200))+
+   annotate(geom = "text",  x =  min(c(-261,4200)) + dist(c(-261,4200))*0.15, y =  max(c(-261,4200)) - dist(c(-261,4200))*0.15,
+            label = paste("r = ", round(cor(calib.noant$ET0.era5, calib.noant$ET0.cmip6, use = "pairwise.complete.obs"),2)), col = colorvec[8])+
    theme_minimal()+
   theme(legend.position = "none"),
 
-ncol = 3, nrow = 2)
+
+ncol = 3, nrow = 2
+
+)
 
 
 ```
@@ -1070,11 +1366,10 @@ ncol = 3, nrow = 2)
 calib.ant <- calib.wide %>% filter(lat < -60)
 ```
 
-### ERA5 compared to WDC
-
-Rn is computed differently for ERA5 and WDC, hence the discrepancy for low values. 
 
 ### ERA5 and WDC
+
+Rn is computed differently for ERA5 and WDC, hence the discrepancy for low values. 
 
 ```{r scatterplot-diff-ref-ant, fig.dim = c(9,6)}
 ggarrange(
