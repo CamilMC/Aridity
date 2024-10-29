@@ -35,6 +35,8 @@ library(RColorBrewer)
 library(sf)
 library(stringr)
 
+library(kableExtra)
+
 memory.limit(size = 160000)
 
 #display.brewer.pal(n = 11, name ="RdYlGn")
@@ -564,26 +566,6 @@ pie_calib <- pie_calib %>%
     mutate(perc = round(Freq/sum(Freq)*100, 1),
          lab.y = rev(cumsum(rev(Freq))) - Freq*0.5) 
 
-
-# table_calib2 <- calib %>% filter(lat > -55& !Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>% select(c("Continent","Name","Acronym","source","cat.AI")) %>%
-#   reshape2::melt(id.vars = c("Continent","Name","Acronym","source")) %>%
-#   filter(!is.na(value)) %>%
-#   group_by(Continent,Name,Acronym,source,value) %>%
-#   summarise(count = n()) %>% mutate(perc = round(count/sum(count)*100,1)) %>%
-#   ungroup() 
-# 
-# table_calib2$value[is.na(table_calib2$value) == T] <- "NA"
-# table_calib2$Continent[which(table_calib2$Continent == "EUROPE-AFRICA")] <- "EUROPE"
-# table_calib2$Continent[which(table_calib2$Continent == "CENTRAL-AMERICA")] <- "CENTRAL\nAMERICA"
-# table_calib2$Continent[which(table_calib2$Continent == "NORTH-AMERICA")] <- "NORTH\nAMERICA"
-# table_calib2$Continent[which(table_calib2$Continent == "SOUTH-AMERICA")] <- "SOUTH\nAMERICA"
-# 
-# table_calib2$Continent <- factor(table_calib2$Continent, levels = c("AFRICA","EUROPE","ASIA","OCEANIA","NORTH\nAMERICA","CENTRAL\nAMERICA","SOUTH\nAMERICA","POLAR","NA"))
-# 
-# table_calib2$value <- factor(table_calib2$value, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
-# 
-# pie_calib2 <- table_calib2 %>% group_by(source, value) %>% summarise(gridcells = sum(count)) %>% mutate(percent = round(gridcells/sum(gridcells)*100, 1), lab.y = (rev(cumsum(rev(percent)))) - percent*0.5)
-
 ggplot(pie_calib)+geom_bar(aes(x = "", y = Freq, fill = cat.AI), width = 1, stat = "identity")+
   coord_polar("y", start = 0)+
   scale_fill_manual(values = col.cat, na.translate = F)+
@@ -596,16 +578,19 @@ ggplot(pie_calib)+geom_bar(aes(x = "", y = Freq, fill = cat.AI), width = 1, stat
 
 ```{r proportion-of-each}
 
-cmip6 <- read.table("cmip6_AI.txt")
+# cmip6 <- read.table("cmip6_AI.txt")
+# 
+# cmip6.ref <- cmip6 %>% filter(period == "1970_2000") %>% select(c("lon","lat","model","period","source","AI","spr","t","sET0")) %>% setNames(c("lon","lat","model","period","source","AI.ref","spr.ref","t.ref","ET0.ref"))
+# cmip6.ref$cat.AI <- cmip6.ref$AI.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+# cmip6.ref$cat.AI[which(cmip6.ref$ET0.ref < 400)] <- "Cold"
+# 
+# write.table(cmip6.ref, "cmip6.ref.txt")
 
-cmip6.ref <- cmip6 %>% filter(period == "1970_2000") %>% select(c("lon","lat","model","period","source","AI","spr","t","sET0")) %>% setNames(c("lon","lat","model","period","source","AI.ref","spr.ref","t.ref","ET0.ref"))
-cmip6.ref$cat.AI <- cmip6.ref$AI.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6.ref$cat.AI[which(cmip6s$ET0.ref < 400)] <- "Cold"
-
+cmip6.ref <- read.table("cmip6.ref.txt")
 
 wdc <- filter(calib, source == "Worldclim") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.wdc"))
 era5 <- filter(calib, source == "ERA5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.era5"))
-cmip6 <- filter(calib, source == "CMIP6") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmip6"))
+cmip6.cal <- filter(calib, source == "CMIP6") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmip6"))
 
 casesm2 <- filter(cmip6.ref, source == "CAS-ESM2") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.casesm2"))
 cesm <- filter(cmip6.ref, source == "CESM") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cesm"))
@@ -621,44 +606,120 @@ mpi <- filter(cmip6.ref, source == "MPI") %>% select(c("lon","lat","cat.AI")) %>
 mri <- filter(cmip6.ref, source == "MRI") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.mri"))
 noresm <- filter(cmip6.ref, source == "NorESM-2-MM") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.noresm"))
 
-all <- merge(wdc, era5, by = c("lon","lat")) %>% merge(cmip6, by = c("lon","lat")) %>% 
+all <- merge(wdc, era5, by = c("lon","lat")) %>% 
+  merge(cmip6.cal, by = c("lon","lat")) %>% 
   merge(casesm2, by = c("lon","lat")) %>%
   merge(cesm, by = c("lon","lat")) %>%
+  merge(cmcc, by = c("lon","lat")) %>%
   merge(cmccesm2, by = c("lon","lat")) %>%
   merge(cnrm, by = c("lon","lat")) %>%
   merge(ecearth3, by = c("lon","lat")) %>%
   merge(fgoals, by = c("lon","lat")) %>%
-  merge(gfdlesm3, by = c("lon","lat")) %>%
+  merge(gfdlesm4, by = c("lon","lat")) %>%
   merge(inm, by = c("lon","lat")) %>%
   merge(inmcm5, by = c("lon","lat")) %>%
   merge(mpi, by = c("lon","lat")) %>%
   merge(mri, by = c("lon","lat")) %>%
   merge(noresm, by = c("lon","lat"))
 
-all$cmip6vswdc <- with(all, ifelse(cat.AI.cmip6 == cat.AI.wdc, "same","diff"))
-all$cmip6vsera5 <- with(all, ifelse(cat.AI.cmip6 == cat.AI.era5, "same","diff"))
-
-all$casesm2.vswdc <- with(all, ifelse(cat.AI.casesm2 == cat.AI.wdc, "same","diff"))
-all$cesm.vswdc <- with(all, ifelse(cat.AI.cesm == cat.AI.wdc, "same","diff"))
-all$cmcc.vswdc <- with(all, ifelse(cat.AI.cmcc == cat.AI.wdc, "same","diff"))
-all$cmccesm2.vswdc <- with(all, ifelse(cat.AI.cmccesm2 == cat.AI.wdc, "same","diff"))
-all$cnrm.vswdc <- with(all, ifelse(cat.AI.cnrm == cat.AI.wdc, "same","diff"))
-all$ecearth3.vswdc <- with(all, ifelse(cat.AI.ecearth3 == cat.AI.wdc, "same","diff"))
-all$fgoals.vswdc <- with(all, ifelse(cat.AI.fgoals == cat.AI.wdc, "same","diff"))
-all$gfdlesm4.vswdc <- with(all, ifelse(cat.AI.gfdlesm4 == cat.AI.wdc, "same","diff"))
-all$inm.vswdc <- with(all, ifelse(cat.AI.inm == cat.AI.wdc, "same","diff"))
-all$inmcm5.vswdc <- with(all, ifelse(cat.AI.inmcm5 == cat.AI.wdc, "same","diff"))
-all$mpi.vswdc <- with(all, ifelse(cat.AI.mpi == cat.AI.wdc, "same","diff"))
-all$mri.vswdc <- with(all, ifelse(cat.AI.mri == cat.AI.wdc, "same","diff"))
-all$noresm.vswdc <- with(all, ifelse(cat.AI.noresm == cat.AI.wdc, "same","diff"))
-
-table(all$cmip6vswdc) %>% as.data.frame() %>% setNames(c("diffornot", "CMIP6-WDC")
-table(all$casesm2vswdc) %>% as.data.frame() %>% setNames(c("diffornot", "CASESM2-WDC")
-table(all$cmccvswdc) %>% as.data.frame() %>% setNames(c("diffornot", "CASESM2-WDC")
+all$cmip6.wdc <- with(all, ifelse(cat.AI.cmip6 == cat.AI.wdc, "same","diff"))
+all$cmip6.era5 <- with(all, ifelse(cat.AI.cmip6 == cat.AI.era5, "same","diff"))
+all$wdc.era5 <- with(all, ifelse(cat.AI.wdc == cat.AI.era5, "same","diff"))
 
 
+all$casesm2.wdc <- with(all, ifelse(cat.AI.casesm2 == cat.AI.wdc, "same","diff"))
+all$cesm.wdc <- with(all, ifelse(cat.AI.cesm == cat.AI.wdc, "same","diff"))
+all$cmcc.wdc <- with(all, ifelse(cat.AI.cmcc == cat.AI.wdc, "same","diff"))
+all$cmccesm2.wdc <- with(all, ifelse(cat.AI.cmccesm2 == cat.AI.wdc, "same","diff"))
+all$cnrm.wdc <- with(all, ifelse(cat.AI.cnrm == cat.AI.wdc, "same","diff"))
+all$ecearth3.wdc <- with(all, ifelse(cat.AI.ecearth3 == cat.AI.wdc, "same","diff"))
+all$fgoals.wdc <- with(all, ifelse(cat.AI.fgoals == cat.AI.wdc, "same","diff"))
+all$gfdlesm4.wdc <- with(all, ifelse(cat.AI.gfdlesm4 == cat.AI.wdc, "same","diff"))
+all$inm.wdc <- with(all, ifelse(cat.AI.inm == cat.AI.wdc, "same","diff"))
+all$inmcm5.wdc <- with(all, ifelse(cat.AI.inmcm5 == cat.AI.wdc, "same","diff"))
+all$mpi.wdc <- with(all, ifelse(cat.AI.mpi == cat.AI.wdc, "same","diff"))
+all$mri.wdc <- with(all, ifelse(cat.AI.mri == cat.AI.wdc, "same","diff"))
+all$noresm.wdc <- with(all, ifelse(cat.AI.noresm == cat.AI.wdc, "same","diff"))
 
-table(all$cmip6vsera5)
+df1 <- table(all$cmip6.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "CMIP6-WDC"))
+df2 <- table(all$casesm2.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "CASESM2-WDC"))
+df3 <- table(all$cesm.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "CESM-WDC"))
+df4 <- table(all$cmcc.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "CMCC-WDC"))
+df5 <- table(all$cmccesm2.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "CMCCESM2-WDC"))
+df6 <- table(all$cnrm.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "CNRM-WDC"))
+df7 <- table(all$ecearth3.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "ECEARTH3-WDC"))
+df8 <- table(all$fgoals.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "FGOALS-WDC"))
+df9 <- table(all$gfdlesm4.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "GFDLESM4-WDC"))
+df10 <- table(all$inm.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "INM-WDC"))
+df11 <- table(all$inmcm5.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "INMCM5-WDC"))
+df12 <- table(all$mpi.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "MPI-WDC"))
+df13 <- table(all$mri.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "MRI-WDC"))
+df14 <- table(all$noresm.wdc) %>% as.data.frame() %>% setNames(c("diffornot", "NORESM-WDC"))
+
+df0 <- merge(df1,df2, by = "diffornot") %>% merge(df3, by = "diffornot") %>% 
+  merge(df4, by = "diffornot") %>% merge(df5, by = "diffornot") %>% merge(df6, by = "diffornot") %>% 
+  merge(df7, by = "diffornot") %>% merge(df8, by = "diffornot") %>% merge(df9, by = "diffornot") %>%
+  merge(df10, by = "diffornot") %>% merge(df11, by = "diffornot") %>% merge(df12, by = "diffornot") %>%
+  merge(df13, by = "diffornot") %>% merge(df14, by = "diffornot")
+
+prop.diff.wdc <- df0[1,]/(df0[1,] + df0[2,])*100      
+prop.diff.wdc[1,1] <- "Percent diff"
+                                                      
+df.prop.wdc <- rbind(df0, prop.diff.wdc)
+
+kable(df.prop.wdc, caption = "Percent of gridcells in which the aridity category differs from Worldclim", digits = 1) %>%
+  kable_styling(bootstrap_options = "bordered")
+
+all$casesm2.era5 <- with(all, ifelse(cat.AI.casesm2 == cat.AI.era5, "same","diff"))
+all$cesm.era5 <- with(all, ifelse(cat.AI.cesm == cat.AI.era5, "same","diff"))
+all$cmcc.era5 <- with(all, ifelse(cat.AI.cmcc == cat.AI.era5, "same","diff"))
+all$cmccesm2.era5 <- with(all, ifelse(cat.AI.cmccesm2 == cat.AI.era5, "same","diff"))
+all$cnrm.era5 <- with(all, ifelse(cat.AI.cnrm == cat.AI.era5, "same","diff"))
+all$ecearth3.era5 <- with(all, ifelse(cat.AI.ecearth3 == cat.AI.era5, "same","diff"))
+all$fgoals.era5 <- with(all, ifelse(cat.AI.fgoals == cat.AI.era5, "same","diff"))
+all$gfdlesm4.era5 <- with(all, ifelse(cat.AI.gfdlesm4 == cat.AI.era5, "same","diff"))
+all$inm.era5 <- with(all, ifelse(cat.AI.inm == cat.AI.era5, "same","diff"))
+all$inmcm5.era5 <- with(all, ifelse(cat.AI.inmcm5 == cat.AI.era5, "same","diff"))
+all$mpi.era5 <- with(all, ifelse(cat.AI.mpi == cat.AI.era5, "same","diff"))
+all$mri.era5 <- with(all, ifelse(cat.AI.mri == cat.AI.era5, "same","diff"))
+all$noresm.era5 <- with(all, ifelse(cat.AI.noresm == cat.AI.era5, "same","diff"))
+
+df1 <- table(all$cmip6.era5) %>% as.data.frame() %>% setNames(c("diffornot", "CMIP6-ERA5"))
+df2 <- table(all$casesm2.era5) %>% as.data.frame() %>% setNames(c("diffornot", "CASESM2-ERA5"))
+df3 <- table(all$cesm.era5) %>% as.data.frame() %>% setNames(c("diffornot", "CESM-ERA5"))
+df4 <- table(all$cmcc.era5) %>% as.data.frame() %>% setNames(c("diffornot", "CMCC-ERA5"))
+df5 <- table(all$cmccesm2.era5) %>% as.data.frame() %>% setNames(c("diffornot", "CMCCESM2-ERA5"))
+df6 <- table(all$cnrm.era5) %>% as.data.frame() %>% setNames(c("diffornot", "CNRM-ERA5"))
+df7 <- table(all$ecearth3.era5) %>% as.data.frame() %>% setNames(c("diffornot", "ECEARTH3-ERA5"))
+df8 <- table(all$fgoals.era5) %>% as.data.frame() %>% setNames(c("diffornot", "FGOALS-ERA5"))
+df9 <- table(all$gfdlesm4.era5) %>% as.data.frame() %>% setNames(c("diffornot", "GFDLESM4-ERA5"))
+df10 <- table(all$inm.era5) %>% as.data.frame() %>% setNames(c("diffornot", "INM-ERA5"))
+df11 <- table(all$inmcm5.era5) %>% as.data.frame() %>% setNames(c("diffornot", "INMCM5-ERA5"))
+df12 <- table(all$mpi.era5) %>% as.data.frame() %>% setNames(c("diffornot", "MPI-ERA5"))
+df13 <- table(all$mri.era5) %>% as.data.frame() %>% setNames(c("diffornot", "MRI-ERA5"))
+df14 <- table(all$noresm.era5) %>% as.data.frame() %>% setNames(c("diffornot", "NORESM-ERA5"))
+
+df0 <- merge(df1,df2, by = "diffornot") %>% merge(df3, by = "diffornot") %>% 
+  merge(df4, by = "diffornot") %>% merge(df5, by = "diffornot") %>% merge(df6, by = "diffornot") %>% 
+  merge(df7, by = "diffornot") %>% merge(df8, by = "diffornot") %>% merge(df9, by = "diffornot") %>%
+  merge(df10, by = "diffornot") %>% merge(df11, by = "diffornot") %>% merge(df12, by = "diffornot") %>%
+  merge(df13, by = "diffornot") %>% merge(df14, by = "diffornot")
+
+prop.diff.era5 <- df0[1,]/(df0[1,] + df0[2,])*100      
+prop.diff.era5[1,1] <- "Percent diff"
+                                                      
+df.prop.era5 <- rbind(df0, prop.diff.era5)   
+
+kable(df.prop.era5, caption = "Percent of gridcells in which the aridity category differs from Worldclim", digits = 1) %>%
+  kable_styling(bootstrap_options = "bordered")
+
+df <- table(all$wdc.era5) %>% as.data.frame() %>% setNames(c("diffornot","ERA5-WDC"))
+percent.diff <- df[1,] / (df[1,]+df[2,]) * 100
+percent.diff[1,1] <- "Percent diff"
+df.prop.wdc.era5 <- rbind(df, percent.diff)
+
+kable(df.prop.wdc.era5, caption = "Percent of gridcells in which the aridity category differs between Worldclim and ERA5", digits = 1) %>% 
+  kable_styling(bootstrap_options = "bordered")
 ```
 
 # Number of inhabitants by region

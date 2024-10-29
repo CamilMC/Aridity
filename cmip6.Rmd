@@ -48,6 +48,11 @@ cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "S
 
 # Data
 
+Land-sea mask and IPCC region are taken from Iturbide et al. 2020: https://github.com/SantanderMetGroup/ATLAS/tree/devel/reference-grids
+
+Elevation data is taken from Worldclim: https://www.worldclim.org/data/worldclim21.html
+
+
 ```{r land-masks}
 land_mask <- raster("Masks/land_sea_mask_1degree.nc4") 
 land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm")) # 0 if ocean, 1 if land
@@ -56,12 +61,15 @@ land_mask.df <- as.data.frame(land_mask, xy = T) %>% setNames(c("lon","lat","lm"
 elev <- raster("Worldclim/wc2.1_10m/wc2.1_10m_elev.tif") 
 elev.df <- elev %>% projectRaster(to = land_mask) %>% as.data.frame(xy = T) %>% setNames(c("lon","lat", "z"))
 
-
 ipcc_regions <- shapefile("Masks/IPCC-WGI-reference-regions-v4.shp") %>% spTransform(crs("EPSG:4326")) 
 ipcc_regions.raster <- ipcc_regions %>% rasterize(land_mask)
 ipcc_regions.df <- as.data.frame(ipcc_regions.raster, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym"))
 
 ```
+
+CMIP6 data is dowloaded from https://aims2.llnl.gov/search 
+
+The data was downloaded by model and extracted by model, period and SSP with the "data-prep-xxx.R" scripts, then grouped by variable ("bind-tables_xxx.R"), on GRICAD.
 
 ```{r cmip6-data, eval = F}
 tas.all_annual <- read.table("CMIP6/tas/tas.all_annual.txt")
@@ -302,18 +310,18 @@ write.table(cmip6_december, "cmip6_december.txt")
 
 ## De Martonne
 
+
+
 ```{r aridity-index-martonne, fig.dim = c(15, 20), cache = T}
-cmip6 <- read.table("cmip6_annual.txt")
+cmip6 <- read.table("cmip6.ref.txt") # created in "figures_article.Rmd", already converted in mm and °C
 
 breaks.martonne <- c(0,5,10,20,"30","40",Inf)
 cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid","(20,30]" = "Temperate", "(30,40]" = "Humid", "(40,Inf]" = "Forest")
 col.martonne <- c("Desert" =  "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Temperate" = "#ABD9E9", "Humid"= "#4575B4","Forest"=  "#DAE2F7")
 
-cmip6$AIm <- with(cmip6,pr*60*60*24*365/(tas-273.15+10)) # pr in mm/y, tas in Ceslsius
-
+cmip6$AIm <- with(cmip6,spr.ref/(t.ref)) # pr in mm/y, tas in Ceslsius
 
 cmip6$cat.AIm <- cmip6$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
-
 
 map_list <- list()
 
@@ -328,13 +336,15 @@ for(i in unique(cmip6$source)){
 ggpubr::ggarrange(plotlist = map_list, ncol = 3, nrow = 5, common.legend = T, legend = "bottom")
 ```
 
-## UNEP
+## AI FAO (with Penman-Monteith) 
 
 ea from Rh:
 
 ea = 6.108*(RH/100)*exp(17.27*T/(T+237.3))
-Refs
-https://www.nature.com/articles/s41598-023-40499-6 : Allen and Tetens
+
+Refs: https://www.nature.com/articles/s41598-023-40499-6 : Allen and Tetens
+
+All variables are calculated by month, so that we know the monthly evapotranspiration. The monthly values are summed to obtain the annual values.
 
 ```{r aridity-index-unesco, eval = F}
 id_vars <- c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")
@@ -524,8 +534,6 @@ cmip6$cat.AI_annual[which(cmip6$ET0_annual*365 < 400)] <- "Cold"
 
 write.table(cmip6, "cmip6_AI.txt")
 ```
-
-
 
 # Maps AI by model, all % calculated without Antarctica
 
@@ -980,11 +988,15 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
   column_spec(c(6,9), italic = T, include_thead = T) %>% row_spec(c(13,14), bold = T) 
 ```
 
-# Agreement between models
+# Multimodel average
+
+Here we compute the multimodel mean and median aridity index. We compare the category obtained by using the mean aridity index (cat.mean) to the category obtained in most models (cat.maj).
 
 ## Summary dataframe
 
 ### Difference with AI ref for all SSP 
+
+Compute the difference between future AI, precipitation and temperature for future scenarios, for all models. 
 
 ```{r diff-AI-cmip6, eval = F}
 cmip6 <- read.table("cmip6_AI.txt")
@@ -994,9 +1006,9 @@ cmip6.ref <- cmip6 %>% filter(period == "1970_2000") %>% select(c("lon","lat","m
 cmip6ext <- merge(cmip6, select(cmip6.ref, c("lon","lat","source","AI.ref","spr.ref","t.ref","ET0.ref")) , by = c("lon","lat","source"), all = T) %>%  mutate(diff.AI = AI - AI.ref, diff.pr = spr - spr.ref, diff.t = t - t.ref, diff.ET0 = sET0 - ET0.ref)
 
 write.table(cmip6ext, "cmip6ext.txt")
-
-
 ```
+
+Create a summary table with multimodel average. 
 
 ```{r agreement-between-models, eval = F}
 cmip6 <- read.table("cmip6ext.txt")
@@ -1649,7 +1661,7 @@ ggsave("map_AIpercent_SSP585_2100.png", map_list[[index]])
 ```
 
 
-# Difference between future and reference category of AI, using cat maj
+# Maps of difference between future and reference category of AI, using cat maj
 
 ## Detailed changes and colors cat maj
 
@@ -1794,7 +1806,7 @@ for(i in c("SSP245","SSP370","SSP585")){
 ggpubr::ggarrange(plotlist = map_list, nrow = 3, ncol = 2, common.legend = T, legend = "bottom")
 ```
 
-# Difference between future and reference category of AI, using cat mean
+# Map of difference between future and reference category of AI, using cat mean
 
 ## Detailed changes and colors 
 
@@ -2343,29 +2355,6 @@ k_list
 
 # Changes in proportion of aridity categories, figure
 
-## Mean changes of sum drylands by continent, period and model 
-
-```{r cat-changes-by-continent-in-graph-catmean, fig.dim = c(8,10)}
-list_plots <- list()
-
-for(i in names(tab_list_percent)){
-  df.percent <- tab_list_percent[[i]]
-  df.sd <- tab_list_sd[[i]]
-  
-  df <- merge(df.percent, df.sd, by = c("model", "period"))
-  
-  g <- ggplot(data = df)+geom_point(aes(x=period,y= get("Sum drylands.x"), col = model), shape = "\u2605", size = 5, position = position_dodge(width = 0.5))+
-    geom_errorbar(aes(x = period, ymin = get("Sum drylands.x")-get("Sum drylands.y"), ymax = get("Sum drylands.x")+get("Sum drylands.y"), col = model), position = position_dodge(width = 0.5))+
-    scale_color_manual(values = c("#FDAE61","#FEE08B","#ABD9E9","#4575B4"))+
-    ylim(0,100)+
-    labs(x="", y = "Percent of drylands", title = i)+
-    theme_minimal()
-  list_plots[[i]] <- g
-}
-
-ggarrange(plotlist = list_plots, ncol = 2, nrow = 4, common.legend = T, legend = "bottom")
-```
-
 ## Colplot by continent
 
 ```{r colplots-futurecat-continent, fig.dim = c(15,25)}
@@ -2415,9 +2404,9 @@ b585 <- ggplot(data = df585, aes(x = period, y = percent))+
 ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom", ncol = 3)
 ```
 
-## Evolution of aridity index by Continent and period
+# Evolution of aridity index by Continent and period
 
-### Map with labels
+## Map with labels
 
 ```{r plot-evolution}
 
@@ -2455,7 +2444,7 @@ for(i in c("SSP245","SSP370","SSP585")){
 ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
 ```
 
-### Point figure
+## Point figure
 
 #### By Continent
 
@@ -2508,14 +2497,13 @@ knitr::kable(dfref) %>% kable_styling(bootstrap_options = "bordered")
 
 #### By subregion
 
-```{r plot-evolution-subregion, fig.dim = c(10,60)}
+```{r plot-evolution-subregion, fig.dim = c(10,10)}
 names(tab.percent.continent) <- c("period","model","Continent","AI.diff.mean.cont","AI.diff.sd.cont","AI.diff.cv.cont")
 
-tab.percent.subregion <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 & period != "1985_2015") %>%
+tab.percent.subregion <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC","POLAR") & lat > -55 & period != "1985_2015") %>%
   group_by(period, model, Name, Continent) %>% select(c("diff.AI.mean.percent")) %>%
   summarise(AI.diff.mean = mean(diff.AI.mean.percent, na.rm = T), AI.diff.sd= sd(diff.AI.mean.percent, na.rm = T), AI.diff.cv = AI.diff.sd/AI.diff.mean) %>%
   ungroup()
-
 
 tab.percent.subregion <- merge(tab.percent.subregion, tab.percent.continent, by = c("period","model","Continent"), all.x = T)
   
@@ -2537,7 +2525,9 @@ dfref$period[which(dfref$period == "1970_2000")] <- "1970-2000"
 dfref$period[which(dfref$period == "2030_2060")] <- "2030-2060"
 dfref$period[which(dfref$period == "2070_2100")] <- "2070-2100"
 
-ggplot(dfref, aes(x = period))+
+for(i in unique(dfref$Continent)){
+df <- filter(dfref, Continent == i)
+g <- ggplot(df, aes(x = period))+
   geom_point(aes(y = AI.diff.mean, size = AI.diff.cv, col = AI.diff.cv))+
   geom_line(aes(y = AI.diff.mean, group = Name), size = 0.1)+
   geom_point(aes(y = AI.diff.mean.cont, size = AI.diff.cv.cont), col = "gray", alpha = 0.5)+
@@ -2545,14 +2535,17 @@ ggplot(dfref, aes(x = period))+
   facet_grid(cols = vars(model), rows = vars(Name), switch = "both")+
   scale_size_continuous(breaks = c(0,1,5,10,100), transform = "pseudo_log")+
  scale_color_gradient(low = "#ABD9E9", high = "#D73027", breaks = c(0,1,5,10,100), transform = "pseudo_log")+
-  labs(y = "Difference in aridity index compared to 1970-2000, %", x = "")+
+  labs(y = "Difference in aridity index compared to 1970-2000, %", x = "", title = i)+
   guides(color = guide_legend("Standard deviation"), size = guide_legend("Standard deviation"))+
   theme_minimal()+
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))+  
   scale_y_continuous(position = "right", limits = c(-40,30))
+print(g)
+}
+
 ```
 
-### Change AI in boxplot
+## Change AI in boxplot
 
 ```{r same-with-boxplot, fig.dim = c(10,10)}
 tab.percent.continent <- cmip6s %>% 
@@ -2579,7 +2572,7 @@ ggplot(dfref, aes(x = period, y = diff.AI.mean.percent))+
   
 ```
 
-### Point figure precipitation and temperature
+## Point figure precipitation and temperature
 
 ```{r plot-evolution-temp-precip-continent, fig.dim = c(10,6)}
 cmip6s$pr.percent <- with(cmip6s, diff.pr.mean/spr.ref.mean*100)
@@ -2668,8 +2661,7 @@ ggplot(dfref, aes(x = period))+
   scale_y_continuous(sec.axis = sec_axis(trans = ~./3, name = "Temperature anomalies, °C"))
 ```
 
-# Changes of variables over time and scenarios 
-
+# Changes of precipitation and temperature over time and scenarios 
 
 ## Temperature 
 
@@ -2965,4 +2957,367 @@ for(i in c("SSP245","SSP370","SSP585")){
   }}
 
 ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+
+# Seasonnal aridity
+
+```{r compute-monthly-aridity, eval = F}
+cmip6 <- read.table("cmip6_AI.txt")
+
+cmip6$AI_01 <- with(cmip6, pr_01/ET0_01)
+cmip6$AI_02 <- with(cmip6, pr_02/ET0_02)
+cmip6$AI_03 <- with(cmip6, pr_03/ET0_03)
+cmip6$AI_04 <- with(cmip6, pr_04/ET0_04)
+cmip6$AI_05 <- with(cmip6, pr_05/ET0_05)
+cmip6$AI_06 <- with(cmip6, pr_06/ET0_06)
+cmip6$AI_07 <- with(cmip6, pr_07/ET0_07)
+cmip6$AI_08 <- with(cmip6, pr_08/ET0_08)
+cmip6$AI_09 <- with(cmip6, pr_09/ET0_09)
+cmip6$AI_10 <- with(cmip6, pr_10/ET0_10)
+cmip6$AI_11 <- with(cmip6, pr_11/ET0_11)
+cmip6$AI_12 <- with(cmip6, pr_12/ET0_12)
+
+
+```
+
+```{r ref-monthly-aridity, eval = F}
+cmip6.monthly.ref <- cmip6 %>% filter(period == "1970_2000") %>% 
+  select(c("lon","lat","model","period","source", "Continent","Name",
+           "AI_01","pr_01","ET0_01",
+           "AI_02","pr_02","ET0_02",
+           "AI_03","pr_03","ET0_03",
+           "AI_04","pr_04","ET0_04",
+           "AI_05","pr_05","ET0_05",
+           "AI_06","pr_06","ET0_06",
+           "AI_07","pr_07","ET0_07",
+           "AI_08","pr_08","ET0_08",
+           "AI_09","pr_09","ET0_09",
+           "AI_10","pr_10","ET0_10",
+           "AI_11","pr_11","ET0_11",
+           "AI_12","pr_12","ET0_12"
+           )) %>% 
+  setNames(c("lon","lat","model","period","source","Continent","Name",
+          "AI_01.ref","pr_01.ref","ET0_01.ref",
+           "AI_02.ref","pr_02.ref","ET0_02.ref",
+           "AI_03.ref","pr_03.ref","ET0_03.ref",
+           "AI_04.ref","pr_04.ref","ET0_04.ref",
+           "AI_05.ref","pr_05.ref","ET0_05.ref",
+           "AI_06.ref","pr_06.ref","ET0_06.ref",
+           "AI_07.ref","pr_07.ref","ET0_07.ref",
+           "AI_08.ref","pr_08.ref","ET0_08.ref",
+           "AI_09.ref","pr_09.ref","ET0_09.ref",
+           "AI_10.ref","pr_10.ref","ET0_10.ref",
+           "AI_11.ref","pr_11.ref","ET0_11.ref",
+           "AI_12.ref","pr_12.ref","ET0_12.ref"
+           ))
+
+cmip6monthly <- merge(
+  select(cmip6, c("lon","lat","source","model","period","source", "Continent","Name",
+            "AI_01","pr_01","ET0_01",
+           "AI_02","pr_02","ET0_02",
+           "AI_03","pr_03","ET0_03",
+           "AI_04","pr_04","ET0_04",
+           "AI_05","pr_05","ET0_05",
+           "AI_06","pr_06","ET0_06",
+           "AI_07","pr_07","ET0_07",
+           "AI_08","pr_08","ET0_08",
+           "AI_09","pr_09","ET0_09",
+           "AI_10","pr_10","ET0_10",
+           "AI_11","pr_11","ET0_11",
+           "AI_12","pr_12","ET0_12")),
+  select(cmip6.monthly.ref, c("lon","lat","source",
+           "AI_01.ref","pr_01.ref","ET0_01.ref",
+           "AI_02.ref","pr_02.ref","ET0_02.ref",
+           "AI_03.ref","pr_03.ref","ET0_03.ref",
+           "AI_04.ref","pr_04.ref","ET0_04.ref",
+           "AI_05.ref","pr_05.ref","ET0_05.ref",
+           "AI_06.ref","pr_06.ref","ET0_06.ref",
+           "AI_07.ref","pr_07.ref","ET0_07.ref",
+           "AI_08.ref","pr_08.ref","ET0_08.ref",
+           "AI_09.ref","pr_09.ref","ET0_09.ref",
+           "AI_10.ref","pr_10.ref","ET0_10.ref",
+           "AI_11.ref","pr_11.ref","ET0_11.ref",
+           "AI_12.ref","pr_12.ref","ET0_12.ref")),
+  by = c("lon","lat","source"), all = T) 
+
+write.table(cmip6monthly,"cmip6monthly.txt")
+```
+
+```{r summary-table-monthly, eval = F}
+cmip6monthly <- read.table("cmip6monthly.txt")
+
+cmip6smonthly <- cmip6monthly %>% 
+  group_by(lon,lat, Continent, Name, model, period) %>% 
+  dplyr::summarise(AI_01_mean = mean(AI_01, na.rm = T), AI_01_sd = sd(AI_01, na.rm = T),
+            AI_02_mean = mean(AI_02, na.rm = T), AI_02_sd = sd(AI_02, na.rm = T),
+            AI_03_mean = mean(AI_03, na.rm = T), AI_03_sd = sd(AI_03, na.rm = T),
+            AI_04_mean = mean(AI_04, na.rm = T), AI_04_sd = sd(AI_04, na.rm = T),
+            AI_05_mean = mean(AI_05, na.rm = T), AI_05_sd = sd(AI_05, na.rm = T),
+            AI_06_mean = mean(AI_06, na.rm = T), AI_06_sd = sd(AI_06, na.rm = T),
+            AI_07_mean = mean(AI_07, na.rm = T), AI_07_sd = sd(AI_07, na.rm = T),
+            AI_08_mean = mean(AI_08, na.rm = T), AI_08_sd = sd(AI_08, na.rm = T),
+            AI_09_mean = mean(AI_09, na.rm = T), AI_09_sd = sd(AI_09, na.rm = T),
+            AI_10_mean = mean(AI_10, na.rm = T), AI_10_sd = sd(AI_10, na.rm = T),
+            AI_11_mean = mean(AI_11, na.rm = T), AI_11_sd = sd(AI_11, na.rm = T),
+            AI_12_mean = mean(AI_12, na.rm = T), AI_11_sd = sd(AI_12, na.rm = T),
+            ET0_01_mean = mean(ET0_01, na.rm = T), ET0_01_sd = sd(ET0_01, na.rm = T),
+            ET0_02_mean = mean(ET0_02, na.rm = T), ET0_02_sd = sd(ET0_02, na.rm = T),
+            ET0_03_mean = mean(ET0_03, na.rm = T), ET0_03_sd = sd(ET0_03, na.rm = T),
+            ET0_04_mean = mean(ET0_04, na.rm = T), ET0_04_sd = sd(ET0_04, na.rm = T),
+            ET0_05_mean = mean(ET0_05, na.rm = T), ET0_05_sd = sd(ET0_05, na.rm = T),
+            ET0_06_mean = mean(ET0_06, na.rm = T), ET0_06_sd = sd(ET0_06, na.rm = T),
+            ET0_07_mean = mean(ET0_07, na.rm = T), ET0_07_sd = sd(ET0_07, na.rm = T),
+            ET0_08_mean = mean(ET0_08, na.rm = T), ET0_08_sd = sd(ET0_08, na.rm = T),
+            ET0_09_mean = mean(ET0_09, na.rm = T), ET0_09_sd = sd(ET0_09, na.rm = T),
+            ET0_10_mean = mean(ET0_10, na.rm = T), ET0_10_sd = sd(ET0_10, na.rm = T),
+            ET0_11_mean = mean(ET0_11, na.rm = T), ET0_11_sd = sd(ET0_11, na.rm = T),
+            ET0_12_mean = mean(ET0_12, na.rm = T), ET0_11_sd = sd(ET0_12, na.rm = T)
+            ) %>%
+ ungroup() %>% as.data.frame()
+
+cmip6smonthly.ref <- cmip6smonthly %>% filter(period == "1970_2000") %>% 
+  select(c("lon","lat","model","period", "Continent","Name",
+           "AI_01_mean","ET0_01_mean",
+           "AI_02_mean","ET0_02_mean",
+           "AI_03_mean","ET0_03_mean",
+           "AI_04_mean","ET0_04_mean",
+           "AI_05_mean","ET0_05_mean",
+           "AI_06_mean","ET0_06_mean",
+           "AI_07_mean","ET0_07_mean",
+           "AI_08_mean","ET0_08_mean",
+           "AI_09_mean","ET0_09_mean",
+           "AI_10_mean","ET0_10_mean",
+           "AI_11_mean","ET0_11_mean",
+           "AI_12_mean","ET0_12_mean"
+           )) %>% 
+  setNames(c("lon","lat","model","period","Continent","Name",
+          "AI_01_mean.ref","ET0_01_mean.ref",
+           "AI_02_mean.ref","ET0_02_mean.ref",
+           "AI_03_mean.ref","ET0_03_mean.ref",
+           "AI_04_mean.ref","ET0_04_mean.ref",
+           "AI_05_mean.ref","ET0_05_mean.ref",
+           "AI_06_mean.ref","ET0_06_mean.ref",
+           "AI_07_mean.ref","ET0_07_mean.ref",
+           "AI_08_mean.ref","ET0_08_mean.ref",
+           "AI_09_mean.ref","ET0_09_mean.ref",
+           "AI_10_mean.ref","ET0_10_mean.ref",
+           "AI_11_mean.ref","ET0_11_mean.ref",
+           "AI_12_mean.ref","ET0_12_mean.ref"
+           ))
+
+cmip6smonthly <- merge(cmip6smonthly,cmip6smonthly.ref, by = c("lon","lat","model","period", "Continent","Name"))
+
+# CATEGORIES 01
+cmip6smonthly$cat.AI_01 <- cmip6smonthly$AI_01_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_01[which(cmip6smonthly$ET0_01_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_01.ref <- cmip6smonthly$AI_01_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_01.ref[which(cmip6smonthly$ET0_01_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 02
+cmip6smonthly$cat.AI_02 <- cmip6smonthly$AI_02_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_02[which(cmip6smonthly$ET0_02_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_02.ref <- cmip6smonthly$AI_02_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_02.ref[which(cmip6smonthly$ET0_02_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 03
+cmip6smonthly$cat.AI_03 <- cmip6smonthly$AI_03_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_03[which(cmip6smonthly$ET0_03_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_03.ref <- cmip6smonthly$AI_03_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_03.ref[which(cmip6smonthly$ET0_03_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 04
+cmip6smonthly$cat.AI_04 <- cmip6smonthly$AI_04_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_04[which(cmip6smonthly$ET0_04_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_04.ref <- cmip6smonthly$AI_05_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_04.ref[which(cmip6smonthly$ET0_05_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 05
+cmip6smonthly$cat.AI_05 <- cmip6smonthly$AI_05_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_05[which(cmip6smonthly$ET0_05_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_05.ref <- cmip6smonthly$AI_05_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_05.ref[which(cmip6smonthly$ET0_05_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 06
+cmip6smonthly$cat.AI_06 <- cmip6smonthly$AI_06_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_06[which(cmip6smonthly$ET0_06_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_06.ref <- cmip6smonthly$AI_06_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_06.ref[which(cmip6smonthly$ET0_06_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 07
+cmip6smonthly$cat.AI_07 <- cmip6smonthly$AI_07_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_07[which(cmip6smonthly$ET0_07_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_07.ref <- cmip6smonthly$AI_07_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_07.ref[which(cmip6smonthly$ET0_07_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 08
+cmip6smonthly$cat.AI_08 <- cmip6smonthly$AI_08_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_08[which(cmip6smonthly$ET0_08_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_08.ref <- cmip6smonthly$AI_08_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_08.ref[which(cmip6smonthly$ET0_08_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 09
+cmip6smonthly$cat.AI_09 <- cmip6smonthly$AI_09_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_09[which(cmip6smonthly$ET0_09_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_09.ref <- cmip6smonthly$AI_09_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_09.ref[which(cmip6smonthly$ET0_09_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 10
+cmip6smonthly$cat.AI_10 <- cmip6smonthly$AI_10_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_10[which(cmip6smonthly$ET0_10_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_10.ref <- cmip6smonthly$AI_10_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_10.ref[which(cmip6smonthly$ET0_10_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 11
+cmip6smonthly$cat.AI_11 <- cmip6smonthly$AI_11_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_11[which(cmip6smonthly$ET0_11_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_11.ref <- cmip6smonthly$AI_11_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_11.ref[which(cmip6smonthly$ET0_11_mean.ref < 400/360)] <- "Cold"
+
+# CATEGORIES 12
+cmip6smonthly$cat.AI_12 <- cmip6smonthly$AI_12_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_12[which(cmip6smonthly$ET0_12_mean < 400/360)] <- "Cold"
+
+cmip6smonthly$cat.AI_12.ref <- cmip6smonthly$AI_12_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6smonthly$cat.AI_12.ref[which(cmip6smonthly$ET0_12_mean.ref < 400/360)] <- "Cold"
+
+write.table(cmip6smonthly, "cmip6smonthly.txt")
+```
+
+```{r map-AI-monthly, fig.dim = c(12,16)}
+
+cmip6smonthly$cat.AI_01 <- factor(cmip6smonthly$cat.AI_01, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
+
+ggarrange(
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_01))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "January", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_02))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "February", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_03))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "March", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_04))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "April", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_05))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "May", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_06))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "June", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_07))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "July", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_08))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "August", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_09))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "September", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_10))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "October", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_11))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "November", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ggplot() + 
+    geom_tile(data = subset(cmip6smonthly, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI_12))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "December", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom"),
+
+ncol = 3, nrow = 4, common.legend = T, legend = "bottom"
+)
+
+```
+
+```{r AI-evol-by-continent}
+
+cmip6smm <- cmip6smonthly %>% group_by(model, period, Continent) %>% 
+  summarise(AI_01 = mean(AI_01_mean, na.rm = T), AI_01_sd = sd(AI_01_mean, na.rm = T),
+            AI_02 = mean(AI_02_mean, na.rm = T), AI_02_sd = sd(AI_02_mean, na.rm = T),
+            AI_03 = mean(AI_03_mean, na.rm = T), AI_03_sd = sd(AI_03_mean, na.rm = T),
+            AI_04 = mean(AI_04_mean, na.rm = T), AI_04_sd = sd(AI_04_mean, na.rm = T),
+            AI_05 = mean(AI_05_mean, na.rm = T), AI_05_sd = sd(AI_05_mean, na.rm = T),
+            AI_06 = mean(AI_06_mean, na.rm = T), AI_06_sd = sd(AI_06_mean, na.rm = T),
+            AI_07 = mean(AI_07_mean, na.rm = T), AI_07_sd = sd(AI_07_mean, na.rm = T),
+            AI_08 = mean(AI_08_mean, na.rm = T), AI_08_sd = sd(AI_08_mean, na.rm = T),
+            AI_09 = mean(AI_09_mean, na.rm = T), AI_09_sd = sd(AI_09_mean, na.rm = T),
+            AI_10 = mean(AI_10_mean, na.rm = T), AI_10_sd = sd(AI_10_mean, na.rm = T),
+            AI_11 = mean(AI_11_mean, na.rm = T), AI_11_sd = sd(AI_11_mean, na.rm = T),
+            AI_12 = mean(AI_12_mean, na.rm = T), AI_12_sd = sd(AI_12_mean, na.rm = T)) %>%
+ ungroup() %>% as.data.frame()
+
+
+
 ```
