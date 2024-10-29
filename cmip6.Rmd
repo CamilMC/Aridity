@@ -596,7 +596,7 @@ map_list <- list()
 for(i in unique(cmip6$source)){
   g <- ggplot(data = subset(cmip6, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat, na.translate = F)+
-    labs(title = paste(i, "1850-1880", sep = ", "), fill = "")+
+    labs(title = paste(i, "1970-2000", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
 }
@@ -648,22 +648,6 @@ p <- ggplot(pie)+
     theme_void()+theme(legend.position = "right")
 
 print(p)
-
-# pies <- cmip6s %>% subset(period == "1970_2000" & !Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55) %>%
-#   select(c("cat.AI")) %>%
-#   table() %>% as.data.frame() %>%
-#   mutate(perc = round(Freq/sum(Freq)*100, 1),
-#          lab.y = rev(cumsum(rev(Freq))) - Freq*0.5)
-# 
-# ps <- ggplot(pies)+
-#     geom_bar(aes(x = "", y = Freq, fill = cat.AI), width = 1, stat = "identity")+
-#     coord_polar("y", start = 0)+
-#     scale_fill_manual(values = col.cat)+
-#     geom_label_repel(aes(x = "", y = lab.y, label = perc), nudge_x = 0.5)+
-#     labs(fill = "", title = "Multimodel CMIP6s")+
-#     theme_void()+theme(legend.position = "right")
-# 
-# print(ps)
 ```
 
 ```{r table-of-percent-ref}
@@ -676,12 +660,6 @@ sdmm <- cmip6 %>% subset(period == "1970_2000"  & !Continent %in% c("SOUTHERN","
   t() %>% as.data.frame() %>% setNames(c(.[1,1:6], "NA")) %>% .[-1, ] %>% sapply(as.numeric) %>% as.data.frame() %>%
   mutate("Sum drylands" = rowSums(.[c("Hyperarid","Arid","Semi-arid","Dry subhumid")]), "source" = c("mean","sd")) %>%
   select(c("source","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
-
-  # group_by(lon,lat,Continent, Type, Name, Acronym, lm, model, period, z) %>% 
-  # summarise(AI.mean = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T), cat.AI = cut(AI.mean, breaks.unesco), cat.AI = revalue(cat.AI, cat.unesco)) 
-  # sdmm$cat.AI[which(sdmm$ET0 < 400)] <- "Cold"
-  # sdmm2 <- sdmm %>% group_by(cat.AI) %>% summarise(count = n()) %>% ungroup
-  # sdmm2$percent <- with(sdmm2, round(count/sum(count)*100,1))
 
 tab <- cmip6 %>% subset(period == "1970_2000"   & !Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55 ) %>%
   group_by(source, cat.AI) %>%
@@ -3039,7 +3017,7 @@ cmip6monthly <- merge(
            "AI_10.ref","pr_10.ref","ET0_10.ref",
            "AI_11.ref","pr_11.ref","ET0_11.ref",
            "AI_12.ref","pr_12.ref","ET0_12.ref")),
-  by = c("lon","lat","source"), all = T) 
+  by = c("lon","lat","source"), all.x = T) 
 
 write.table(cmip6monthly,"cmip6monthly.txt")
 ```
@@ -3072,41 +3050,53 @@ cmip6smonthly <- cmip6monthly %>%
             ET0_09_mean = mean(ET0_09, na.rm = T), ET0_09_sd = sd(ET0_09, na.rm = T),
             ET0_10_mean = mean(ET0_10, na.rm = T), ET0_10_sd = sd(ET0_10, na.rm = T),
             ET0_11_mean = mean(ET0_11, na.rm = T), ET0_11_sd = sd(ET0_11, na.rm = T),
-            ET0_12_mean = mean(ET0_12, na.rm = T), ET0_11_sd = sd(ET0_12, na.rm = T)
+            ET0_12_mean = mean(ET0_12, na.rm = T), ET0_11_sd = sd(ET0_12, na.rm = T),
+            pr_01_mean = mean(pr_01, na.rm = T), pr_01_sd = sd(pr_01, na.rm = T),
+            pr_02_mean = mean(pr_02, na.rm = T), pr_02_sd = sd(pr_02, na.rm = T),
+            pr_03_mean = mean(pr_03, na.rm = T), pr_03_sd = sd(pr_03, na.rm = T),
+            pr_04_mean = mean(pr_04, na.rm = T), pr_04_sd = sd(pr_04, na.rm = T),
+            pr_05_mean = mean(pr_05, na.rm = T), pr_05_sd = sd(pr_05, na.rm = T),
+            pr_06_mean = mean(pr_06, na.rm = T), pr_06_sd = sd(pr_06, na.rm = T),
+            pr_07_mean = mean(pr_07, na.rm = T), pr_07_sd = sd(pr_07, na.rm = T),
+            pr_08_mean = mean(pr_08, na.rm = T), pr_08_sd = sd(pr_08, na.rm = T),
+            pr_09_mean = mean(pr_09, na.rm = T), pr_09_sd = sd(pr_09, na.rm = T),
+            pr_10_mean = mean(pr_10, na.rm = T), pr_10_sd = sd(pr_10, na.rm = T),
+            pr_11_mean = mean(pr_11, na.rm = T), pr_11_sd = sd(pr_11, na.rm = T),
+            pr_12_mean = mean(pr_12, na.rm = T), pr_11_sd = sd(pr_12, na.rm = T)
             ) %>%
  ungroup() %>% as.data.frame()
 
 cmip6smonthly.ref <- cmip6smonthly %>% filter(period == "1970_2000") %>% 
   select(c("lon","lat","model","period", "Continent","Name",
-           "AI_01_mean","ET0_01_mean",
-           "AI_02_mean","ET0_02_mean",
-           "AI_03_mean","ET0_03_mean",
-           "AI_04_mean","ET0_04_mean",
-           "AI_05_mean","ET0_05_mean",
-           "AI_06_mean","ET0_06_mean",
-           "AI_07_mean","ET0_07_mean",
-           "AI_08_mean","ET0_08_mean",
-           "AI_09_mean","ET0_09_mean",
-           "AI_10_mean","ET0_10_mean",
-           "AI_11_mean","ET0_11_mean",
-           "AI_12_mean","ET0_12_mean"
+           "AI_01_mean","ET0_01_mean","pr_01_mean",
+           "AI_02_mean","ET0_02_mean","pr_02_mean",
+           "AI_03_mean","ET0_03_mean","pr_03_mean",
+           "AI_04_mean","ET0_04_mean","pr_04_mean",
+           "AI_05_mean","ET0_05_mean","pr_05_mean",
+           "AI_06_mean","ET0_06_mean","pr_06_mean",
+           "AI_07_mean","ET0_07_mean","pr_07_mean",
+           "AI_08_mean","ET0_08_mean","pr_08_mean",
+           "AI_09_mean","ET0_09_mean","pr_09_mean",
+           "AI_10_mean","ET0_10_mean","pr_10_mean",
+           "AI_11_mean","ET0_11_mean","pr_11_mean",
+           "AI_12_mean","ET0_12_mean""pr_12_mean",
            )) %>% 
   setNames(c("lon","lat","model","period","Continent","Name",
-          "AI_01_mean.ref","ET0_01_mean.ref",
-           "AI_02_mean.ref","ET0_02_mean.ref",
-           "AI_03_mean.ref","ET0_03_mean.ref",
-           "AI_04_mean.ref","ET0_04_mean.ref",
-           "AI_05_mean.ref","ET0_05_mean.ref",
-           "AI_06_mean.ref","ET0_06_mean.ref",
-           "AI_07_mean.ref","ET0_07_mean.ref",
-           "AI_08_mean.ref","ET0_08_mean.ref",
-           "AI_09_mean.ref","ET0_09_mean.ref",
-           "AI_10_mean.ref","ET0_10_mean.ref",
-           "AI_11_mean.ref","ET0_11_mean.ref",
-           "AI_12_mean.ref","ET0_12_mean.ref"
+          "AI_01_mean.ref","ET0_01_mean.ref","pr_01_mean.ref",
+           "AI_02_mean.ref","ET0_02_mean.ref","pr_02_mean.ref",
+           "AI_03_mean.ref","ET0_03_mean.ref","pr_03_mean.ref",
+           "AI_04_mean.ref","ET0_04_mean.ref","pr_04_mean.ref",
+           "AI_05_mean.ref","ET0_05_mean.ref","pr_05_mean.ref",
+           "AI_06_mean.ref","ET0_06_mean.ref","pr_06_mean.ref",
+           "AI_07_mean.ref","ET0_07_mean.ref","pr_07_mean.ref",
+           "AI_08_mean.ref","ET0_08_mean.ref","pr_08_mean.ref",
+           "AI_09_mean.ref","ET0_09_mean.ref","pr_09_mean.ref",
+           "AI_10_mean.ref","ET0_10_mean.ref","pr_10_mean.ref",
+           "AI_11_mean.ref","ET0_11_mean.ref","pr_11_mean.ref",
+           "AI_12_mean.ref","ET0_12_mean.ref","pr_12_mean.ref"
            ))
 
-cmip6smonthly <- merge(cmip6smonthly,cmip6smonthly.ref, by = c("lon","lat","model","period", "Continent","Name"))
+cmip6smonthly <- merge(cmip6smonthly,cmip6smonthly.ref, by = c("lon","lat","model","period", "Continent","Name"), all.x = T)
 
 # CATEGORIES 01
 cmip6smonthly$cat.AI_01 <- cmip6smonthly$AI_01_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
@@ -3196,6 +3186,7 @@ write.table(cmip6smonthly, "cmip6smonthly.txt")
 ```
 
 ```{r map-AI-monthly, fig.dim = c(12,16)}
+cmip6smonthly <- read.table("cmip6smonthly.txt")
 
 cmip6smonthly$cat.AI_01 <- factor(cmip6smonthly$cat.AI_01, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
 
@@ -3301,23 +3292,251 @@ ncol = 3, nrow = 4, common.legend = T, legend = "bottom"
 
 ```
 
-```{r AI-evol-by-continent}
+## Evolution of monthly aridity by continent 
 
-cmip6smm <- cmip6smonthly %>% group_by(model, period, Continent) %>% 
-  summarise(AI_01 = mean(AI_01_mean, na.rm = T), AI_01_sd = sd(AI_01_mean, na.rm = T),
-            AI_02 = mean(AI_02_mean, na.rm = T), AI_02_sd = sd(AI_02_mean, na.rm = T),
-            AI_03 = mean(AI_03_mean, na.rm = T), AI_03_sd = sd(AI_03_mean, na.rm = T),
-            AI_04 = mean(AI_04_mean, na.rm = T), AI_04_sd = sd(AI_04_mean, na.rm = T),
-            AI_05 = mean(AI_05_mean, na.rm = T), AI_05_sd = sd(AI_05_mean, na.rm = T),
-            AI_06 = mean(AI_06_mean, na.rm = T), AI_06_sd = sd(AI_06_mean, na.rm = T),
-            AI_07 = mean(AI_07_mean, na.rm = T), AI_07_sd = sd(AI_07_mean, na.rm = T),
-            AI_08 = mean(AI_08_mean, na.rm = T), AI_08_sd = sd(AI_08_mean, na.rm = T),
-            AI_09 = mean(AI_09_mean, na.rm = T), AI_09_sd = sd(AI_09_mean, na.rm = T),
-            AI_10 = mean(AI_10_mean, na.rm = T), AI_10_sd = sd(AI_10_mean, na.rm = T),
-            AI_11 = mean(AI_11_mean, na.rm = T), AI_11_sd = sd(AI_11_mean, na.rm = T),
-            AI_12 = mean(AI_12_mean, na.rm = T), AI_12_sd = sd(AI_12_mean, na.rm = T)) %>%
+```{r AI-evol-by-continent}
+cmip6smm <- cmip6smonthly %>% group_by(model, period, Continent) %>%
+  summarise(AI_01 = median(AI_01_mean, na.rm = T), cov_AI_01 = sd(AI_01_mean, na.rm = T)/mean(AI_01_mean, na.rm = T),
+            AI_02 = median(AI_02_mean, na.rm = T), cov_AI_02 = sd(AI_02_mean, na.rm = T)/mean(AI_02_mean, na.rm = T),
+            AI_03 = median(AI_03_mean, na.rm = T), cov_AI_03 = sd(AI_03_mean, na.rm = T)/mean(AI_03_mean, na.rm = T),
+            AI_04 = median(AI_04_mean, na.rm = T), cov_AI_04 = sd(AI_04_mean, na.rm = T)/mean(AI_04_mean, na.rm = T),
+            AI_05 = median(AI_05_mean, na.rm = T), cov_AI_05 = sd(AI_05_mean, na.rm = T)/mean(AI_05_mean, na.rm = T),
+            AI_06 = median(AI_06_mean, na.rm = T), cov_AI_06 = sd(AI_06_mean, na.rm = T)/mean(AI_06_mean, na.rm = T),
+            AI_07 = median(AI_07_mean, na.rm = T), cov_AI_07 = sd(AI_07_mean, na.rm = T)/mean(AI_07_mean, na.rm = T),
+            AI_08 = median(AI_08_mean, na.rm = T), cov_AI_08 = sd(AI_08_mean, na.rm = T)/mean(AI_08_mean, na.rm = T),
+            AI_09 = median(AI_09_mean, na.rm = T), cov_AI_09 = sd(AI_09_mean, na.rm = T)/mean(AI_09_mean, na.rm = T),
+            AI_10 = median(AI_10_mean, na.rm = T), cov_AI_10 = sd(AI_10_mean, na.rm = T)/mean(AI_10_mean, na.rm = T),
+            AI_11 = median(AI_11_mean, na.rm = T), cov_AI_11 = sd(AI_11_mean, na.rm = T)/mean(AI_11_mean, na.rm = T),
+            AI_12 = median(AI_12_mean, na.rm = T), cov_AI_12 = sd(AI_12_mean, na.rm = T)/mean(AI_12_mean, na.rm = T)) %>%
  ungroup() %>% as.data.frame()
 
+# cmip6smm <- cmip6smonthly %>% group_by(model, period, Continent) %>% 
+#   summarise(AI_01 = mean(AI_01_mean, na.rm = T),
+#             AI_02 = mean(AI_02_mean, na.rm = T),
+#             AI_03 = mean(AI_03_mean, na.rm = T),
+#             AI_04 = mean(AI_04_mean, na.rm = T),
+#             AI_05 = mean(AI_05_mean, na.rm = T),
+#             AI_06 = mean(AI_06_mean, na.rm = T),
+#             AI_07 = mean(AI_07_mean, na.rm = T),
+#             AI_08 = mean(AI_08_mean, na.rm = T),
+#             AI_09 = mean(AI_09_mean, na.rm = T),
+#             AI_10 = mean(AI_10_mean, na.rm = T),
+#             AI_11 = mean(AI_11_mean, na.rm = T),
+#             AI_12 = mean(AI_12_mean, na.rm = T)) %>%
+#  ungroup() %>% as.data.frame()
+
+long_AI <- cmip6smm %>% select(c("model","period","Continent","AI_01","AI_02","AI_03","AI_04","AI_05","AI_06","AI_07","AI_08","AI_09","AI_10","AI_11","AI_12")) %>%
+                                 tidyr::pivot_longer(
+                                   cols = starts_with("AI_"),
+                                   names_to= "Month",
+                                   values_to = "AI")
+
+long_AI$Month <- revalue(long_AI$Month, c("AI_01" = "January","AI_02" = "February", "AI_03" = "March", "AI_04" = "April","AI_05" ="May","AI_06" = "June", "AI_07" ="July","AI_08" = "August","AI_09" = "September","AI_10" = "October","AI_11" = "November","AI_12" = "December"))
+                               
+long_sdAI <- cmip6smm %>% 
+  select(c("model","period","Continent","cov_AI_01","cov_AI_02","cov_AI_03","cov_AI_04","cov_AI_05","cov_AI_06","cov_AI_07","cov_AI_08","cov_AI_09","cov_AI_10","cov_AI_11","cov_AI_12")) %>%
+  tidyr::pivot_longer(
+  cols = starts_with("cov_AI_"),
+  names_to= "Month",
+  values_to = "cov_AI"
+)
+
+long_sdAI$Month <- revalue(long_sdAI$Month, c("cov_AI_01" = "January","cov_AI_02" = "February", "cov_AI_03" = "March", "cov_AI_04" = "April","cov_AI_05" ="May","cov_AI_06" = "June", "cov_AI_07" ="July","cov_AI_08" = "August","cov_AI_09" = "September","cov_AI_10" = "October","cov_AI_11" = "November","cov_AI_12" = "December"))
+
+cmip6sml <- merge(long_AI,long_sdAI, by = c("model","period","Continent","Month"))
+
+cmip6sml$Month <- factor(cmip6sml$Month, c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+col.model <- c("historical" = "#4575B4", "SSP245" = "#FEE08B", "SSP370" = "#FDAE61", "SSP585" = "#D73027")
+
+cmip6sml$NMonth <- cmip6sml$Month %>% revalue(c("January" = 1, "February" =2, "March"= 3, "April"= 4,"May" = 5, "June" = 6,"July" = 7, "August"= 8,"September" = 9, "October" = 10,"November" = 11, "December" = 12))
 
 
+
+```
+
+```{r plot-AI-month-cont}
+
+for(i in  c("NORTH-AMERICA","CENTRAL-AMERICA","SOUTH-AMERICA","EUROPE","EUROPE-AFRICA","AFRICA","ASIA","OCEANIA")){
+g <- ggplot(subset(cmip6sml, Continent == i & period %in% c("1970_2000","2070_2100")))+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0, ymax = 0.03), fill = "#D73027", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.03, ymax = 0.2), fill = "#FDAE61", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.2, ymax = 0.5), fill = "#FEE08B", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.5, ymax = 0.65), fill = "#ABD9E9", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.65, ymax = Inf), fill = "#4575B4", alpha = 0.02)+
+  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model))+
+  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model))+
+  scale_color_manual(values = col.model)+
+  scale_size_continuous(transform = "pseudo_log")+
+  labs(y = "Median aridity index", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+print(g)
+}
+```
+
+## Evolution of monthly evapotranspiration by continent 
+
+```{r ET0-evol-by-continent}
+cmip6smm_et0 <- cmip6smonthly %>% group_by(model, period, Continent) %>%
+  summarise(ET0_01 = median(ET0_01_mean, na.rm = T), cov_ET0_01 = sd(ET0_01_mean, na.rm = T)/mean(ET0_01_mean, na.rm = T),
+            ET0_02 = median(ET0_02_mean, na.rm = T), cov_ET0_02 = sd(ET0_02_mean, na.rm = T)/mean(ET0_02_mean, na.rm = T),
+            ET0_03 = median(ET0_03_mean, na.rm = T), cov_ET0_03 = sd(ET0_03_mean, na.rm = T)/mean(ET0_03_mean, na.rm = T),
+            ET0_04 = median(ET0_04_mean, na.rm = T), cov_ET0_04 = sd(ET0_04_mean, na.rm = T)/mean(ET0_04_mean, na.rm = T),
+            ET0_05 = median(ET0_05_mean, na.rm = T), cov_ET0_05 = sd(ET0_05_mean, na.rm = T)/mean(ET0_05_mean, na.rm = T),
+            ET0_06 = median(ET0_06_mean, na.rm = T), cov_ET0_06 = sd(ET0_06_mean, na.rm = T)/mean(ET0_06_mean, na.rm = T),
+            ET0_07 = median(ET0_07_mean, na.rm = T), cov_ET0_07 = sd(ET0_07_mean, na.rm = T)/mean(ET0_07_mean, na.rm = T),
+            ET0_08 = median(ET0_08_mean, na.rm = T), cov_ET0_08 = sd(ET0_08_mean, na.rm = T)/mean(ET0_08_mean, na.rm = T),
+            ET0_09 = median(ET0_09_mean, na.rm = T), cov_ET0_09 = sd(ET0_09_mean, na.rm = T)/mean(ET0_09_mean, na.rm = T),
+            ET0_10 = median(ET0_10_mean, na.rm = T), cov_ET0_10 = sd(ET0_10_mean, na.rm = T)/mean(ET0_10_mean, na.rm = T),
+            ET0_11 = median(ET0_11_mean, na.rm = T), cov_ET0_11 = sd(ET0_11_mean, na.rm = T)/mean(ET0_11_mean, na.rm = T),
+            ET0_12 = median(ET0_12_mean, na.rm = T), cov_ET0_12 = sd(ET0_12_mean, na.rm = T)/mean(ET0_12_mean, na.rm = T)) %>%
+ ungroup() %>% as.data.frame()
+
+# cmip6smm <- cmip6smonthly %>% group_by(model, period, Continent) %>% 
+#   summarise(ET0_01 = mean(ET0_01_mean, na.rm = T),
+#             ET0_02 = mean(ET0_02_mean, na.rm = T),
+#             ET0_03 = mean(ET0_03_mean, na.rm = T),
+#             ET0_04 = mean(ET0_04_mean, na.rm = T),
+#             ET0_05 = mean(ET0_05_mean, na.rm = T),
+#             ET0_06 = mean(ET0_06_mean, na.rm = T),
+#             ET0_07 = mean(ET0_07_mean, na.rm = T),
+#             ET0_08 = mean(ET0_08_mean, na.rm = T),
+#             ET0_09 = mean(ET0_09_mean, na.rm = T),
+#             ET0_10 = mean(ET0_10_mean, na.rm = T),
+#             ET0_11 = mean(ET0_11_mean, na.rm = T),
+#             ET0_12 = mean(ET0_12_mean, na.rm = T)) %>%
+#  ungroup() %>% as.data.frame()
+
+long_ET0 <- cmip6smm_et0 %>% select(c("model","period","Continent","ET0_01","ET0_02","ET0_03","ET0_04","ET0_05","ET0_06","ET0_07","ET0_08","ET0_09","ET0_10","ET0_11","ET0_12")) %>%
+                                 tidyr::pivot_longer(
+                                   cols = starts_with("ET0_"),
+                                   names_to= "Month",
+                                   values_to = "AI")
+
+long_ET0$Month <- revalue(long_AI$Month, c("ET0_01" = "January","ET0_02" = "February", "ET0_03" = "March", "ET0_04" = "April","ET0_05" ="May","ET0_06" = "June", "ET0_07" ="July","ET0_08" = "August","ET0_09" = "September","ET0_10" = "October","ET0_11" = "November","ET0_12" = "December"))
+                               
+long_sdET0 <- cmip6smm_et0 %>% 
+  select(c("model","period","Continent","cov_ET0_01","cov_ET0_02","cov_ET0_03","cov_ET0_04","cov_ET0_05","cov_ET0_06","cov_ET0_07","cov_ET0_08","cov_ET0_09","cov_ET0_10","cov_ET0_11","cov_ET0_12")) %>%
+  tidyr::pivot_longer(
+  cols = starts_with("cov_ET0_"),
+  names_to= "Month",
+  values_to = "cov_AI"
+)
+
+long_sdET0$Month <- revalue(long_sdET0$Month, c("cov_ET0_01" = "January","cov_ET0_02" = "February", "cov_ET0_03" = "March", "cov_ET0_04" = "April","cov_ET0_05" ="May","cov_ET0_06" = "June", "cov_ET0_07" ="July","cov_ET0_08" = "August","cov_ET0_09" = "September","cov_ET0_10" = "October","cov_ET0_11" = "November","cov_ET0_12" = "December"))
+
+cmip6sml_et0 <- merge(long_ET0,long_sdET0, by = c("model","period","Continent","Month"))
+
+cmip6sml_et0$Month <- factor(cmip6sml_et0$Month, c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+col.model <- c("historical" = "#4575B4", "SSP245" = "#FEE08B", "SSP370" = "#FDAE61", "SSP585" = "#D73027")
+
+cmip6sml_et0$NMonth <- cmip6sml_et0$Month %>% revalue(c("January" = 1, "February" =2, "March"= 3, "April"= 4,"May" = 5, "June" = 6,"July" = 7, "August"= 8,"September" = 9, "October" = 10,"November" = 11, "December" = 12))
+
+
+
+```
+
+```{r plot-ET0-month-cont}
+
+for(i in  c("NORTH-AMERICA","CENTRAL-AMERICA","SOUTH-AMERICA","EUROPE","EUROPE-AFRICA","AFRICA","ASIA","OCEANIA")){
+g <- ggplot(subset(cmip6sml_et0, Continent == i & period %in% c("1970_2000","2070_2100")))+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0, ymax = 0.03), fill = "#D73027", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.03, ymax = 0.2), fill = "#FDAE61", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.2, ymax = 0.5), fill = "#FEE08B", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.5, ymax = 0.65), fill = "#ABD9E9", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.65, ymax = Inf), fill = "#4575B4", alpha = 0.02)+
+  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model))+
+  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model))+
+  scale_color_manual(values = col.model)+
+  scale_size_continuous(transform = "pseudo_log")+
+  labs(y = "Median evapotranspiration", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+print(g)
+}
+```
+
+## Evolution of monthly precipitation by continent 
+
+```{r pr-evol-by-continent}
+cmip6smm_pr <- cmip6smonthly %>% group_by(model, period, Continent) %>%
+  summarise(pr01 = median(pr_01_mean, na.rm = T), cov_pr_01 = sd(pr_01_mean, na.rm = T)/mean(pr_01_mean, na.rm = T),
+            pr_02 = median(pr_02_mean, na.rm = T), cov_pr_02 = sd(pr_02_mean, na.rm = T)/mean(pr_02_mean, na.rm = T),
+            pr_03 = median(pr_03_mean, na.rm = T), cov_pr_03 = sd(pr_03_mean, na.rm = T)/mean(pr_03_mean, na.rm = T),
+            pr_04 = median(pr_04_mean, na.rm = T), cov_pr_04 = sd(pr_04_mean, na.rm = T)/mean(pr_04_mean, na.rm = T),
+            pr_05 = median(pr_05_mean, na.rm = T), cov_pr_05 = sd(pr_05_mean, na.rm = T)/mean(pr_05_mean, na.rm = T),
+            pr_06 = median(pr_06_mean, na.rm = T), cov_pr_06 = sd(pr_06_mean, na.rm = T)/mean(pr_06_mean, na.rm = T),
+            pr_07 = median(pr_07_mean, na.rm = T), cov_pr_07 = sd(pr_07_mean, na.rm = T)/mean(pr_07_mean, na.rm = T),
+            pr_08 = median(pr_08_mean, na.rm = T), cov_pr_08 = sd(pr_08_mean, na.rm = T)/mean(pr_08_mean, na.rm = T),
+            pr_09 = median(pr_09_mean, na.rm = T), cov_pr_09 = sd(pr_09_mean, na.rm = T)/mean(pr_09_mean, na.rm = T),
+            pr_10 = median(pr_10_mean, na.rm = T), cov_pr_10 = sd(pr_10_mean, na.rm = T)/mean(pr_10_mean, na.rm = T),
+            pr_11 = median(pr_11_mean, na.rm = T), cov_pr_11 = sd(pr_11_mean, na.rm = T)/mean(pr_11_mean, na.rm = T),
+            pr_12 = median(pr_12_mean, na.rm = T), cov_pr_12 = sd(pr_12_mean, na.rm = T)/mean(pr_12_mean, na.rm = T)) %>%
+ ungroup() %>% as.data.frame()
+
+# cmip6smm <- cmip6smonthly %>% group_by(model, period, Continent) %>% 
+#   summarise(pr_01 = mean(pr_01_mean, na.rm = T),
+#             pr_02 = mean(pr_02_mean, na.rm = T),
+#             pr_03 = mean(pr_03_mean, na.rm = T),
+#             pr_04 = mean(pr_04_mean, na.rm = T),
+#             pr_05 = mean(pr_05_mean, na.rm = T),
+#             pr_06 = mean(pr_06_mean, na.rm = T),
+#             pr_07 = mean(pr_07_mean, na.rm = T),
+#             pr_08 = mean(pr_08_mean, na.rm = T),
+#             pr_09 = mean(pr_09_mean, na.rm = T),
+#             pr_10 = mean(pr_10_mean, na.rm = T),
+#             pr_11 = mean(pr_11_mean, na.rm = T),
+#             pr_12 = mean(pr_12_mean, na.rm = T)) %>%
+#  ungroup() %>% as.data.frame()
+
+long_ET0 <- cmip6smm_et0 %>% select(c("model","period","Continent","pr_01","pr_02","pr_03","pr_04","pr_05","pr_06","pr_07","pr_08","pr_09","pr_10","pr_11","pr_12")) %>%
+                                 tidyr::pivot_longer(
+                                   cols = starts_with("pr_"),
+                                   names_to= "Month",
+                                   values_to = "AI")
+
+long_pr$Month <- revalue(long_AI$Month, c("pr_01" = "January","pr_02" = "February", "pr_03" = "March", "pr_04" = "Apr_il","pr_05" ="May","pr_06" = "June", "pr_07" ="July","pr_08" = "August","pr_09" = "September","pr_10" = "October","pr_11" = "November","pr_12" = "December"))
+                               
+long_sdpr <- cmip6smm_pr %>% 
+  select(c("model","period","Continent","cov_pr_01","cov_pr_02","cov_pr_03","cov_pr_04","cov_pr_05","cov_pr_06","cov_pr_07","cov_pr_08","cov_pr_09","cov_pr_10","cov_pr_11","cov_pr_12")) %>%
+  tidyr::pivot_longer(
+  cols = starts_with("cov_ET0_"),
+  names_to= "Month",
+  values_to = "cov_AI"
+)
+
+long_sdpr$Month <- revalue(long_pr$Month, c("cov_pr_01" = "January","cov_pr_02" = "February", "cov_pr_03" = "March", "cov_pr_04" = "April","cov_pr_05" ="May","cov_pr_06" = "June", "cov_pr_07" ="July","cov_pr_08" = "August","cov_pr_09" = "September","cov_pr_10" = "October","cov_pr_11" = "November","cov_pr_12" = "December"))
+
+cmip6sml_pr <- merge(long_pr,long_sdpr, by = c("model","period","Continent","Month"))
+
+cmip6sml_pr$Month <- factor(cmip6sml_pr$Month, c("January","February","March","April","May","June","July","August","September","October","November","December"))
+
+col.model <- c("historical" = "#4575B4", "SSP245" = "#FEE08B", "SSP370" = "#FDAE61", "SSP585" = "#D73027")
+
+cmip6sml_pr$NMonth <- cmip6sml_pr$Month %>% revalue(c("January" = 1, "February" =2, "March"= 3, "April"= 4,"May" = 5, "June" = 6,"July" = 7, "August"= 8,"September" = 9, "October" = 10,"November" = 11, "December" = 12))
+
+
+
+```
+
+```{r plot-pr-month-cont}
+
+for(i in  c("NORTH-AMERICA","CENTRAL-AMERICA","SOUTH-AMERICA","EUROPE","EUROPE-AFRICA","AFRICA","ASIA","OCEANIA")){
+g <- ggplot(subset(cmip6sml_pr, Continent == i & period %in% c("1970_2000","2070_2100")))+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0, ymax = 0.03), fill = "#D73027", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.03, ymax = 0.2), fill = "#FDAE61", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.2, ymax = 0.5), fill = "#FEE08B", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.5, ymax = 0.65), fill = "#ABD9E9", alpha = 0.02)+
+  # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.65, ymax = Inf), fill = "#4575B4", alpha = 0.02)+
+  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model))+
+  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model))+
+  scale_color_manual(values = col.model)+
+  scale_size_continuous(transform = "pseudo_log")+
+  labs(y = "Median monthly precipitation, mm", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+print(g)
+}
 ```
