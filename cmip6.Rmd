@@ -2940,6 +2940,8 @@ ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, leg
 
 # Seasonnal aridity
 
+In CMIP6, the precipitation (pr) and evapotranspiration (ET0) are in mm/day. 
+
 ```{r compute-monthly-aridity, eval = F}
 cmip6 <- read.table("cmip6_AI.txt")
 
@@ -3039,30 +3041,30 @@ cmip6smonthly <- cmip6monthly %>%
             AI_10_mean = mean(AI_10, na.rm = T), AI_10_sd = sd(AI_10, na.rm = T),
             AI_11_mean = mean(AI_11, na.rm = T), AI_11_sd = sd(AI_11, na.rm = T),
             AI_12_mean = mean(AI_12, na.rm = T), AI_11_sd = sd(AI_12, na.rm = T),
-            ET0_01_mean = mean(ET0_01, na.rm = T), ET0_01_sd = sd(ET0_01, na.rm = T),
-            ET0_02_mean = mean(ET0_02, na.rm = T), ET0_02_sd = sd(ET0_02, na.rm = T),
-            ET0_03_mean = mean(ET0_03, na.rm = T), ET0_03_sd = sd(ET0_03, na.rm = T),
-            ET0_04_mean = mean(ET0_04, na.rm = T), ET0_04_sd = sd(ET0_04, na.rm = T),
-            ET0_05_mean = mean(ET0_05, na.rm = T), ET0_05_sd = sd(ET0_05, na.rm = T),
-            ET0_06_mean = mean(ET0_06, na.rm = T), ET0_06_sd = sd(ET0_06, na.rm = T),
-            ET0_07_mean = mean(ET0_07, na.rm = T), ET0_07_sd = sd(ET0_07, na.rm = T),
-            ET0_08_mean = mean(ET0_08, na.rm = T), ET0_08_sd = sd(ET0_08, na.rm = T),
-            ET0_09_mean = mean(ET0_09, na.rm = T), ET0_09_sd = sd(ET0_09, na.rm = T),
-            ET0_10_mean = mean(ET0_10, na.rm = T), ET0_10_sd = sd(ET0_10, na.rm = T),
-            ET0_11_mean = mean(ET0_11, na.rm = T), ET0_11_sd = sd(ET0_11, na.rm = T),
-            ET0_12_mean = mean(ET0_12, na.rm = T), ET0_11_sd = sd(ET0_12, na.rm = T),
-            pr_01_mean = mean(pr_01, na.rm = T), pr_01_sd = sd(pr_01, na.rm = T),
-            pr_02_mean = mean(pr_02, na.rm = T), pr_02_sd = sd(pr_02, na.rm = T),
-            pr_03_mean = mean(pr_03, na.rm = T), pr_03_sd = sd(pr_03, na.rm = T),
-            pr_04_mean = mean(pr_04, na.rm = T), pr_04_sd = sd(pr_04, na.rm = T),
-            pr_05_mean = mean(pr_05, na.rm = T), pr_05_sd = sd(pr_05, na.rm = T),
-            pr_06_mean = mean(pr_06, na.rm = T), pr_06_sd = sd(pr_06, na.rm = T),
-            pr_07_mean = mean(pr_07, na.rm = T), pr_07_sd = sd(pr_07, na.rm = T),
-            pr_08_mean = mean(pr_08, na.rm = T), pr_08_sd = sd(pr_08, na.rm = T),
-            pr_09_mean = mean(pr_09, na.rm = T), pr_09_sd = sd(pr_09, na.rm = T),
-            pr_10_mean = mean(pr_10, na.rm = T), pr_10_sd = sd(pr_10, na.rm = T),
-            pr_11_mean = mean(pr_11, na.rm = T), pr_11_sd = sd(pr_11, na.rm = T),
-            pr_12_mean = mean(pr_12, na.rm = T), pr_11_sd = sd(pr_12, na.rm = T)
+            ET0_01_mean = mean(ET0_01*31, na.rm = T), ET0_01_sd = sd(ET0_01*31, na.rm = T),
+            ET0_02_mean = mean(ET0_02*38, na.rm = T), ET0_02_sd = sd(ET0_02*28, na.rm = T),
+            ET0_03_mean = mean(ET0_03*31, na.rm = T), ET0_03_sd = sd(ET0_03*31, na.rm = T),
+            ET0_04_mean = mean(ET0_04*30, na.rm = T), ET0_04_sd = sd(ET0_04*30, na.rm = T),
+            ET0_05_mean = mean(ET0_05*31, na.rm = T), ET0_05_sd = sd(ET0_05*31, na.rm = T),
+            ET0_06_mean = mean(ET0_06*30, na.rm = T), ET0_06_sd = sd(ET0_06*30, na.rm = T),
+            ET0_07_mean = mean(ET0_07*31, na.rm = T), ET0_07_sd = sd(ET0_07*31, na.rm = T),
+            ET0_08_mean = mean(ET0_08*31, na.rm = T), ET0_08_sd = sd(ET0_08*31, na.rm = T),
+            ET0_09_mean = mean(ET0_09*30, na.rm = T), ET0_09_sd = sd(ET0_09*30, na.rm = T),
+            ET0_10_mean = mean(ET0_10*31, na.rm = T), ET0_10_sd = sd(ET0_10*31, na.rm = T),
+            ET0_11_mean = mean(ET0_11*30, na.rm = T), ET0_11_sd = sd(ET0_11*30, na.rm = T),
+            ET0_12_mean = mean(ET0_12*31, na.rm = T), ET0_11_sd = sd(ET0_12*31, na.rm = T),
+            pr_01_mean = mean(pr_01*31, na.rm = T), pr_01_sd = sd(pr_01*31, na.rm = T),
+            pr_02_mean = mean(pr_02*28, na.rm = T), pr_02_sd = sd(pr_02*28, na.rm = T),
+            pr_03_mean = mean(pr_03*31, na.rm = T), pr_03_sd = sd(pr_03*31, na.rm = T),
+            pr_04_mean = mean(pr_04*30, na.rm = T), pr_04_sd = sd(pr_04*30, na.rm = T),
+            pr_05_mean = mean(pr_05*31, na.rm = T), pr_05_sd = sd(pr_05*31, na.rm = T),
+            pr_06_mean = mean(pr_06*30, na.rm = T), pr_06_sd = sd(pr_06*30, na.rm = T),
+            pr_07_mean = mean(pr_07*31, na.rm = T), pr_07_sd = sd(pr_07*31, na.rm = T),
+            pr_08_mean = mean(pr_08*31, na.rm = T), pr_08_sd = sd(pr_08*31, na.rm = T),
+            pr_09_mean = mean(pr_09*30, na.rm = T), pr_09_sd = sd(pr_09*30, na.rm = T),
+            pr_10_mean = mean(pr_10*31, na.rm = T), pr_10_sd = sd(pr_10*31, na.rm = T),
+            pr_11_mean = mean(pr_11*30, na.rm = T), pr_11_sd = sd(pr_11*30, na.rm = T),
+            pr_12_mean = mean(pr_12*31, na.rm = T), pr_11_sd = sd(pr_12*31, na.rm = T)
             ) %>%
  ungroup() %>% as.data.frame()
 
@@ -3079,7 +3081,7 @@ cmip6smonthly.ref <- cmip6smonthly %>% filter(period == "1970_2000") %>%
            "AI_09_mean","ET0_09_mean","pr_09_mean",
            "AI_10_mean","ET0_10_mean","pr_10_mean",
            "AI_11_mean","ET0_11_mean","pr_11_mean",
-           "AI_12_mean","ET0_12_mean""pr_12_mean",
+           "AI_12_mean","ET0_12_mean","pr_12_mean",
            )) %>% 
   setNames(c("lon","lat","model","period","Continent","Name",
           "AI_01_mean.ref","ET0_01_mean.ref","pr_01_mean.ref",
@@ -3100,92 +3102,94 @@ cmip6smonthly <- merge(cmip6smonthly,cmip6smonthly.ref, by = c("lon","lat","mode
 
 # CATEGORIES 01
 cmip6smonthly$cat.AI_01 <- cmip6smonthly$AI_01_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_01[which(cmip6smonthly$ET0_01_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_01[which(cmip6smonthly$ET0_01_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_01.ref <- cmip6smonthly$AI_01_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_01.ref[which(cmip6smonthly$ET0_01_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_01.ref[which(cmip6smonthly$ET0_01_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 02
 cmip6smonthly$cat.AI_02 <- cmip6smonthly$AI_02_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_02[which(cmip6smonthly$ET0_02_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_02[which(cmip6smonthly$ET0_02_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_02.ref <- cmip6smonthly$AI_02_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_02.ref[which(cmip6smonthly$ET0_02_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_02.ref[which(cmip6smonthly$ET0_02_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 03
 cmip6smonthly$cat.AI_03 <- cmip6smonthly$AI_03_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_03[which(cmip6smonthly$ET0_03_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_03[which(cmip6smonthly$ET0_03_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_03.ref <- cmip6smonthly$AI_03_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_03.ref[which(cmip6smonthly$ET0_03_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_03.ref[which(cmip6smonthly$ET0_03_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 04
 cmip6smonthly$cat.AI_04 <- cmip6smonthly$AI_04_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_04[which(cmip6smonthly$ET0_04_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_04[which(cmip6smonthly$ET0_04_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_04.ref <- cmip6smonthly$AI_05_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_04.ref[which(cmip6smonthly$ET0_05_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_04.ref[which(cmip6smonthly$ET0_05_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 05
 cmip6smonthly$cat.AI_05 <- cmip6smonthly$AI_05_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_05[which(cmip6smonthly$ET0_05_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_05[which(cmip6smonthly$ET0_05_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_05.ref <- cmip6smonthly$AI_05_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_05.ref[which(cmip6smonthly$ET0_05_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_05.ref[which(cmip6smonthly$ET0_05_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 06
 cmip6smonthly$cat.AI_06 <- cmip6smonthly$AI_06_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_06[which(cmip6smonthly$ET0_06_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_06[which(cmip6smonthly$ET0_06_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_06.ref <- cmip6smonthly$AI_06_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_06.ref[which(cmip6smonthly$ET0_06_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_06.ref[which(cmip6smonthly$ET0_06_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 07
 cmip6smonthly$cat.AI_07 <- cmip6smonthly$AI_07_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_07[which(cmip6smonthly$ET0_07_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_07[which(cmip6smonthly$ET0_07_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_07.ref <- cmip6smonthly$AI_07_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_07.ref[which(cmip6smonthly$ET0_07_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_07.ref[which(cmip6smonthly$ET0_07_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 08
 cmip6smonthly$cat.AI_08 <- cmip6smonthly$AI_08_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_08[which(cmip6smonthly$ET0_08_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_08[which(cmip6smonthly$ET0_08_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_08.ref <- cmip6smonthly$AI_08_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_08.ref[which(cmip6smonthly$ET0_08_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_08.ref[which(cmip6smonthly$ET0_08_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 09
 cmip6smonthly$cat.AI_09 <- cmip6smonthly$AI_09_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_09[which(cmip6smonthly$ET0_09_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_09[which(cmip6smonthly$ET0_09_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_09.ref <- cmip6smonthly$AI_09_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_09.ref[which(cmip6smonthly$ET0_09_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_09.ref[which(cmip6smonthly$ET0_09_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 10
 cmip6smonthly$cat.AI_10 <- cmip6smonthly$AI_10_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_10[which(cmip6smonthly$ET0_10_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_10[which(cmip6smonthly$ET0_10_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_10.ref <- cmip6smonthly$AI_10_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_10.ref[which(cmip6smonthly$ET0_10_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_10.ref[which(cmip6smonthly$ET0_10_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 11
 cmip6smonthly$cat.AI_11 <- cmip6smonthly$AI_11_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_11[which(cmip6smonthly$ET0_11_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_11[which(cmip6smonthly$ET0_11_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_11.ref <- cmip6smonthly$AI_11_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_11.ref[which(cmip6smonthly$ET0_11_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_11.ref[which(cmip6smonthly$ET0_11_mean.ref < 400/12)] <- "Cold"
 
 # CATEGORIES 12
 cmip6smonthly$cat.AI_12 <- cmip6smonthly$AI_12_mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_12[which(cmip6smonthly$ET0_12_mean < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_12[which(cmip6smonthly$ET0_12_mean < 400/12)] <- "Cold"
 
 cmip6smonthly$cat.AI_12.ref <- cmip6smonthly$AI_12_mean.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-cmip6smonthly$cat.AI_12.ref[which(cmip6smonthly$ET0_12_mean.ref < 400/360)] <- "Cold"
+cmip6smonthly$cat.AI_12.ref[which(cmip6smonthly$ET0_12_mean.ref < 400/12)] <- "Cold"
+
+cmip6smonthly$Continent[which(cmip6s$Continent == "EUROPE-AFRICA")] <- "MED-BASIN"
 
 write.table(cmip6smonthly, "cmip6smonthly.txt")
 ```
 
-```{r map-AI-monthly, fig.dim = c(12,16)}
+```{r map-AI-monthly, fig.dim = c(16,16)}
 cmip6smonthly <- read.table("cmip6smonthly.txt")
 
 cmip6smonthly$cat.AI_01 <- factor(cmip6smonthly$cat.AI_01, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
@@ -3364,8 +3368,8 @@ g <- ggplot(subset(cmip6sml, Continent == i & period %in% c("1970_2000","2070_21
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.2, ymax = 0.5), fill = "#FEE08B", alpha = 0.02)+
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.5, ymax = 0.65), fill = "#ABD9E9", alpha = 0.02)+
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.65, ymax = Inf), fill = "#4575B4", alpha = 0.02)+
-  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model))+
-  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model))+
+  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model), alpha = 0.8)+
+  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model), alpha = 0.8)+
   scale_color_manual(values = col.model)+
   scale_size_continuous(transform = "pseudo_log")+
   labs(y = "Median aridity index", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+
@@ -3412,7 +3416,7 @@ long_ET0 <- cmip6smm_et0 %>% select(c("model","period","Continent","ET0_01","ET0
                                  tidyr::pivot_longer(
                                    cols = starts_with("ET0_"),
                                    names_to= "Month",
-                                   values_to = "AI")
+                                   values_to = "ET0")
 
 long_ET0$Month <- revalue(long_AI$Month, c("ET0_01" = "January","ET0_02" = "February", "ET0_03" = "March", "ET0_04" = "April","ET0_05" ="May","ET0_06" = "June", "ET0_07" ="July","ET0_08" = "August","ET0_09" = "September","ET0_10" = "October","ET0_11" = "November","ET0_12" = "December"))
                                
@@ -3421,7 +3425,7 @@ long_sdET0 <- cmip6smm_et0 %>%
   tidyr::pivot_longer(
   cols = starts_with("cov_ET0_"),
   names_to= "Month",
-  values_to = "cov_AI"
+  values_to = "cov_ET0"
 )
 
 long_sdET0$Month <- revalue(long_sdET0$Month, c("cov_ET0_01" = "January","cov_ET0_02" = "February", "cov_ET0_03" = "March", "cov_ET0_04" = "April","cov_ET0_05" ="May","cov_ET0_06" = "June", "cov_ET0_07" ="July","cov_ET0_08" = "August","cov_ET0_09" = "September","cov_ET0_10" = "October","cov_ET0_11" = "November","cov_ET0_12" = "December"))
@@ -3447,11 +3451,11 @@ g <- ggplot(subset(cmip6sml_et0, Continent == i & period %in% c("1970_2000","207
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.2, ymax = 0.5), fill = "#FEE08B", alpha = 0.02)+
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.5, ymax = 0.65), fill = "#ABD9E9", alpha = 0.02)+
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.65, ymax = Inf), fill = "#4575B4", alpha = 0.02)+
-  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model))+
-  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model))+
+  geom_point(aes(x=Month, y = ET0, size = cov_ET0, col = model), alpha = 0.8)+
+  geom_line(aes(x=Month, y = ET0, col = model, group = model, linetype = model), alpha = 0.8)+
   scale_color_manual(values = col.model)+
   scale_size_continuous(transform = "pseudo_log")+
-  labs(y = "Median evapotranspiration", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+
+  labs(y = "Median monthly evapotranspiration, mm", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 print(g)
@@ -3462,7 +3466,7 @@ print(g)
 
 ```{r pr-evol-by-continent}
 cmip6smm_pr <- cmip6smonthly %>% group_by(model, period, Continent) %>%
-  summarise(pr01 = median(pr_01_mean, na.rm = T), cov_pr_01 = sd(pr_01_mean, na.rm = T)/mean(pr_01_mean, na.rm = T),
+  summarise(pr_01 = median(pr_01_mean, na.rm = T), cov_pr_01 = sd(pr_01_mean, na.rm = T)/mean(pr_01_mean, na.rm = T),
             pr_02 = median(pr_02_mean, na.rm = T), cov_pr_02 = sd(pr_02_mean, na.rm = T)/mean(pr_02_mean, na.rm = T),
             pr_03 = median(pr_03_mean, na.rm = T), cov_pr_03 = sd(pr_03_mean, na.rm = T)/mean(pr_03_mean, na.rm = T),
             pr_04 = median(pr_04_mean, na.rm = T), cov_pr_04 = sd(pr_04_mean, na.rm = T)/mean(pr_04_mean, na.rm = T),
@@ -3491,20 +3495,20 @@ cmip6smm_pr <- cmip6smonthly %>% group_by(model, period, Continent) %>%
 #             pr_12 = mean(pr_12_mean, na.rm = T)) %>%
 #  ungroup() %>% as.data.frame()
 
-long_ET0 <- cmip6smm_et0 %>% select(c("model","period","Continent","pr_01","pr_02","pr_03","pr_04","pr_05","pr_06","pr_07","pr_08","pr_09","pr_10","pr_11","pr_12")) %>%
+long_pr <- cmip6smm_pr %>% select(c("model","period","Continent","pr_01","pr_02","pr_03","pr_04","pr_05","pr_06","pr_07","pr_08","pr_09","pr_10","pr_11","pr_12")) %>%
                                  tidyr::pivot_longer(
                                    cols = starts_with("pr_"),
                                    names_to= "Month",
-                                   values_to = "AI")
+                                   values_to = "pr")
 
 long_pr$Month <- revalue(long_AI$Month, c("pr_01" = "January","pr_02" = "February", "pr_03" = "March", "pr_04" = "Apr_il","pr_05" ="May","pr_06" = "June", "pr_07" ="July","pr_08" = "August","pr_09" = "September","pr_10" = "October","pr_11" = "November","pr_12" = "December"))
                                
 long_sdpr <- cmip6smm_pr %>% 
   select(c("model","period","Continent","cov_pr_01","cov_pr_02","cov_pr_03","cov_pr_04","cov_pr_05","cov_pr_06","cov_pr_07","cov_pr_08","cov_pr_09","cov_pr_10","cov_pr_11","cov_pr_12")) %>%
   tidyr::pivot_longer(
-  cols = starts_with("cov_ET0_"),
+  cols = starts_with("cov_pr_"),
   names_to= "Month",
-  values_to = "cov_AI"
+  values_to = "cov_pr"
 )
 
 long_sdpr$Month <- revalue(long_pr$Month, c("cov_pr_01" = "January","cov_pr_02" = "February", "cov_pr_03" = "March", "cov_pr_04" = "April","cov_pr_05" ="May","cov_pr_06" = "June", "cov_pr_07" ="July","cov_pr_08" = "August","cov_pr_09" = "September","cov_pr_10" = "October","cov_pr_11" = "November","cov_pr_12" = "December"))
@@ -3530,8 +3534,8 @@ g <- ggplot(subset(cmip6sml_pr, Continent == i & period %in% c("1970_2000","2070
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.2, ymax = 0.5), fill = "#FEE08B", alpha = 0.02)+
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.5, ymax = 0.65), fill = "#ABD9E9", alpha = 0.02)+
   # geom_rect(aes(xmin = 1, xmax = 12, ymin= 0.65, ymax = Inf), fill = "#4575B4", alpha = 0.02)+
-  geom_point(aes(x=Month, y = AI, size = cov_AI, col = model))+
-  geom_line(aes(x=Month, y = AI, col = model, group = model, linetype = model))+
+  geom_point(aes(x=Month, y = pr, size = cov_pr, col = model), alpha = 0.8)+
+  geom_line(aes(x=Month, y = pr, col = model, group = model, linetype = model), alpha = 0.8)+
   scale_color_manual(values = col.model)+
   scale_size_continuous(transform = "pseudo_log")+
   labs(y = "Median monthly precipitation, mm", size = "Coefficient of variance", col = "Model", linetype = "Model", title = i)+

@@ -31,6 +31,8 @@ library(RColorBrewer)
 library(sf)
 library(stringr)
 
+library(ggpmisc)
+
 #display.brewer.pal(n = 11, name ="RdYlGn")
 colorvec <- brewer.pal(n = 11, name ="RdYlGn")
 ```
@@ -84,6 +86,8 @@ ggplot() + geom_tile(data = subset(lmera.df, lm != 0), aes(x = lon, y = lat, fil
 
 ## ERA5
 
+Names in https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation
+
 ```{r load-rasters, eval = F}
 # pr <- raster("ERA5/total-precipitation.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>%
 #    aggregate(fact = 4, fun = mean) %>%
@@ -91,7 +95,7 @@ ggplot() + geom_tile(data = subset(lmera.df, lm != 0), aes(x = lon, y = lat, fil
 # pr.df <- as.data.frame(pr, xy = T) %>% setNames(c("lon","lat","pr"))
 # write.table(pr.df, "ERA5/pr.df.txt") # in m of water equivalent 
 
-mpr <- raster("ERA5/mean_rates.nc", varname = "mtpr") %>%
+mpr <- raster("ERA5/ERA5_data/mean_rates.nc", varname = "mtpr") %>%
   stack() %>% 
   aggregate(fact = 4, fun = mean) %>%
   raster::rotate() %>% projectRaster(land_mask) %>%
@@ -99,11 +103,11 @@ mpr <- raster("ERA5/mean_rates.nc", varname = "mtpr") %>%
 
 mpr.df <- as.data.frame(mpr, xy = T) %>% setNames(c("lon","lat","mpr"))
 
-write.table(mpr.df, "ERA5/mpr.df.txt")
+write.table(mpr.df, "ERA5/ERA5_data/mpr.df.txt")
 
 
 
-tas <- raster("ERA5/temperature-2m.nc") %>%
+tas <- raster("ERA5/ERA5_data/temperature-2m.nc") %>%
   stack() %>%
   aggregate(fact = 4, fun = mean) %>%
   raster::rotate() %>%
@@ -112,9 +116,9 @@ tas <- raster("ERA5/temperature-2m.nc") %>%
 
 tas.df <- as.data.frame(tas, xy = T) %>% setNames(c("lon","lat","tas"))
 
-write.table(tas.df, "ERA5/tas.df.txt")
+write.table(tas.df, "ERA5/ERA5_data/tas.df.txt")
 
-tdew <- raster("ERA5/2m-dewpoint.nc", varname = "d2m")  %>% 
+tdew <- raster("ERA5/ERA5_data/2m-dewpoint.nc", varname = "d2m")  %>% 
   stack() %>% 
   aggregate(fact = 4, fun = mean) %>%
   raster::rotate() %>%
@@ -122,19 +126,19 @@ tdew <- raster("ERA5/2m-dewpoint.nc", varname = "d2m")  %>%
   raster::stackApply(indices = 1, fun = mean, na.rm = T)
 
 tdew.df <- as.data.frame(tdew, xy = T) %>% setNames(c("lon","lat","tdew"))
-write.table(tdew.df, "ERA5/tdew.df.txt")
+write.table(tdew.df, "ERA5/ERA5_data/tdew.df.txt")
 
-ssrd <- raster("ERA5/surface-short-wave-solar-radiation-downwards.nc") %>%
-  stack() %>%
-  aggregate(fact = 4, fun = mean) %>%
-  raster::rotate() %>%
-  projectRaster(land_mask) %>%
-  raster::stackApply(indices = 1, fun = mean, na.rm = T)
+# ssrd <- raster("ERA5/ERA5_data/surface-short-wave-solar-radiation-downwards.nc") %>%
+#   stack() %>%
+#   aggregate(fact = 4, fun = mean) %>%
+#   raster::rotate() %>%
+#   projectRaster(land_mask) %>%
+#   raster::stackApply(indices = 1, fun = mean, na.rm = T)
+# 
+# ssrd.df <- as.data.frame(ssrd, xy = T) %>% setNames(c("lon","lat","ssrd"))
+# write.table(ssrd.df, "ERA5/ERA5_data/ssrd.df.txt")
 
-ssrd.df <- as.data.frame(ssrd, xy = T) %>% setNames(c("lon","lat","ssrd"))
-write.table(ssrd.df, "ERA5/ssrd.df.txt")
-
-wind <- raster("ERA5/wind10m.nc", varname = "si10") %>%
+wind <- raster("ERA5/ERA5_data/wind10m.nc", varname = "si10") %>%
   stack() %>%
   aggregate(fact = 4, fun = mean) %>%
   raster::rotate() %>%
@@ -143,35 +147,35 @@ wind <- raster("ERA5/wind10m.nc", varname = "si10") %>%
 
 wind.df <- as.data.frame(wind, xy = T) %>% 
   setNames(c("lon","lat","sfcWind")) # m/s
-write.table(wind.df, "ERA5/wind.df.txt")
+write.table(wind.df, "ERA5/ERA5_data/wind.df.txt")
 
 # Evaporation in m of water equivalent
-# evaporation <- raster("ERA5/evaporation.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# evaporation <- raster("ERA5/ERA5_data/evaporation.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
 # evaporation.df <- as.data.frame(evaporation, xy = T) %>% setNames(c("lon","lat","evap"))
-# write.table(evaporation.df, "ERA5/evaporation.df.txt")
+# write.table(evaporation.df, "ERA5/ERA5_data/evaporation.df.txt")
 
-# mevap <- raster("ERA5/mean_rates.nc", varname = "mer") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# mevap <- raster("ERA5/ERA5_data/mean_rates.nc", varname = "mer") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
 # mevap.df <- as.data.frame(mevap, xy = T) %>% setNames(c("lon","lat","mevap"))
-# write.table(mevap.df, "ERA5/mevap.df.txt")
+# write.table(mevap.df, "ERA5/ERA5_data/mevap.df.txt")
 
-# mpevap <- raster("ERA5/mean-potential-evaporation-rate.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# mpevap <- raster("ERA5/ERA5_data/mean-potential-evaporation-rate.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
 # mpevap.df <- as.data.frame(mpevap, xy = T) %>% setNames(c("lon","lat","mpevap"))
-# write.table(mpevap.df, "ERA5/mpevap.df.txt")
+# write.table(mpevap.df, "ERA5/ERA5_data/mpevap.df.txt")
 
-# pot.evaporation <- raster("ERA5/potential-evaporation.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# pot.evaporation <- raster("ERA5/ERA5_data/potential-evaporation.nc") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
 # pevap.df <- as.data.frame(pot.evaporation, xy = T) %>% setNames(c("lon","lat","pevap"))
-# write.table(pevap.df, "ERA5/pevap.df.txt")
+# write.table(pevap.df, "ERA5/ERA5_data/pevap.df.txt")
 
-# slhf <- raster("ERA5/surface_latent_heat_flux.nc", varname = "slhf") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# slhf <- raster("ERA5/ERA5_data/surface_latent_heat_flux.nc", varname = "slhf") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
 # slhf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","slhf"))
 # write.table(slhf.df, "ERA5/slhf.df.txt")
 # 
 # 
-# sshf <- raster("ERA5/surface_sensible_heat_flux.nc", varname = "sshf") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
+# sshf <- raster("ERA5/ERA5_data/surface_sensible_heat_flux.nc", varname = "sshf") %>% stack() %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% aggregate(fact = 4, fun = mean) %>% projectRaster(land_mask)
 # sshf.df <- as.data.frame(slhf, xy = T) %>% setNames(c("lon","lat","sshf"))
-# write.table(sshf.df, "ERA5/sshf.df.txt")
+# write.table(sshf.df, "ERA5/ERA5_data/sshf.df.txt")
 
-mslhf <- raster("ERA5/mean_rates.nc", varname = "mslhf") %>%
+mslhf <- raster("ERA5/ERA5_data/mean_rates.nc", varname = "mslhf") %>%
   stack() %>%
   aggregate(fact = 4, fun = mean) %>% 
   raster::rotate() %>%
@@ -179,10 +183,10 @@ mslhf <- raster("ERA5/mean_rates.nc", varname = "mslhf") %>%
      raster::stackApply(indices = 1, fun = mean, na.rm = T)
 
 mslhf.df <- as.data.frame(mslhf, xy = T) %>% setNames(c("lon","lat","mslhf"))
-write.table(mslhf.df, "ERA5/mslhf.df.txt")
+write.table(mslhf.df, "ERA5/ERA5_data/mslhf.df.txt")
 
 
-msshf <- raster("ERA5/mean_rates.nc", varname = "msshf") %>%
+msshf <- raster("ERA5/ERA5_data/mean_rates.nc", varname = "msshf") %>%
   stack() %>%
   aggregate(fact = 4, fun = mean) %>%
   raster::rotate() %>% 
@@ -190,9 +194,9 @@ msshf <- raster("ERA5/mean_rates.nc", varname = "msshf") %>%
      raster::stackApply(indices = 1, fun = mean, na.rm = T)
 
 msshf.df <- as.data.frame(msshf, xy = T) %>% setNames(c("lon","lat","msshf"))
-write.table(msshf.df, "ERA5/msshf.df.txt")
+write.table(msshf.df, "ERA5/ERA5_data/msshf.df.txt")
 
-msr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnswrf") %>%
+msr <- raster("ERA5/ERA5_data/mean-net-SW-LW-radiation-flux.nc", varname = "msnswrf") %>%
   stack() %>% 
   aggregate(fact = 4, fun = mean) %>% 
   raster::rotate() %>% 
@@ -200,10 +204,10 @@ msr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnswrf") %>%
     raster::stackApply(indices = 1, fun = mean, na.rm = T) 
 
 msr.df <- as.data.frame(msr, xy = T) %>% setNames(c("lon","lat","msr"))
-write.table(msr.df, "ERA5/msr.df.txt")
+write.table(msr.df, "ERA5/ERA5_data/msr.df.txt")
 
 
-mlr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnlwrf") %>%
+mlr <- raster("ERA5/ERA5_data/mean-net-SW-LW-radiation-flux.nc", varname = "msnlwrf") %>%
   stack() %>% 
   aggregate(fact = 4, fun = mean) %>%
   raster::rotate() %>% 
@@ -211,55 +215,55 @@ mlr <- raster("ERA5/mean-net-SW-LW-radiation-flux.nc", varname = "msnlwrf") %>%
   raster::stackApply(indices = 1, fun = mean, na.rm = T) 
 
 mlr.df <- as.data.frame(mlr, xy = T) %>% setNames(c("lon","lat","mlr"))
-write.table(mlr.df, "ERA5/mlr.df.txt")
+write.table(mlr.df, "ERA5/ERA5_data/mlr.df.txt")
 ```
 
 ```{r make-tas-min, eval = F}
-tas_jan <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 1, to = 349, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_jan <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 1, to = 349, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_jan.df <- as.data.frame(tas_jan, xy = T) %>% setNames(c("lon","lat","tas_01"))
 
-tas_fev <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 2, to = 350, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_fev <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 2, to = 350, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_fev.df <- as.data.frame(tas_fev, xy = T) %>% setNames(c("lon","lat","tas_02"))
 
-tas_mar <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 3, to = 351, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_mar <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 3, to = 351, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_mar.df <- as.data.frame(tas_mar, xy = T) %>% setNames(c("lon","lat","tas_03"))
 
-tas_apr <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 4, to = 352, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_apr <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 4, to = 352, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_apr.df <- as.data.frame(tas_apr, xy = T) %>% setNames(c("lon","lat","tas_04"))
 
-tas_may <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 5, to = 353, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_may <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 5, to = 353, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_may.df <- as.data.frame(tas_may, xy = T) %>% setNames(c("lon","lat","tas_05"))
 
-tas_jun <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 6, to = 354, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_jun <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 6, to = 354, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_jun.df <- as.data.frame(tas_jun, xy = T) %>% setNames(c("lon","lat","tas_06"))
 
-tas_jul <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 7, to = 355, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_jul <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 7, to = 355, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_jul.df <- as.data.frame(tas_jul, xy = T) %>% setNames(c("lon","lat","tas_07"))
 
-tas_aug <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 8, to = 356, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_aug <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 8, to = 356, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_aug.df <- as.data.frame(tas_aug, xy = T) %>% setNames(c("lon","lat","tas_08"))
 
-tas_sep <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 9, to = 357, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_sep <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 9, to = 357, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_sep.df <- as.data.frame(tas_sep, xy = T) %>% setNames(c("lon","lat","tas_09"))
 
-tas_oct <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 10, to = 358, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_oct <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 10, to = 358, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_oct.df <- as.data.frame(tas_oct, xy = T) %>% setNames(c("lon","lat","tas_10"))
 
-tas_nov <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 11, to = 359, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_nov <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 11, to = 359, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_nov.df <- as.data.frame(tas_nov, xy = T) %>% setNames(c("lon","lat","tas_11"))
 
-tas_dec <- raster("ERA5/temperature-2m.nc") %>% stack(bands = seq(from = 12, to = 3360, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
+tas_dec <- raster("ERA5/ERA5_data/temperature-2m.nc") %>% stack(bands = seq(from = 12, to = 3360, by = 12)) %>%  raster::stackApply(indices = 1, fun = mean, na.rm = T) %>%  raster::rotate() %>% projectRaster(land_mask)
 
 tas_dec.df <- as.data.frame(tas_dec, xy = T) %>% setNames(c("lon","lat","tas_12"))
 
@@ -281,27 +285,27 @@ tas_month <- tas_jan.df %>%
 
 tas_month$tas_min <- apply(select(tas_month,c("tas_01", "tas_02", "tas_03", "tas_04", "tas_05", "tas_06", "tas_07", "tas_08", "tas_09", "tas_10", "tas_11", "tas_12")), 1, FUN = min, na.rm = T)
 
-write.table(tas_month, "ERA5/tas_month.txt")
+write.table(tas_month, "ERA5/ERA5_data/tas_month.txt")
 ```
 
 ```{r merge-dfs, eval = T}
-# pr.df <- read.table("ERA5/pr.df.txt")
-mpr.df <- read.table("ERA5/mpr.df.txt")
-tas.df <- read.table("ERA5/tas.df.txt")
-#tas_month.df <- read.table("ERA5/tas_month.txt")
-tdew.df <- read.table("ERA5/tdew.df.txt")
-ssrd.df <- read.table("ERA5/ssrd.df.txt")
-wind.df <- read.table("ERA5/wind.df.txt")
+# pr.df <- read.table("ERA5/ERA5_data/pr.df.txt")
+mpr.df <- read.table("ERA5/ERA5_data/mpr.df.txt")
+tas.df <- read.table("ERA5/ERA5_data/tas.df.txt")
+#tas_month.df <- read.table("ERA5/ERA5_data/tas_month.txt")
+tdew.df <- read.table("ERA5/ERA5_data/tdew.df.txt")
+ssrd.df <- read.table("ERA5/ERA5_data/ssrd.df.txt")
+wind.df <- read.table("ERA5/ERA5_data/wind.df.txt")
 #evaporation.df <- read.table("ERA5/evaporation.df.txt")
 #mevap.df <- read.table("ERA5/mevap.df.txt")
 #pevap.df <- read.table("ERA5/pevap.df.txt")
 #mpevap.df <- read.table("ERA5/mpevap.df.txt")
 #slhf.df <- read.table("ERA5/slhf.df.txt")
 #sshf.df <- read.table("ERA5/sshf.df.txt")
-mslhf.df <- read.table("ERA5/mslhf.df.txt")
-msshf.df <- read.table("ERA5/msshf.df.txt")
-msr.df <- read.table("ERA5/msr.df.txt")
-mlr.df <- read.table("ERA5/mlr.df.txt")
+mslhf.df <- read.table("ERA5/ERA5_data/mslhf.df.txt")
+msshf.df <- read.table("ERA5/ERA5_data/msshf.df.txt")
+msr.df <- read.table("ERA5/ERA5_data/msr.df.txt")
+mlr.df <- read.table("ERA5ERA5_data//mlr.df.txt")
 
 era5 <- mpr.df %>% # in m of water equivalent
 #  merge(pr.df, by = c("lon","lat")) %>% # in kg/m2/s
@@ -324,8 +328,6 @@ era5 <- mpr.df %>% # in m of water equivalent
   merge(land_mask.df, by = c("lon","lat")) %>%
   filter(lm == 1) %>%
   mutate(model = "historical", period = "1970_2000", source = "ERA5")
-
-
 
 write.table(era5, "era5.txt")
 ```
@@ -488,11 +490,11 @@ ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AIm))+
 https://www.fao.org/3/x0490E/x0490e0k.htm#annex%203.%20background%20on%20physical%20parameters%20used%20in%20evapotranspiration%20computatio 
 
 
-## Rn is latent + sensible heat flux. AI = average P / average PET
+## AI = average P / average PET
+
+the variable in era5 are averaged over the 30 years 
 
 ```{r aridity-index-Rn-G}
-#era5 <- read.table("era5.txt")
-
 era5_AI <- era5 %>% mutate(Rn = -(msshf + mslhf) * 86400 * 1e-6, # Rn is actually Rn - G, the sum of sensible and latent heat fluxes. In W/m2, converted to MJ/m2/day
                           P =  101.3 * ((293-0.0065*z)/293)^(5.26),
                           ea = 0.61078*exp(17.27*(tdew-273.15)/((tdew-273.15)+237.3)), # Tetens 1930
@@ -507,8 +509,6 @@ cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" 
 
 era5_AI$cat.AI <- era5_AI$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
-
-#write.table(era5, "era5_AI.txt")
 
 ggplot() + geom_raster(data = era5_AI, aes(x=lon, y = lat,  fill = cat.AI))+
   scale_fill_manual(values = col.cat)+
@@ -570,7 +570,6 @@ cowplot::plot_grid(plotlist = list(
 ### test on 1970 
 
 Check that calculating by month before summing, makes a difference compared to averaging the parameters for 30 years.
-
 
 ```{r load-raster-by-month-1970, eval = T}
 
@@ -656,14 +655,11 @@ et0 <- mon70 %>% filter(lm == 1) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-
                         ET0 = (0.408*delta*Rn+gamma*900/((t2m-273.15)+273)*0.748*wind*(es-ea))/(delta+gamma*(1+0.34*0.748*wind)),
                         AI = (mpr*60*60*24)/ET0)
 
-
-
 breaks.unesco <- c(-0.03,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
 
 et0$cat.AI <- et0$AI %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
-
 
 for(i in c(1:12)){
 
@@ -814,6 +810,8 @@ mon1970_2000 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, 
 write.table(mon1970_2000, "ERA5/mon1970_2000.txt")
 ```
 
+ET0 calculated from the 30 years averaged variables (AI = mean(P/ET0)), named "ref"
+
 ```{r ET-by-month, eval = F}
 
 mon1970_2000 <- read.table("ERA5/mon1970_2000.txt")
@@ -847,6 +845,8 @@ ggplot(et0_ref) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
   theme_void()+
   theme(legend.position = "bottom")
 ```
+
+ET0 calculated from the 30 years averaged variables (AI = mean(P)/mean(ET0)), named "_30y"
 
 ```{r ET-annual-1970-2000, eval = F}
 mon1970_2000 <- read.table("ERA5/mon1970_2000.txt")
@@ -984,6 +984,8 @@ write.table(era5_AI, "ERA5/era5_AI.txt")
 
 ## January 1985
 
+Based on year 1985, we compare the AI calculated 1) as the mean of the daily AI : AI = mean (P/ET0), in jan85_ref in which ET0 is calculated using all individual values for each variable (no averaging of variables before calculating ET0); and 2) as the mean precipitation divided by the mean ET0: AI = mean(P)/mean(ET0) in which ET0 is calculated from the mean values of each variable, in jan85_avg.  (by pixel, for 1 month)
+
 ```{r test-daily-mean, eval = F}
 
 mprm <- data.frame(lon = NA, lat = NA, mpr = NA, month = NA)
@@ -996,14 +998,14 @@ msshfm <- data.frame(lon = NA, lat = NA, msshf = NA, month = NA)
 
 for(i in 1:31){
   
-mpr <- raster("ERA5/pr_compiler.nc", band = i) %>%
+mpr <- raster("ERA5/january1985/pr_compiler.nc", band = i) %>%
   raster::rotate() %>% projectRaster(land_mask) %>%
   as.data.frame(xy = T) %>% setNames(c("lon","lat","mpr")) %>%
   mutate(month = i)
 
 mprm <<- rbind(mprm, mpr)
 
-t2m <- raster("ERA5/t2m_compiler.nc", band = i) %>%
+t2m <- raster("ERA5/january1985/t2m_compiler.nc", band = i) %>%
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -1012,7 +1014,7 @@ t2m <- raster("ERA5/t2m_compiler.nc", band = i) %>%
 
 t2mm <<- rbind(t2mm, t2m)
 
-tdew <- raster("ERA5/d2m_compiler.nc", band = i)  %>% 
+tdew <- raster("ERA5/january1985/d2m_compiler.nc", band = i)  %>% 
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -1021,7 +1023,7 @@ tdew <- raster("ERA5/d2m_compiler.nc", band = i)  %>%
 
 tdewm <- rbind(tdewm, tdew)
 
-uwind <- raster("ERA5/10m-u-wind_compiler.nc", band = i) %>%
+uwind <- raster("ERA5/january1985/10m-u-wind_compiler.nc", band = i) %>%
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -1031,7 +1033,7 @@ uwind <- raster("ERA5/10m-u-wind_compiler.nc", band = i) %>%
 
 uwindm <<- rbind(uwindm, uwind) 
 
-vwind <- raster("ERA5/10m-v-wind_compiler.nc", band = i) %>%
+vwind <- raster("ERA5/january1985/10m-v-wind_compiler.nc", band = i) %>%
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -1041,7 +1043,7 @@ vwind <- raster("ERA5/10m-v-wind_compiler.nc", band = i) %>%
 
 vwindm <<- rbind(vwindm, vwind) 
 
-mslhf <- raster("ERA5/mslhf_compiler.nc", band = i) %>%
+mslhf <- raster("ERA5/january1985/mslhf_compiler.nc", band = i) %>%
   raster::rotate() %>%
   aggregate(fact = 4, fun = mean) %>% 
   projectRaster(land_mask) %>% 
@@ -1050,7 +1052,7 @@ mslhf <- raster("ERA5/mslhf_compiler.nc", band = i) %>%
 
 mslhfm <<- rbind(mslhfm, mslhf)
 
-msshf <- raster("ERA5/msshf_compiler.nc", band = i) %>%
+msshf <- raster("ERA5/january1985/msshf_compiler.nc", band = i) %>%
   raster::rotate() %>% 
   aggregate(fact = 4, fun = mean) %>%
   projectRaster(land_mask) %>%
@@ -1067,11 +1069,11 @@ jan1985 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, by = 
   merge(ipcc_regions.df, by = c("lon","lat")) %>%
   merge(elev.df, by = c("lon","lat"))
 
-write.table(jan1985, "ERA5/jan1985.txt")
+write.table(jan1985, "ERA5/january1985/jan1985.txt")
 ```
 
 ```{r jan1985-ref}
-jan1985 <- read.table("ERA5/jan1985.txt")
+jan1985 <- read.table("ERA5/january1985/jan1985.txt")
 jan85_day <- jan1985 %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
                         wind = sqrt(uwind^2+vwind^2), #make wind from u and v components                                
                         P = 101.3 * ((293-0.0065*z)/293)^(5.26),
@@ -1090,7 +1092,7 @@ jan85_day$cat.AI <- jan85_day$AI %>% cut(breaks = breaks.unesco) %>%  revalue(ca
 jan85_ref <- jan85_day %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% summarise(AI = mean(AI, na.rm = T), ET0 = mean(ET0, na.rm = T), mpr = mean(mpr, na.rm = T))
 jan85_ref$cat.AI <- jan85_ref$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 
-write.table(jan85_ref, "ERA5/jan85_ref.txt")
+write.table(jan85_ref, "ERA5/january1985/jan85_ref.txt")
 ```
 
 ```{r jan1985-avg}
@@ -1111,12 +1113,13 @@ cat.unesco <- c("(-0.03,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" 
 
 jan85_avg$cat.AI <- jan85_avg$AI %>% cut(breaks = breaks.unesco) %>%  revalue(cat.unesco)
 
-write.table(jan85_avg, "ERA5/jan85_avg.txt")
+write.table(jan85_avg, "ERA5/january1985/jan85_avg.txt")
 ```
 
+
 ```{r compare-jan1985}
-jan85_ref <- read.table("ERA5/jan85_ref.txt")
-jan85_avg <- read.table("ERA5/jan85_avg.txt")
+jan85_ref <- read.table("ERA5/january1985/jan85_ref.txt")
+jan85_avg <- read.table("ERA5/january1985/jan85_avg.txt")
 colorvec <- brewer.pal(n = 11, name ="RdYlBu")
 
 col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10])
@@ -1125,32 +1128,22 @@ jan85_all <- merge(jan85_ref, select(jan85_avg, names(jan85_ref)), by = c("lon",
 
 ggplot(jan85_all) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI.x))+
   scale_fill_manual(values = col.cat)+
+  labs(fill = "AI as mean(P)/mean(ET0)")+
   theme_void()+
   theme(legend.position = "bottom")
 
 ggplot(jan85_all) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI.y))+
   scale_fill_manual(values = col.cat)+
+    labs(fill = "AI as mean(P/ET0)")+
   theme_void()+
   theme(legend.position = "bottom")
-
-ggplot(data = jan85_all, aes(x = ET0.x, y = ET0.y))+geom_point(aes(col = cat.AI.x))+
-  stat_poly_eq(label.x = "right", label.y = "bottom")+
-  geom_abline(slope = 1, intercept = 0)+
-  labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0_avg")+
-  scale_color_manual(values = col.cat) + theme_minimal()
 
 ggplot(data = jan85_all, aes(x = ET0.x, y = ET0.y))+geom_point(aes(col = cat.AI.x))+
      stat_poly_eq(label.x = "right", label.y = "bottom")+
      annotate(x = 2, y = 8, geom = "label", label = paste("r = ", round(cor(jan85_all$ET0.x, jan85_all$ET0.y, use = "pairwise.complete"),4)))+
      geom_abline(slope = 1, intercept = 0)+
-     labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0_avg", title = "ET0 for january 1985", col = "")+
+     labs(x = "ET0 as mean(ET0_i)", y = "ET0 as ET0 = f(mean(T), mean(Rn), mean(sfcWind), etc)", title = "ET0 for january 1985", col = "")+
      scale_color_manual(values = col.cat) + theme_minimal()
-
-ggplot(data = jan85_all, aes(x = mpr.x, y = mpr.y))+geom_point(aes(col = cat.AI.x))+
-  stat_poly_eq(label.x = "right", label.y = "bottom")+
-  geom_abline(slope = 1, intercept = 0)+
-  labs(x = "pr as mean(pr_i)", y = "PR as pr_avg")+
-  scale_color_manual(values = col.cat) + theme_minimal()
 
 ggplot(jan85_all, aes(x = AI.x, y = AI.y))+geom_point(aes(col = cat.AI.x))+
   geom_abline(slope = 1, intercept = 0)+
@@ -1163,6 +1156,7 @@ ggplot(jan85_all, aes(x = AI.x, y = AI.y))+geom_point(aes(col = cat.AI.x))+
 
 ggplot(subset(jan85_all, lm ==1)) + geom_tile(aes(x=lon, y = lat,  fill = ET0.y - ET0.x))+
   scale_fill_continuous_divergingx(palette = "RdYlBu", mid = 0, rev = T, name = "Diff ET0_avg - ET0_ref")+
+  labs(title = "difference between ET0=f(mean(T,Wind,Rn...)) and mean(ET0 = f(T,Wind, Rn ...))")+
   theme_void()+
   theme(legend.position = "bottom")
 
@@ -1170,21 +1164,12 @@ ggplot(subset(jan85_all, lat < 50 & lat > -50), aes(x = AI.x, y = AI.y))+geom_po
   geom_abline(slope = 1, intercept = 0)+
   stat_poly_eq()+
   scale_color_continuous_divergingx(palette = "RdYlBu", mid = 0, rev = T, name = "latitude")+
-  labs(x = "AI as mean(P/ET0)", y = "AI as mean(P)/mean(ET)")+ theme_minimal()
-
-ggplot(jan85_all) + geom_boxplot(aes(x = "AI as mean(P/ET)", y = AI.x)) + geom_boxplot(aes(x = "AI as mean(P)/mean(ET)", y = AI.y))
-
-ggplot(jan85_all) + geom_boxplot(aes(x = "AI as mean(P/ET)", y = AI.x)) + geom_boxplot(aes(x = "AI as mean(P)/mean(ET)", y = AI.y)) + ylim(-2.5e4, 5e4)
-
-ggplot()+geom_boxplot(data = subset(jan85_all, AI.x > 0), aes(x="AI.x", y = AI.x))+
-  geom_boxplot(data = subset(jan85_all, AI.x < 0), aes(x="AI.x", y = abs(AI.x)))+
-  geom_boxplot(data = subset(jan85_all, AI.y > 0), aes(x="AI.y", y = AI.y))+
-  geom_boxplot(data = subset(jan85_all, AI.y < 0), aes(x="AI.y", y = abs(AI.y)))+
-  scale_y_continuous(trans = "log10")+
-  theme_minimal()
+  labs(title = "comparison of AI as mean(P)/mean(ET0) and AI as mean(P/ET0)", x = "AI as mean(P/ET0)", y = "AI as mean(P)/mean(ET)")+ theme_minimal()
 ```
 
 ## March 2023
+
+Same comparison but for March 2023
 
 ```{r test-daily-mean-23, eval = F}
 
@@ -1272,6 +1257,11 @@ mar2023 <- merge(mprm, t2mm, by = c("lon","lat","month")) %>% merge(tdewm, by = 
 write.table(mar2023, "ERA5/march2023/mar2023.txt")
 ```
 
+mar23_ref: AI = mean(P/ET0) with ET0 = f(T,wind,Rn, ...)
+
+mar23_avg: AI = mean(P)/mean(ET0) with ET0 = f(mean(T),mean(wind),mean(Rn), ...)
+
+
 ```{r mar2023-ref}
 mar2023 <- read.table("ERA5/march2023/mar2023.txt")
 mar23_day <- mar2023 %>% filter(lm != 0) %>% mutate(Rn = - (msshf + mslhf) * 86400 * 1e-6, #In W/m2, converted to MJ/m2/day
@@ -1292,7 +1282,7 @@ mar23_day$cat.AI <- mar23_day$AI %>% cut(breaks = breaks.unesco) %>%  revalue(ca
 mar23_ref <- mar23_day %>% group_by(lon,lat,lm, Continent, Type, Name, Acronym, z) %>% summarise(AI = mean(AI, na.rm = T), ET0 = mean(ET0, na.rm = T), mpr = mean(mpr, na.rm = T))
 mar23_ref$cat.AI <- mar23_ref$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 
-write.table(mar23_ref, "ERA5/mar23_ref.txt")
+write.table(mar23_ref, "ERA5/march2023/mar23_ref.txt")
 ```
 
 ```{r mar2023-avg}

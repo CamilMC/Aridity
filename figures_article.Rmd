@@ -275,6 +275,7 @@ nrows = 4, ncol = 1
 
 )
 ```
+
 ```{r plot-compare-AI-with-borders, fig.dim = c(8,20)}
 
 ggarrange(
@@ -724,6 +725,9 @@ kable(df.prop.wdc.era5, caption = "Percent of gridcells in which the aridity cat
 
 # Number of inhabitants by region
 
+https://earthdata.nasa.gov/data/catalog/sedac-ciesin-sedac-gpwv4-popcount-r11-4.11
+
+
 ```{r import-density}
 density <- raster("Population_density/gpw_v4_population_density_rev11_2020_1_deg.tif")
 plot(density)
@@ -749,7 +753,6 @@ write.csv(tab.pop.by.cat, "population.count.era5.csv")
 
 ```{r table-population}
 knitr::kable(tab.pop.by.cat)
-
 ```
 
 

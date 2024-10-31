@@ -589,6 +589,7 @@ ggplot()+
   theme_minimal()
 ```
 
+AIm = De Martonne Aridity index 
 
 ```{r aridity-index-martonne}
 
@@ -598,6 +599,8 @@ cat.martonne <- c("[0,5]" = "Desert", "(5,10]"= "Arid", "(10,20]" = "Semi-arid",
 
 clim$cat.AIm <- clim$AIm %>% cut(breaks.martonne, include.lowest = T) %>% revalue(cat.martonne)
 ```
+
+AIu = UNESCO Aridity index
 
 ```{r aridity-index-unesco}
 
@@ -620,7 +623,7 @@ clim$cat.AIu <- clim$AIu %>% cut(breaks = breaks.unesco) %>%
 ```
 
 ```{r save-wdc}
-write.table(clim, "clim.txt")
+write.table(clim, "cmip6_AI/clim.txt")
 ```
 
 ```{r clim-summary}
@@ -650,7 +653,7 @@ write.table(clim_med, "clim_med.txt")
 ```
 
 ```{r load-clim-data}
-clim <- read.table("clim.txt")
+clim <- read.table("cmip6_AI/clim.txt")
 clim_sum <- read.table("clim_sum.txt")
 clim_med <- read.table("clim_med.txt")
 
@@ -1774,7 +1777,7 @@ ggplot(data = subset(clim_sum, period == "2070_2100" & model == "SSP370")) + geo
 # One sample t test comparisaon with Worldclim
 
 ```{r data}
-clim <- read.table("clim.txt")
+clim <- read.table("cmip6_AI/clim.txt")
 clim_sum <- read.table("clim_sum.txt")
 #clim_med <- read.table("clim_med.txt")
 
