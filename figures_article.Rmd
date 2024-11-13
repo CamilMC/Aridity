@@ -103,9 +103,9 @@ write.table(cmip6vA, "cmip6vA.txt")
 
 
 ```{r load-data, cache.extra = tools::md5sum(c("cmip6vA.txt","wdcvA.txt", "era5vA.txt"))}
-era5vA <- read.table("era5vA.txt")
-wdcvA <- read.table("wdcvA.txt")
-cmip6vA <- read.table("cmip6vA.txt")
+era5vA <- read.table("figures_article/era5vA.txt")
+wdcvA <- read.table("figures_article/wdcvA.txt")
+cmip6vA <- read.table("figures_article/cmip6vA.txt")
 
 ```
 
@@ -475,7 +475,7 @@ for(i in 1:nrow(calib)){
   calib$cat.ref[i] <- catrefi
 }
 
-write.table(calib, "calib.txt")
+write.table(calib, "figures_article/calib.txt")
 ```
 
 ```{r compare-by-region, eval = T}
@@ -585,9 +585,9 @@ ggplot(pie_calib)+geom_bar(aes(x = "", y = Freq, fill = cat.AI), width = 1, stat
 # cmip6.ref$cat.AI <- cmip6.ref$AI.ref %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
 # cmip6.ref$cat.AI[which(cmip6.ref$ET0.ref < 400)] <- "Cold"
 # 
-# write.table(cmip6.ref, "cmip6.ref.txt")
+# write.table(cmip6.ref, "figures_article/cmip6.ref.txt")
 
-cmip6.ref <- read.table("cmip6.ref.txt")
+cmip6.ref <- read.table("figures_article/cmip6.ref.txt")
 
 wdc <- filter(calib, source == "Worldclim") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.wdc"))
 era5 <- filter(calib, source == "ERA5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.era5"))

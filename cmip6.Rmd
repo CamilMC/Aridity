@@ -86,7 +86,7 @@ cmip6_annual <- tas.all_annual %>% merge(pr.all_annual, by = c("lon","lat","mode
   merge(hurs.all_annual, by = c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_annual, "cmip6_annual.txt")
+write.table(cmip6_annual, "cmip6/cmip6_annual.txt")
 ```
 
 ```{r cmip6-january, eval = F}
@@ -104,7 +104,7 @@ cmip6_january <- tas.all_january %>% merge(pr.all_january, by = c("lon","lat","m
   merge(hurs.all_january, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_january, "cmip6_january.txt")
+write.table(cmip6_january, "cmip6/cmip6_january.txt")
 ```
 
 ```{r cmip6-february, eval = F}
@@ -122,7 +122,7 @@ cmip6_february <- tas.all_february %>% merge(pr.all_february, by = c("lon","lat"
   merge(hurs.all_february, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_february, "cmip6_february.txt")
+write.table(cmip6_february, "cmip6/cmip6_february.txt")
 ```
 
 ```{r cmip6-march, eval = F}
@@ -140,7 +140,7 @@ cmip6_march <- tas.all_march %>% merge(pr.all_march, by = c("lon","lat","model",
   merge(hurs.all_march, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_march, "cmip6_march.txt")
+write.table(cmip6_march, "cmip6/cmip6_march.txt")
 ```
 
 ```{r cmip6-april, eval = F}
@@ -158,7 +158,7 @@ cmip6_april <- tas.all_april %>% merge(pr.all_april, by = c("lon","lat","model",
   merge(hurs.all_april, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_april, "cmip6_april.txt")
+write.table(cmip6_april, "cmip6/cmip6_april.txt")
 ```
 
 ```{r cmip6-may, eval = F}
@@ -176,7 +176,7 @@ cmip6_may <- tas.all_may %>% merge(pr.all_may, by = c("lon","lat","model","perio
   merge(hurs.all_may, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_may, "cmip6_may.txt")
+write.table(cmip6_may, "cmip6/cmip6_may.txt")
 ```
 
 ```{r cmip6-june, eval = F}
@@ -194,7 +194,7 @@ cmip6_june <- tas.all_june %>% merge(pr.all_june, by = c("lon","lat","model","pe
   merge(hurs.all_june, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_june, "cmip6_june.txt")
+write.table(cmip6_june, "cmip6/cmip6_june.txt")
 ```
 
 ```{r cmip6-july, eval = F}
@@ -212,7 +212,7 @@ cmip6_july <- tas.all_july %>% merge(pr.all_july, by = c("lon","lat","model","pe
   merge(hurs.all_july, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_july, "cmip6_july.txt")
+write.table(cmip6_july, "cmip6/cmip6_july.txt")
 ```
 
 ```{r cmip6-august, eval = F}
@@ -230,7 +230,7 @@ cmip6_august <- tas.all_august %>% merge(pr.all_august, by = c("lon","lat","mode
   merge(hurs.all_august, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_august, "cmip6_august.txt")
+write.table(cmip6_august, "cmip6/cmip6_august.txt")
 ```
 
 ```{r cmip6-september, eval = F}
@@ -248,7 +248,7 @@ cmip6_september <- tas.all_september %>% merge(pr.all_september, by = c("lon","l
   merge(hurs.all_september, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_september, "cmip6_september.txt")
+write.table(cmip6_september, "cmip6/cmip6_september.txt")
 ```
 
 ```{r cmip6-october, eval = F}
@@ -266,7 +266,7 @@ cmip6_october <- tas.all_october %>% merge(pr.all_october, by = c("lon","lat","m
   merge(hurs.all_october, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_october, "cmip6_october.txt")
+write.table(cmip6_october, "cmip6/cmip6_october.txt")
 ```
 
 ```{r cmip6-november, eval = F}
@@ -284,7 +284,7 @@ cmip6_november <- tas.all_november %>% merge(pr.all_november, by = c("lon","lat"
   merge(hurs.all_november, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_november, "cmip6_november.txt")
+write.table(cmip6_november, "cmip6/cmip6_november.txt")
 ```
 
 ```{r cmip6-december, eval = F}
@@ -302,7 +302,7 @@ cmip6_december <- tas.all_december %>% merge(pr.all_december, by = c("lon","lat"
   merge(hurs.all_december, by = c("lon","lat","model","period","month","lm", "Continent","Type","Name","Acronym","source")) %>% 
   merge(elev.df, by = c("lon", "lat"))
 
-write.table(cmip6_december, "cmip6_december.txt")
+write.table(cmip6_december, "cmip6/cmip6_december.txt")
 ```
 
 
@@ -349,7 +349,7 @@ All variables are calculated by month, so that we know the monthly evapotranspir
 ```{r aridity-index-unesco, eval = F}
 id_vars <- c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")
 
-cmip6_annual <- mutate(read.table("cmip6_annual.txt"),
+cmip6_annual <- mutate(read.table("cmip6/cmip6_annual.txt"),
                        t = tas - 273.15,
                        Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
                        P = 101.3 * ((293-0.0065*z)/293)^(5.26),
@@ -359,7 +359,7 @@ cmip6_annual <- mutate(read.table("cmip6_annual.txt"),
                        gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                        ET0_annual = ((0.408*delta*Rn+gamma*900/((t)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) 
 
-cmip6_01 <- mutate(read.table("cmip6_january.txt"),
+cmip6_01 <- mutate(read.table("cmip6/cmip6_january.txt"),
                    t = tas - 273.15,
                    pr_01 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -370,7 +370,7 @@ cmip6_01 <- mutate(read.table("cmip6_january.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_01 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind)))) # Evapotranspiration, G considered to be negligible. in mm/day. Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
 
-cmip6_02 <- mutate(read.table("cmip6_february.txt"),
+cmip6_02 <- mutate(read.table("cmip6/cmip6_february.txt"),
                    t = tas - 273.15,
                    pr_02 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -381,7 +381,7 @@ cmip6_02 <- mutate(read.table("cmip6_february.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_02 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_03 <- mutate(read.table("cmip6_march.txt"),
+cmip6_03 <- mutate(read.table("cmip6/cmip6_march.txt"),
                    t = tas - 273.15,
                    pr_03 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -392,7 +392,7 @@ cmip6_03 <- mutate(read.table("cmip6_march.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_03 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_04 <- mutate(read.table("cmip6_april.txt"),
+cmip6_04 <- mutate(read.table("cmip6/cmip6_april.txt"),
                    t = tas - 273.15,
                    pr_04 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -403,7 +403,7 @@ cmip6_04 <- mutate(read.table("cmip6_april.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_04 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_05 <- mutate(read.table("cmip6_may.txt"),
+cmip6_05 <- mutate(read.table("cmip6/cmip6_may.txt"),
                    t = tas - 273.15,
                    pr_05 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -414,7 +414,7 @@ cmip6_05 <- mutate(read.table("cmip6_may.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_05 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_06 <- mutate(read.table("cmip6_june.txt"),
+cmip6_06 <- mutate(read.table("cmip6/cmip6_june.txt"),
                    t = tas - 273.15,
                    pr_06 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -425,7 +425,7 @@ cmip6_06 <- mutate(read.table("cmip6_june.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_06 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_07 <- mutate(read.table("cmip6_july.txt"),
+cmip6_07 <- mutate(read.table("cmip6/cmip6_july.txt"),
                    t = tas - 273.15,
                    pr_07 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -436,7 +436,7 @@ cmip6_07 <- mutate(read.table("cmip6_july.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_07 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_08 <- mutate(read.table("cmip6_august.txt"),
+cmip6_08 <- mutate(read.table("cmip6/cmip6_august.txt"),
                    t = tas - 273.15,
                    pr_08 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -447,7 +447,7 @@ cmip6_08 <- mutate(read.table("cmip6_august.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_08 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_09 <- mutate(read.table("cmip6_september.txt"),
+cmip6_09 <- mutate(read.table("cmip6/cmip6_september.txt"),
                    t = tas - 273.15,
                    pr_09 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -458,7 +458,7 @@ cmip6_09 <- mutate(read.table("cmip6_september.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_09 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_10 <- mutate(read.table("cmip6_october.txt"),
+cmip6_10 <- mutate(read.table("cmip6/cmip6_october.txt"),
                    t = tas - 273.15,
                    pr_10 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -469,7 +469,7 @@ cmip6_10 <- mutate(read.table("cmip6_october.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_10 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_11 <- mutate(read.table("cmip6_november.txt"),
+cmip6_11 <- mutate(read.table("cmip6/cmip6_november.txt"),
                    t = tas - 273.15,
                    pr_11 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -480,7 +480,7 @@ cmip6_11 <- mutate(read.table("cmip6_november.txt"),
                    gamma = 0.00163*P/(2.501-52.6361e-3*t), #psychrometric constant
                    ET0_11 = ((0.408*delta*Rn+gamma*900/(t+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
 
-cmip6_12 <- mutate(read.table("cmip6_december.txt"),
+cmip6_12 <- mutate(read.table("cmip6/cmip6_december.txt"),
                    t = tas - 273.15,
                    pr_12 = pr*60*60*24, # mm/day
                    Rn = (hfls + hfss) * 86400 * 1e-6, # conversion from W/m2 to MJ/m2/day.
@@ -532,13 +532,13 @@ cmip6$cat.AI_annual <- cmip6$AI_annual %>% cut(breaks = breaks.unesco) %>%
 
 cmip6$cat.AI_annual[which(cmip6$ET0_annual*365 < 400)] <- "Cold"
 
-write.table(cmip6, "cmip6_AI.txt")
+write.table(cmip6, "cmip6/cmip6_AI.txt")
 ```
 
 # Maps AI by model, all % calculated without Antarctica
 
 ```{r read-data, cache = T}
-cmip6 <- read.table("cmip6_AI.txt")
+cmip6 <- read.table("cmip6/cmip6_AI.txt")
 
 breaks.unesco <- c(-Inf,0.03,0.2,0.5,0.65,Inf)
 cat.unesco <- c("(-Inf,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid")
@@ -977,19 +977,19 @@ Here we compute the multimodel mean and median aridity index. We compare the cat
 Compute the difference between future AI, precipitation and temperature for future scenarios, for all models. 
 
 ```{r diff-AI-cmip6, eval = F}
-cmip6 <- read.table("cmip6_AI.txt")
+cmip6 <- read.table("cmip6/cmip6_AI.txt")
 
 cmip6.ref <- cmip6 %>% filter(period == "1970_2000") %>% select(c("lon","lat","model","period","source","AI","spr","t","sET0")) %>% setNames(c("lon","lat","model","period","source","AI.ref","spr.ref","t.ref","ET0.ref"))
 
 cmip6ext <- merge(cmip6, select(cmip6.ref, c("lon","lat","source","AI.ref","spr.ref","t.ref","ET0.ref")) , by = c("lon","lat","source"), all = T) %>%  mutate(diff.AI = AI - AI.ref, diff.pr = spr - spr.ref, diff.t = t - t.ref, diff.ET0 = sET0 - ET0.ref)
 
-write.table(cmip6ext, "cmip6ext.txt")
+write.table(cmip6ext, "cmip6/cmip6ext.txt")
 ```
 
 Create a summary table with multimodel average. 
 
 ```{r agreement-between-models, eval = F}
-cmip6 <- read.table("cmip6ext.txt")
+cmip6 <- read.table("cmip6/cmip6ext.txt")
 cmip6s <- cmip6 %>% 
   group_by(lon,lat,Continent, Type, Name, Acronym, lm, model, period, z) %>% 
   dplyr::summarise(t.mean = mean(t, na.rm = T), t.sd = sd(t, na.rm = T), # t in °C
@@ -1076,12 +1076,12 @@ cmip6s$cat.maj.dryer <- with(cmip6s,
 
 cmip6s$Continent[which(cmip6s$Continent == "EUROPE-AFRICA")] <- "MED-BASIN"
 
-write.table(cmip6s, "cmip6s.txt")
+write.table(cmip6s, "cmip6/cmip6s.txt")
 
 ```
 
 ```{r read-cmip6s}
-cmip6s <- read.table("cmip6s.txt")
+cmip6s <- read.table("cmip6/cmip6s.txt")
 ```
 
 ## Compare cat mean and cat maj
@@ -1940,9 +1940,6 @@ print(g)
 ## Changes of aridity category using cat mean
 
 ```{r changes-in-table}
-tab <- cmip6s %>% group_by(model, period, Continent) %>% summarise(Cold = table(cat.AI)[1], Hyperarid = table(cat.AI)[2], Arid = table(cat.AI)[3], Semiarid = table(cat.AI)[4], Drysubhumid = table(cat.AI)[5], Humid = table(cat.AI)[6], total = n()) 
-write.table(tab, "tab.catAI.txt")
-
 tab.future <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>%
   group_by(period, model, cat.AI) %>%
   summarise(count = n()) %>%
@@ -1954,19 +1951,6 @@ tab.future <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC
 kable(tab.future[order(tab.future$model, decreasing = F),]) %>% kable_styling(bootstrap_options = "bordered") %>%
   column_spec(c(7,10), italic = T, include_thead = T) %>% row_spec(2, bold = T) 
 
-# ggplot(tab.future, aes(x = period))+
-#   geom_point(aes(y = Hyperarid, col = "Hyperarid", shape = model))+
-#   geom_line(aes(y=Hyperarid, col = "Hyperarid", group = model, lty = model))+
-#   geom_point(aes(y = Arid, col = "Arid", shape = model))+
-#   geom_line(aes(y=Arid, col = "Arid", group = model, lty = model))+
-#   geom_point(aes(y = get('Semi-arid'), col = "Semi-arid", shape = model))+
-#   geom_line(aes(y=get('Semi-arid'), col = "Semi-arid", group = model, lty = model))+
-#   geom_point(aes(y = get('Dry subhumid'), col = "Dry subhumid", shape = model))+
-#   geom_line(aes(y=get('Dry subhumid'), col = "Dry subhumid", group = model, lty = model))+
-#   geom_point(aes(y = Humid, col = "Humid", shape = model))+
-#   geom_line(aes(y= Humid, col = "Humid", group = model, lty = model))+
-#   scale_color_manual(values = col.cat)+
-#   theme_minimal()
 ```
 
 ```{r tab-percent-catmean, eval = F}
@@ -1979,11 +1963,11 @@ tab.percent <- cmip6 %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC
   group_by(period, model, cat.AI) %>% 
   summarise(mmmean = mean(count, na.rm = T), mmsd = sd(count, na.rm = T)) %>%
   mutate(percent = round(mmmean/sum(mmmean)*100, 1), sd.percent = round(mmsd/sum(mmmean)*100,1)) 
-write.table(tab.percent, "tab.percent.txt")
+write.table(tab.percent, "cmip6/tab.percent.txt")
 ```
 
 ```{r colplots-futurecatmean, fig.dim = c(10,5)}
-tab.percent <- read.table("tab.percent.txt")
+tab.percent <- read.table("cmip6/tab.percent.txt")
 
 df245 <- rbind(subset(tab.percent, model == "historical" & period %in% c("1970_2000")), subset(tab.percent, model == "SSP245")) %>%
   group_by(period, model) %>% 
@@ -2037,9 +2021,6 @@ ggarrange(plotlist = list(b245, b370, b585), common.legend = T, legend = "bottom
 ## Changes of aridity category using cat maj
 
 ```{r changes-in-table-maj}
-tab.maj <- cmip6s %>% group_by(model, period, Continent) %>% summarise(Cold = table(cat.maj)[1], Hyperarid = table(cat.maj)[2], Arid = table(cat.maj)[3], Semiarid = table(cat.maj)[4], Drysubhumid = table(cat.maj)[5], Humid = table(cat.maj)[6], total = n()) 
-write.table(tab.maj, "tab.catmaj.txt")
-
 tab.future.maj <- cmip6s %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>%
   group_by(period, model, cat.maj) %>%
   summarise(count = n()) %>%
@@ -2109,11 +2090,11 @@ tab.percent.cont <- cmip6 %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATL
   group_by(period, model, Continent, cat.AI) %>% 
   summarise(mmmean = mean(count, na.rm = T), mmsd = sd(count, na.rm = T)) %>%
   mutate(percent = round(mmmean/sum(mmmean)*100, 1), sd.percent = round(mmsd/sum(mmmean)*100,1)) 
-write.table(tab.percent.cont, "tab.percent.continent.txt")
+write.table(tab.percent.cont, "cmip6/tab.percent.continent.txt")
 ```
 
 ```{r changes-in-table-by-continent-mean, results = "asis"}
-tab.percent.cont <- read.table("tab.percent.continent.txt")
+tab.percent.cont <- read.table("cmip6/tab.percent.continent.txt")
 
 tab_list_percent <- list()
 tab_list_sd <- list()
@@ -2267,12 +2248,12 @@ for(i in unique(tab.cont$source)){
 tab.cont.diff <- bind_rows(list_ref, .id = "column_label") %>%
   group_by(period, model, Continent, cat.AI) %>% 
   summarise(diff.mean = mean(diff, na.rm = T), diff.sd = sd(diff, na.rm = T))
-write.table(tab.cont.diff, "tab.cont.diff.txt")
+write.table(tab.cont.diff, "cmip6/tab.cont.diff.txt")
 
 ```
 
 ```{r changes-in-table-by-continent-diff, results = "asis"}
-tab.cont.diff <- read.table("tab.cont.diff.txt")
+tab.cont.diff <- read.table("cmip6/tab.cont.diff.txt")
 
 tab_list_percent <- list()
 tab_list_sd <- list()
@@ -3025,7 +3006,7 @@ write.table(cmip6monthly,"cmip6monthly.txt")
 ```
 
 ```{r summary-table-monthly, eval = F}
-cmip6monthly <- read.table("cmip6monthly.txt")
+cmip6monthly <- read.table("cmip6/cmip6monthly.txt")
 
 cmip6smonthly <- cmip6monthly %>% 
   group_by(lon,lat, Continent, Name, model, period) %>% 
@@ -3186,11 +3167,11 @@ cmip6smonthly$cat.AI_12.ref[which(cmip6smonthly$ET0_12_mean.ref < 400/12)] <- "C
 
 cmip6smonthly$Continent[which(cmip6s$Continent == "EUROPE-AFRICA")] <- "MED-BASIN"
 
-write.table(cmip6smonthly, "cmip6smonthly.txt")
+write.table(cmip6smonthly, "cmip6/cmip6smonthly.txt")
 ```
 
 ```{r map-AI-monthly, fig.dim = c(16,16)}
-cmip6smonthly <- read.table("cmip6smonthly.txt")
+cmip6smonthly <- read.table("cmip6/cmip6smonthly.txt")
 
 cmip6smonthly$cat.AI_01 <- factor(cmip6smonthly$cat.AI_01, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
 

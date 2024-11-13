@@ -144,13 +144,13 @@ wdc$srad <- apply(select(wdc,c("srad_01", "srad_02", "srad_03", "srad_04", "srad
 
 wdc$sfcWind <- apply(select(wdc,c("sfcWind_01", "sfcWind_02", "sfcWind_03", "sfcWind_04", "sfcWind_05", "sfcWind_06", "sfcWind_07", "sfcWind_08", "sfcWind_09", "sfcWind_10", "sfcWind_11", "sfcWind_12")), 1, FUN = mean, na.rm = T)
 
-write.table(wdc,"wdc.txt")
+write.table(wdc,"Worldclim/wdc.txt")
 ```
 
 # Aridity
 
 ```{r load-wdc, eval = T}
-wdc <- read.table("wdc.txt")
+wdc <- read.table("Worldclim/wdc.txt")
 ```
 
 ```{r colors}
@@ -181,7 +181,7 @@ ggplot() + geom_raster(data = filter(wdc, lm == 1), aes(x=lon, y = lat,  fill = 
 ```
 
 ## FAO Aridity index
-```{r aridity-index-vapr}
+```{r aridity-index-vapr, eval = F}
 
 
 #wdc$ea <- with(wdc, 0.61078*exp(17.27*(tmin)/((tmin)+237.3))) # Tetens 1930
@@ -429,11 +429,11 @@ wdc$cat.AI[which(wdc$ET0 < 400)] <- "Cold"
 wdc$cat.AI2 <- wdc$AI2 %>% cut(breaks = breaks.unesco) %>% 
   revalue(cat.unesco)
 
-write.table(wdc, "wdc_AI.txt")
+write.table(wdc, "Worldclim/wdc_AI.txt")
 ```
 
 ```{r plot-maps}
-#wdc <- read.table("wdc_AI.txt")
+wdc <- read.table("Worldclim/wdc_AI.txt")
 
 ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = ET0))+
   scale_fill_binned(type = "viridis", breaks = c(0, 400, 800, 1200, 1600))+
