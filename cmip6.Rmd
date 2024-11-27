@@ -1923,16 +1923,17 @@ ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, leg
 
 ```{r bigmap, fig.dim = c(10,7)}
 
+for(i in unique(cmip6s$model)){
 g <- ggplot() + 
-  geom_tile(data = subset(cmip6s, period == "2070_2100" & model == "SSP585" & change.catmean == 1), aes(x=lon, y = lat,  fill = change.cat.mean))+
+  geom_tile(data = subset(cmip6s, period == "2070_2100" & model == i & change.catmean == 1), aes(x=lon, y = lat,  fill = change.cat.mean))+
       borders(colour = "grey60")+
       scale_fill_manual(values = colors_changes, na.translate = F)+
-      labs(fill = "Change of aridity category\nfor the period 2070-2100\nand SSP 5-8.5,\ncompared to 1970-2000", title = "")+
+      labs(fill = paste("Change of aridity category\nfor the period 2070-2100\nand ", i,"\ncompared to 1970-2000", sep = ""), title = "")+
       theme_void()+ylim(-55,90)+
       theme(legend.position = "bottom")+guides(fill = guide_legend(nrow = 4))
    
 print(g)
-
+}
 ```
 
 # Tables

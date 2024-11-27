@@ -1512,6 +1512,7 @@ rr <- raster(ext, res = 1)
 ripcc_regions <- rasterize(ipcc_regions, rr)
 ipcc_regions.sf <- as.data.frame(ripcc_regions, xy = T) %>% setNames(c("lon","lat","Continent","Type","Name","Acronym")) %>% st_as_sf(coords = c("lon","lat"))
 st_crs(ipcc_regions.sf) <- crs(ripcc_regions)
+saveRDS(ipcc_regions.sf, "Worldclim/ipcc_regions.sf.rds")
 
 all.indices <- readRDS("Worldclim/all.indices.rds")
 

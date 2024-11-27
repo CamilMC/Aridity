@@ -275,6 +275,37 @@ nrows = 4, ncol = 1
 
 )
 ```
+```{r maps-presentations}
+ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    borders(colour= "grey60")+
+    labs(title = "", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggsave("worldclim_AIref.png", width = 12, height = 8, dpi = "retina")
+
+ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    borders(colour= "grey60")+
+    labs(title = "", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggsave("era5_AIref.png", width = 12, height = 8, dpi = "retina")
+
+ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat)+
+    borders(colour= "grey60")+
+    labs(title = "", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggsave("cmip6_AIref.png", width = 12, height = 8, dpi = "retina")
+```
 
 ```{r plot-compare-AI-with-borders, fig.dim = c(8,20)}
 
@@ -457,6 +488,7 @@ nrows = 4, ncol = 1
 
 )
 ```
+
 
 ### Proportion aridity category by subregion, continent et database
 
@@ -1052,6 +1084,9 @@ calib.noant <- calib.wide %>% filter(lat > -55)
 ### Boxplots
 
 ```{r violin-3-databases}
+
+library(ggtext)
+
 ggarrange(
   
 ggplot(calib.noant)+
@@ -1060,53 +1095,54 @@ ggplot(calib.noant)+
   geom_violin(aes(y = "CMIP6", x = pr.cmip6, fill = "CMIP6"))+
   labs(x = "Mean annual precipitation, mm", y = "", fill = "")+
   xlim(0,6000)+
-  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
-  theme_minimal(),
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#DAE2F7"))+
+  theme_minimal(base_size = 9),
 
 ggplot(calib.noant)+
   geom_violin(aes(y = "Worldclim", x = tas.wdc, fill = "Worldclim"))+
   geom_violin(aes(y = "ERA5", x = tas.era5, fill = "ERA5"))+
   geom_violin(aes(y = "CMIP6", x = tas.cmip6, fill = "CMIP6"))+
-  labs(x = "Surface temperature °C", y = "", fill = "")+
-  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
-  theme_minimal(),
+  labs(x = "Surface temperature, °C", y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#DAE2F7"))+
+  theme_minimal(base_size = 9),
 
 ggplot(calib.noant)+
   geom_violin(aes(y = "Worldclim", x = sfcWind.wdc, fill = "Worldclim"))+
   geom_violin(aes(y = "ERA5", x = sfcWind.era5, fill = "ERA5"))+
   geom_violin(aes(y = "CMIP6", x = sfcWind.cmip6, fill = "CMIP6"))+
-  labs(x = "Surface wind speed, m/s", y = "", fill = "")+
-  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
-  theme_minimal(),
+  labs(x = expression("Surface wind speed, " * m~s^{-1}), y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#DAE2F7"))+
+  theme_minimal(base_size = 9),
 
 ggplot(calib.noant)+
   geom_violin(aes(y = "Worldclim", x = Rn.wdc, fill = "Worldclim"))+
   geom_violin(aes(y = "ERA5", x = Rn.era5, fill = "ERA5"))+
   geom_violin(aes(y = "CMIP6", x = Rn.cmip6, fill = "CMIP6"))+
-  labs(x = "Rn - G, MJ/m2/day", y = "", fill = "")+
-  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
-  theme_minimal(),
+  labs(x = expression("Rn - G, " * MJ~m^{-2}~day^{-1}), y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#DAE2F7"))+
+  theme_minimal(base_size = 9),
 
 ggplot(calib.noant)+
   geom_violin(aes(y = "Worldclim", x = ea.wdc, fill = "Worldclim"))+
   geom_violin(aes(y = "ERA5", x = ea.era5, fill = "ERA5"))+
   geom_violin(aes(y = "CMIP6", x = ea.cmip6, fill = "CMIP6"))+
   labs(x = "ea, kPa", y = "", fill = "")+
-  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
-  theme_minimal(),
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#DAE2F7"))+
+  theme_minimal(base_size = 9),
 
 ggplot(calib.noant)+
   geom_violin(aes(y = "Worldclim", x = ET0.wdc, fill = "Worldclim"))+
   geom_violin(aes(y = "ERA5", x = ET0.era5, fill = "ERA5"))+
   geom_violin(aes(y = "CMIP6", x = ET0.cmip6, fill = "CMIP6"))+
-  labs(x = "ET0, mm/day", y = "", fill = "")+
-  scale_fill_manual(values = c("#A50026", "#FDAE61", "#ABD9E9"))+
-  theme_minimal(),
+  labs(x = expression("ET0, " * mm~day^{-1}), y = "", fill = "")+
+  scale_fill_manual(values = c("#A50026", "#FDAE61", "#DAE2F7"))+
+  theme_minimal(base_size = 9),
 
 ncol = 3, nrow = 2, common.legend = T, legend = "bottom"
 )
 
 ```
+
 ```{r table-of-r-and-r2}
 
 library(SpatialPack)
