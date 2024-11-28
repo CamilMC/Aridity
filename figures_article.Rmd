@@ -163,14 +163,6 @@ ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean")))+
 
 # Aridity Index 
 
-```{r test-na}
-comp <- merge(select(era5vA, c("lon","lat","source","Continent","z","Rn","ET0","AI","cat.AI")), 
-                     select(wdcvA, c("lon","lat","source","Continent","z","Rn","ET0","AI","cat.AI")), by = c("lon","lat")) %>%
-        merge(select(cmip6vA, c("lon","lat","source","Continent","z","ET0","AI","cat.AI")), by = c("lon","lat"))
-```
-
-
-
 ## Comparison of WDC, ERA5 and CMIP6 for the reference period 1970-2000
 
 ```{r plot-compare, fig.dim = c(8,20)}
@@ -221,6 +213,50 @@ nrows = 4, ncol = 1
 
 )
 ```
+
+```{r map-diff-categories, fig.dim = c(10,7)}
+wdcfordiff <- calib %>% subset(source == "Worldclim") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.wdc")) 
+era5fordiff <- calib %>% subset(source == "ERA5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.era5")) 
+cmip6fordiff <- calib %>% subset(source == "CMIP6") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmip6")) 
+
+diffcatAI <- wdcfordiff %>% merge(era5fordiff, by = c("lon","lat")) %>% merge(cmip6fordiff, by = c("lon","lat"))
+
+
+ggplot(diffcatAI) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.era5))+
+    scale_fill_manual(values = col.cat)+
+    borders()+
+    labs(title = " Aridity categories ERA5, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(filter(diffcatAI, cat.AI.wdc != cat.AI.era5)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.wdc))+
+    scale_fill_manual(values = col.cat)+
+    borders()+
+    labs(title = "Difference Worldclim/ERA5, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+ggplot(filter(diffcatAI, cat.AI.cmip6 != cat.AI.era5)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.cmip6))+
+    scale_fill_manual(values = col.cat)+
+    borders()+
+    labs(title = "Difference CMIP6/ERA5, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+
+ggplot(filter(diffcatAI, cat.AI.cmip6 != cat.AI.wdc)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.cmip6))+
+    scale_fill_manual(values = col.cat)+
+    borders()+
+    labs(title = "Difference CMIP6/Worldclim, 1970-2000", fill = "")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
+
+```
+
 
 ## Comparison of WDC, ERA5 and CMIP6 for the reference period 1970-2000 with country borders
 
