@@ -1524,4 +1524,11 @@ ggplot() + geom_raster(data = era5, aes(x=lon, y = lat,  fill = cat.AIpvp))+
   theme(legend.position = "bottom")
 ```
 
+# SPEI 1970_2000
+```{r try-spi-era5}
+spi_test <- mon1970_2000 %>% filter(lon == 0.5, lat == 0.5) 
+spi_test <- spi_test[order(spi_test$month),]
 
+spi(spi_test$mpr, 3)
+
+```

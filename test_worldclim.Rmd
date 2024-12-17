@@ -1694,46 +1694,4 @@ ggplot(spei.2020)+geom_raster(aes(x = x, y = y, fill = layer))+
 
 
 
-# Extra
 
-```{r mensual-AI}
-elev <- raster("wc2.1_country/CIV_wc2.1_30s_elev.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-newvalues <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid", "NA" = "")
-mycolors <- viridisLite::viridis(n = length(newvalues), direction = -1)
-names(mycolors) <- newvalues
-
-for(i in 1:12){
-precip <- raster("wc2.1_country/CIV_wc2.1_30s_prec.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-srad <- raster("wc2.1_country/CIV_wc2.1_30s_srad.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-tmin <- raster("wc2.1_country/CIV_wc2.1_30s_tmin.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()  # month tmin 
-
-tmax <- raster("wc2.1_country/CIV_wc2.1_30s_tmax.tif", band = i) %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-wind <- raster("wc2.1_country/CIV_wc2.1_30s_wind.tif") %>% as("SpatialPixelsDataFrame") %>% as.data.frame()
-
-PMref <- ETo_FPM(R_n = srad$CIV_wc2.1_30s_srad_1, #from kJ/m2/day to MJ/m2/day
-                 elev = elev$CIV_wc2.1_30s_elev, 
-                 T_min = tmin$CIV_wc2.1_30s_tmin_1, 
-                 T_max = tmax$CIV_wc2.1_30s_tmax_1, 
-                 u_2 = wind$CIV_wc2.1_30s_wind_1)
-
-AI.df <- precip %>% mutate(ET = PMref, AI = CIV_wc2.1_30s_prec_1*12/PMref)
-head(AI.df)
-AI.df$cat <- cut(AI.df$AI, breaks = c(0,0.03,0.2,0.5,0.65))
-AI.df$cat.AI <- revalue(AI.df$cat, newvalues)
-
-g <- ggplot(AI.df)+geom_raster(aes(x = x, y = y, fill = AI))+
-    borders(regions = "Ivory Coast")+
-  labs(fill = "", subtitle = i)+scale_fill_viridis_c(direction = -1, option = "A")+theme_void(base_size = 8)+theme(legend.position = "bottom")
-ggsave(plot = g, filename = paste("AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
-
-g <- ggplot(AI.df)+geom_raster(aes(x = x, y = y, fill = cat.AI))+
-    borders(regions = "Ivory Coast")+
-  labs(subtitle = i, fill = "")+scale_fill_manual(values = mycolors)+theme_void(base_size = 8)+theme(legend.position = "bottom")
-ggsave(plot = g, filename = paste("cat.AIref",i,".civ.jpg", sep =""), width = 3, height = 3)
-}
-
-```

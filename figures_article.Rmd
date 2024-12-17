@@ -161,102 +161,7 @@ ggplot(data = filter(ipcc_sf, Type %in% c("Land","Land-Ocean")))+
 
 ```
 
-# Aridity Index 
-
-## Comparison of WDC, ERA5 and CMIP6 for the reference period 1970-2000
-
-```{r plot-compare, fig.dim = c(8,20)}
-
-calib <- rbind(cmip6vA, era5vA, wdcvA) %>% subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC"))
-
-breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
-#col.cat <- c("Hyperarid" = colorvec[2], "Arid"= colorvec[4],"Semi-arid"= colorvec[5], "Dry subhumid" = colorvec[8], "Humid"= colorvec[10], "Cold" = "powderblue")
-col.cat <- c("Hyperarid" = "#D73027", "Arid"= "#FDAE61","Semi-arid"= "#FEE08B", "Dry subhumid" = "#ABD9E9", "Humid"= "#4575B4", "Cold" = "#DAE2F7")
-
-calib$cat.AI <- calib$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
-calib$cat.AI[which(calib$ET0 < 400)] <- "Cold"
-
-calib$cat.AI <- factor(calib$cat.AI, levels = c("Hyperarid", "Arid", "Semi-arid", "Dry subhumid", "Humid", "Cold"))
-
-ggarrange(
-  
-ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "Wordclim, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "none"),
-
-ggplot(data = subset(calib, source == "ERA5")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "ERA5, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "none"),
-
-ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "CMIP6, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "none"),
-
-ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x = lon, y = lat, fill = cat.AI))+
-  geom_raster(aes(x = lon, y = lat), fill = "white")+
-    scale_fill_manual(values = col.cat)+
-    labs(title = "", fill = "")+
-    theme_void()+
-    theme(legend.position = "bottom"),
-
-nrows = 4, ncol = 1
-
-)
-```
-
-```{r map-diff-categories, fig.dim = c(10,7)}
-wdcfordiff <- calib %>% subset(source == "Worldclim") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.wdc")) 
-era5fordiff <- calib %>% subset(source == "ERA5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.era5")) 
-cmip6fordiff <- calib %>% subset(source == "CMIP6") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmip6")) 
-
-diffcatAI <- wdcfordiff %>% merge(era5fordiff, by = c("lon","lat")) %>% merge(cmip6fordiff, by = c("lon","lat"))
-
-
-ggplot(diffcatAI) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.era5))+
-    scale_fill_manual(values = col.cat)+
-    borders()+
-    labs(title = " Aridity categories ERA5, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "bottom")
-
-ggplot(filter(diffcatAI, cat.AI.wdc != cat.AI.era5)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.wdc))+
-    scale_fill_manual(values = col.cat)+
-    borders()+
-    labs(title = "Difference Worldclim/ERA5, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "bottom")
-
-ggplot(filter(diffcatAI, cat.AI.cmip6 != cat.AI.era5)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.cmip6))+
-    scale_fill_manual(values = col.cat)+
-    borders()+
-    labs(title = "Difference CMIP6/ERA5, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "bottom")
-
-
-ggplot(filter(diffcatAI, cat.AI.cmip6 != cat.AI.wdc)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.cmip6))+
-    scale_fill_manual(values = col.cat)+
-    borders()+
-    labs(title = "Difference CMIP6/Worldclim, 1970-2000", fill = "")+
-    ylim(-55,90)+
-    theme_void()+
-    theme(legend.position = "bottom")
-
-```
-
+# Aridity Index FAO 
 
 ## Comparison of WDC, ERA5 and CMIP6 for the reference period 1970-2000 with country borders
 
@@ -311,7 +216,8 @@ nrows = 4, ncol = 1
 
 )
 ```
-```{r maps-presentations}
+
+```{r maps-presentations, eval = F}
 ggplot(data = subset(calib, source == "Worldclim")) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
     scale_fill_manual(values = col.cat)+
     borders(colour= "grey60")+
@@ -343,44 +249,104 @@ ggplot(data = subset(calib, source == "CMIP6")) + geom_raster(aes(x=lon, y = lat
 ggsave("cmip6_AIref.png", width = 12, height = 8, dpi = "retina")
 ```
 
-```{r plot-compare-AI-with-borders, fig.dim = c(8,20)}
+```{r map-diff-dryer-wetter, fig.dim = c(8,6)}
+wdcfordiff <- calib %>% subset(source == "Worldclim") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.wdc")) 
+era5fordiff <- calib %>% subset(source == "ERA5") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.era5")) 
+cmip6fordiff <- calib %>% subset(source == "CMIP6") %>% select(c("lon","lat","cat.AI")) %>% setNames(c("lon","lat","cat.AI.cmip6")) 
 
-ggarrange(
-  
-ggplot(data = subset(calib, source == "Worldclim" & AI < 0.05 & AI > 0)) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
-    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
-    borders(colour= "grey60")+
-    labs(title = "Wordclim, 1970-2000", fill = "")+
+diffcatAI <- wdcfordiff %>% merge(era5fordiff, by = c("lon","lat")) %>% merge(cmip6fordiff, by = c("lon","lat"))
+
+diffcatAI$era5_wdc <- with(diffcatAI, 
+          ifelse(cat.AI.era5 == "Arid" & cat.AI.wdc %in% c("Cold","Humid","Dry subhumid","Semi-arid"), "wetter", 
+          ifelse(cat.AI.era5 == "Arid" & cat.AI.wdc == "Hyperarid", "dryer",
+          ifelse(cat.AI.era5 == "Semi-arid" & cat.AI.wdc %in% c("Cold","Humid","Dry subhumid"), "wetter",
+          ifelse(cat.AI.era5 == "Semi-arid" & cat.AI.wdc %in% c("Hyperarid","Arid"), "dryer",
+          ifelse(cat.AI.era5 == "Dry subhumid" & cat.AI.wdc %in% c("Cold","Humid"), "wetter",
+          ifelse(cat.AI.era5 == "Dry subhumid" & cat.AI.wdc %in% c("Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.era5 == "Humid" & cat.AI.wdc == "Cold","wetter",
+          ifelse(cat.AI.era5 == "Humid" & cat.AI.wdc %in% c("Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.era5 == "Cold" & cat.AI.wdc %in% c("Humid","Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.era5 == "Hyperarid" & cat.AI.wdc %in% c("Cold","Humid","Dry subhumid","Semi-arid","Arid"), "wetter",
+          ifelse(cat.AI.era5 == cat.AI.wdc, "same",
+          NA))))))))))))
+
+diffcatAI$era5_cmip6 <- with(diffcatAI, 
+          ifelse(cat.AI.era5 == "Arid" & cat.AI.cmip6 %in% c("Cold","Humid","Dry subhumid","Semi-arid"), "wetter", 
+          ifelse(cat.AI.era5 == "Arid" & cat.AI.cmip6 == "Hyperarid", "dryer",
+          ifelse(cat.AI.era5 == "Semi-arid" & cat.AI.cmip6 %in% c("Cold","Humid","Dry subhumid"), "wetter",
+          ifelse(cat.AI.era5 == "Semi-arid" & cat.AI.cmip6 %in% c("Hyperarid","Arid"), "dryer",
+          ifelse(cat.AI.era5 == "Dry subhumid" & cat.AI.cmip6 %in% c("Cold","Humid"), "wetter",
+          ifelse(cat.AI.era5 == "Dry subhumid" & cat.AI.cmip6 %in% c("Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.era5 == "Humid" & cat.AI.cmip6 == "Cold","wetter",
+          ifelse(cat.AI.era5 == "Humid" & cat.AI.cmip6 %in% c("Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.era5 == "Cold" & cat.AI.cmip6 %in% c("Humid","Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.era5 == "Hyperarid" & cat.AI.cmip6 %in% c("Cold","Humid","Dry subhumid","Semi-arid","Arid"), "wetter",
+          ifelse(cat.AI.era5 == cat.AI.cmip6, "same",
+          NA))))))))))))
+
+diffcatAI$wdc_cmip6 <- with(diffcatAI, 
+          ifelse(cat.AI.wdc == "Arid" & cat.AI.cmip6 %in% c("Cold","Humid","Dry subhumid","Semi-arid"), "wetter", 
+          ifelse(cat.AI.wdc == "Arid" & cat.AI.cmip6 == "Hyperarid", "dryer",
+          ifelse(cat.AI.wdc == "Semi-arid" & cat.AI.cmip6 %in% c("Cold","Humid","Dry subhumid"), "wetter",
+          ifelse(cat.AI.wdc == "Semi-arid" & cat.AI.cmip6 %in% c("Hyperarid","Arid"), "dryer",
+          ifelse(cat.AI.wdc == "Dry subhumid" & cat.AI.cmip6 %in% c("Cold","Humid"), "wetter",
+          ifelse(cat.AI.wdc == "Dry subhumid" & cat.AI.cmip6 %in% c("Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.wdc == "Humid" & cat.AI.cmip6 == "Cold","wetter",
+          ifelse(cat.AI.wdc == "Humid" & cat.AI.cmip6 %in% c("Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.wdc == "Cold" & cat.AI.cmip6 %in% c("Humid","Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.wdc == "Hyperarid" & cat.AI.cmip6 %in% c("Cold","Humid","Dry subhumid","Semi-arid","Arid"), "wetter",
+          ifelse(cat.AI.wdc == cat.AI.cmip6, "same",
+          NA))))))))))))
+
+ggplot(filter(diffcatAI, cat.AI.era5 != cat.AI.wdc)) + geom_raster(aes(x=lon, y = lat,  fill = era5_wdc))+
+    scale_fill_manual(values = c("same" = "white", "dryer" = "#D73027", "wetter" = "#DAE2F7"), na.translate = F)+
+    borders()+
+    labs(title = "Difference aridity categories ERA5-Worldclim, 1970-2000", fill = "Worldclim dryer or wetter compared to ERA5")+
     ylim(-55,90)+
     theme_void()+
-    theme(legend.position = "none"),
+    theme(legend.position = "bottom")
 
-ggplot(data = subset(calib, source == "ERA5" & AI < 0.05 & AI > 0)) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
-    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
-    borders(colour= "grey60")+
-    labs(title = "ERA5, 1970-2000", fill = "")+
+ggplot(filter(diffcatAI, cat.AI.era5 != cat.AI.cmip6)) + geom_raster(aes(x=lon, y = lat,  fill = era5_cmip6))+
+    scale_fill_manual(values = c("same" = "white", "dryer" = "#D73027", "wetter" = "#DAE2F7"), na.translate = F)+
+    borders()+
+    labs(title = "Difference aridity categories ERA5-CMIP6, 1970-2000", fill = "CMIP6 dryer or wetter compared to ERA5")+
     ylim(-55,90)+
     theme_void()+
-    theme(legend.position = "none"),
+    theme(legend.position = "bottom")
 
-ggplot(data = subset(calib, source == "CMIP6" & AI < 0.05 & AI > 0)) + geom_raster(aes(x=lon, y = lat,  fill = AI))+
-    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
-    borders(colour= "grey60")+
-    labs(title = "CMIP6, 1970-2000", fill = "")+
+ggplot(filter(diffcatAI, cat.AI.wdc != cat.AI.cmip6)) + geom_raster(aes(x=lon, y = lat,  fill = wdc_cmip6))+
+    scale_fill_manual(values = c("same" = "white", "dryer" = "#D73027", "wetter" = "#DAE2F7"), na.translate = F)+
+    borders()+
+    labs(title = "Difference aridity categories Worldclim-CMIP6, 1970-2000", fill = "CMIP6 dryer or wetter compared to Worldclim")+
     ylim(-55,90)+
     theme_void()+
-    theme(legend.position = "none"),
+    theme(legend.position = "bottom")
+```
+```{r map-diff-categories, fig.dim = c(8,6)}
 
-ggplot(data = subset(calib, source == "Worldclim" & AI < 0.05 & AI > 0)) + geom_raster(aes(x = lon, y = lat, fill = AI))+
-  geom_raster(aes(x = lon, y = lat), fill = "white")+
-    scale_fill_gradient(low = "#D73027", high = "#4575B4")+
-    labs(title = "", fill = "")+
+ggplot(filter(diffcatAI, cat.AI.era5 != cat.AI.wdc)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.wdc))+
+    scale_fill_manual(values = col.cat, na.translate = F)+
+    borders()+
+    labs(title = "Difference aridity categories ERA5-Worldclim, 1970-2000", fill = "Worldclim dryer or wetter compared to ERA5")+
+    ylim(-55,90)+
     theme_void()+
-    theme(legend.position = "top"),
+    theme(legend.position = "bottom")
 
-nrows = 4, ncol = 1
+ggplot(filter(diffcatAI, cat.AI.era5 != cat.AI.cmip6)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.cmip6))+
+    scale_fill_manual(values = col.cat, na.translate = F)+
+    borders()+
+    labs(title = "Difference aridity categories ERA5-CMIP6, 1970-2000", fill = "CMIP6 dryer or wetter compared to ERA5")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
 
-)
+ggplot(filter(diffcatAI, cat.AI.wdc != cat.AI.cmip6)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI.cmip6))+
+    scale_fill_manual(values = col.cat, na.translate = F)+
+    borders()+
+    labs(title = "Difference aridity categories Worldclim-CMIP6, 1970-2000", fill = "CMIP6 dryer or wetter compared to Worldclim")+
+    ylim(-55,90)+
+    theme_void()+
+    theme(legend.position = "bottom")
 ```
 
 ### Compare ETO and pr in WDC, ERA5, CMIP6
@@ -824,7 +790,7 @@ knitr::kable(tab.pop.by.cat)
 ```
 
 
-# Comparison of datasets 
+# Comparison of variables datasets 
 
 ```{r calib-wide}
 vars <- c("lon","lat","Continent","Name","Acronym","tas","pr","sfcWind","Rn","ea","ET0","AI","cat.AI")
@@ -1817,7 +1783,7 @@ ggplot() +
   geom_raster(data = subset(calib.wide, pr.era5 - pr.wdc > 277), aes(x=lon, y = lat), fill = "#44FF44")+
    geom_raster(data = subset(calib.wide, pr.era5 - pr.wdc < - 98), aes(x=lon, y = lat), fill = "#FF4444")+
   labs(title = "Most extreme differences in precipitation", subtitle = "In red, the 10% most extreme gricells in which Worldclim is wetter than ERA5; \nin green, the 10% most extreme gridcells in which ERA5 is wetter than Worldclim", fill = "precipitation in ERA5 - precipitations in WDC,\nmm/year")+
-  theme_void(base_size = 15)+
+  theme_void(base_size = 10)+
   theme(legend.position = "bottom")
 ```
 
@@ -1873,7 +1839,7 @@ ncol = 2)
 ```
 
 
-## CMIP6 and ERA5
+### CMIP6 and ERA5
 
 ```{r map-difference-cmip6-era5, fig.dim = c(16,6)}
 calib.wide$same.cat.era5 <- with(calib.wide, ifelse(cat.AI.cmip6 == cat.AI.era5, "y","n"))
@@ -1921,6 +1887,15 @@ ncol = 2)
 
 
 
+
+
+# Aridity Index Hargreaves
+
+```{r compute-hargreaves, eval = F}
+
+calib$
+
+``` 
 
 # NDVI 
 
