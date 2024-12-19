@@ -453,6 +453,101 @@ ggplot() + geom_raster(data = subset(wdc, lm == 1), aes(x=lon, y = lat,  fill = 
 
 
 
+## Aridity index with Thornthwaite 
+
+[1] "lon"        "lat"        "tas"        "tas_01"    
+  [5] "tas_02"     "tas_03"     "tas_04"     "tas_05"    
+  [9] "tas_06"     "tas_07"     "tas_08"     "tas_09"    
+ [13] "tas_10"     "tas_11"     "tas_12"     "tmin_01"   
+ [17] "tmin_02"    "tmin_03"    "tmin_04"    "tmin_05"   
+ [21] "tmin_06"    "tmin_07"    "tmin_08"    "tmin_09"   
+ [25] "tmin_10"    "tmin_11"    "tmin_12"    "tmax_01"   
+ [29] "tmax_02"    "tmax_03"    "tmax_04"    "tmax_05"   
+ [33] "tmax_06"    "tmax_07"    "tmax_08"    "tmax_09"   
+ [37] "tmax_10"    "tmax_11"    "tmax_12"    "pr"        
+ [41] "pr_01"      "pr_02"      "pr_03"      "pr_04"     
+ [45] "pr_05"      "pr_06"      "pr_07"      "pr_08"     
+ [49] "pr_09"      "pr_10"      "pr_11"      "pr_12"     
+ [53] "srad_01"    "srad_02"    "srad_03"    "srad_04"   
+ [57] "srad_05"    "srad_06"    "srad_07"    "srad_08"   
+ [61] "srad_09"    "srad_10"    "srad_11"    "srad_12"   
+ [65] "sfcWind_01" "sfcWind_02" "sfcWind_03" "sfcWind_04"
+ [69] "sfcWind_05" "sfcWind_06" "sfcWind_07" "sfcWind_08"
+ [73] "sfcWind_09" "sfcWind_10" "sfcWind_11" "sfcWind_12"
+ [77] "vapr_01"    "vapr_02"    "vapr_03"    "vapr_04"   
+ [81] "vapr_05"    "vapr_06"    "vapr_07"    "vapr_08"   
+ [85] "vapr_09"    "vapr_10"    "vapr_11"    "vapr_12"   
+ [89] "model"      "period"     "source"     "lm"        
+ [93] "Continent"  "Type"       "Name"       "Acronym"   
+ [97] "z"          "tmin"       "tmax"       "vapr"      
+[101] "srad"       "sfcWind"   
+
+```{r aridity-index-tho, eval = F}
+wdc.tho <- read.table("Worldclim/wdc.txt")
+
+wdc.tho <- wdc.tho %>% mutate(
+                 i_01 = (tas_01/5)^1.514,
+                 i_02 = (tas_02/5)^1.514,
+                 i_03 = (tas_03/5)^1.514,
+                 i_04 = (tas_04/5)^1.514,
+                 i_05 = (tas_05/5)^1.514,
+                 i_06 = (tas_06/5)^1.514,
+                 i_07 = (tas_07/5)^1.514,
+                 i_08 = (tas_08/5)^1.514,
+                 i_09 = (tas_09/5)^1.514,
+                 i_10 = (tas_10/5)^1.514,
+                 i_11 = (tas_11/5)^1.514,
+                 i_12 = (tas_12/5)^1.514,
+                 I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
+                 a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
+        ET0_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*tas_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+        ET0_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*tas_02/I)^a,
+        ET0_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*tas_03/I)^a,
+        ET0_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*tas_04/I)^a,
+        ET0_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*tas_05/I)^a,
+        ET0_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*tas_06/I)^a,
+        ET0_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*tas_07/I)^a,
+        ET0_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*tas_08/I)^a,
+        ET0_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*tas_09/I)^a,
+        ET0_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*tas_10/I)^a,
+        ET0_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tas_11/I)^a,
+        ET0_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tas_12/I)^a,
+        ET0 = ET0_01+ET0_02+ET0_03+ET0_04+ET0_05+ET0_06+ET0_07+ET0_08+ET0_09+ET0_10+ET0_11,ET0_12, # en mm
+        pr = pr_01*31 + pr_02*28 + pr_03*31 + pr_04*30 + pr_05*31 + pr_06*30 + pr_07*31 + pr_08*31 + pr_09*30 + pr_10*31 + pr_11*30 + pr_12*31,
+        AI = pr/ET0)
+  
+                
+
+
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
+
+wdc.tho$cat.AI <- wdc.tho$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+wdc.tho$cat.AI[which(wdc.tho$ET0 < 400)] <- "Cold"
+
+write.table(wdc.tho, "Worldclim/wdc.tho.txt")
+```
+
+```{r plot-maps}
+wdc <- read.table("Worldclim/wdc_AI.txt")
+
+ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = ET0))+
+  scale_fill_binned(type = "viridis", breaks = c(0, 400, 800, 1200, 1600))+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(wdc, lm == 1), aes(x=lon, y = lat,  fill = cat.AI))+
+  geom_raster(data = subset(wdc, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
+  scale_fill_manual(values = col.cat)+
+  labs(fill = "")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+
+```
+
 
 
 

@@ -536,118 +536,94 @@ write.table(cmip6, "cmip6/cmip6_AI.txt")
 
 ## AI Thornthwaite
 
-```{r cmip6-ai-thornwaite}
+```{r cmip6-ai-thornwaite, eval = F}
 id_vars <- c("lon","lat","model","period","lm", "Continent","Type","Name","Acronym","source")
 
 
 cmip6_01 <- mutate(read.table("cmip6/cmip6_january.txt"),
                    t_01 = tas - 273.15,
                    pr_01 = pr*60*60*24, # mm/day
-                   i_01 = (t_01/5)^1.514,
-                   a_01 = (6.751e-7)*i_01^3 - (7.7e-5)*i_01^2 + 0.01729*i_01 + 0.49239,
-                   e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_01/i_01)^a_01 #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                   i_01 = (t_01/5)^1.514
                    )                  
 
 cmip6_02 <- mutate(read.table("cmip6/cmip6_february.txt"),
                    t_02 = tas - 273.15,
                    pr_02 = pr*60*60*24, # mm/day
-                   i_02 = (t_02/5)^1.514,
-                   a_02 = (6.751e-7)*i_02^3 - (7.7e-5)*i_02^2 + 0.01729*i_02 + 0.49239,
-                   e_02 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_02/i_02)^a_02 #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
+                   i_02 = (t_02/5)^1.514
                    ) 
 
 cmip6_03 <- mutate(read.table("cmip6/cmip6_march.txt"),
                    t_03 = tas - 273.15,
                    pr_03 = pr*60*60*24, # mm/day
-                   i_03 = (t_03/5)^1.514,
-                   a_03 = (6.751e-7)*i_03^3 - (7.7e-5)*i_03^2 + 0.01729*i_03 + 0.49239,
-                   e_03 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_03/i_03)^a_03 
+                   i_03 = (t_03/5)^1.514
                    ) 
 
 cmip6_04 <- mutate(read.table("cmip6/cmip6_april.txt"),
                    t_04 = tas - 273.15,
                    pr_04 = pr*60*60*24, # mm/day
-                   i_04 = (t_04/5)^1.514,
-                   a_04 = (6.751e-7)*i_04^3 - (7.7e-5)*i_04^2 + 0.01729*i_04 + 0.49239,
-                   e_04 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_04/i_04)^a_04 
+                   i_04 = (t_04/5)^1.514
                    ) 
 
 cmip6_05 <- mutate(read.table("cmip6/cmip6_may.txt"),
                    t_05 = tas - 273.15,
                    pr_05 = pr*60*60*24, # mm/day
-                   i_05 = (t_05/5)^1.514,
-                   a_05 = (6.751e-7)*i_05^3 - (7.7e-5)*i_05^2 + 0.01729*i_05 + 0.49239,
-                   e_05 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_05/i_05)^a_05 
+                   i_05 = (t_05/5)^1.514 
                    ) 
 
 cmip6_06 <- mutate(read.table("cmip6/cmip6_june.txt"),
                    t_06 = tas - 273.15,
                    pr_06 = pr*60*60*24, # mm/day
-                   i_06 = (t_06/5)^1.514,
-                   a_06 = (6.751e-7)*i_06^3 - (7.7e-5)*i_06^2 + 0.01729*i_06 + 0.49239,
-                   e_06 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_06/i_06)^a_06 
+                   i_06 = (t_06/5)^1.514
                    ) 
 
 cmip6_07 <- mutate(read.table("cmip6/cmip6_july.txt"),
                    t_07 = tas - 273.15,
                    pr_07 = pr*60*60*24, # mm/day
-                   i_07 = (t_07/5)^1.514,
-                   a_07 = (6.751e-7)*i_07^3 - (7.7e-5)*i_07^2 + 0.01729*i_07 + 0.49239,
-                   e_07 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_07/i_07)^a_07 
+                   i_07 = (t_07/5)^1.514
                    ) 
 
 cmip6_08 <- mutate(read.table("cmip6/cmip6_august.txt"),
                    t_08 = tas - 273.15,
                    pr_08 = pr*60*60*24, # mm/day
-                   i_08 = (t_08/5)^1.514,
-                   a_08 = (6.751e-7)*i_08^3 - (7.7e-5)*i_08^2 + 0.01729*i_08 + 0.49239,
-                   e_08 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_08/i_08)^a_08 
+                   i_08 = (t_08/5)^1.514
                    ) 
 
 cmip6_09 <- mutate(read.table("cmip6/cmip6_september.txt"),
                    t_09 = tas - 273.15,
                    pr_09 = pr*60*60*24, # mm/day
-                   i_09 = (t_09/5)^1.514,
-                   a_09 = (6.751e-7)*i_09^3 - (7.7e-5)*i_09^2 + 0.01729*i_09 + 0.49239,
-                   e_09 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_09/i_09)^a_09 
+                   i_09 = (t_09/5)^1.514
                    ) 
 
 cmip6_10 <- mutate(read.table("cmip6/cmip6_october.txt"),
                    t_10 = tas - 273.15,
                    pr_10 = pr*60*60*24, # mm/day
-                   i_10 = (t_10/5)^1.514,
-                   a_10 = (6.751e-7)*i_10^3 - (7.7e-5)*i_10^2 + 0.01729*i_10 + 0.49239,
-                   e_10 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_10/i_10)^a_10 
+                   i_10 = (t_10/5)^1.514
                    ) 
 
 cmip6_11 <- mutate(read.table("cmip6/cmip6_november.txt"),
                    t_11 = tas - 273.15,
                    pr_11 = pr*60*60*24, # mm/day
-                   i_11 = (t_11/5)^1.514,
-                   a_11 = (6.751e-7)*i_11^3 - (7.7e-5)*i_11^2 + 0.01729*i_11 + 0.49239,
-                   e_11 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_11/i_11)^a_11 
+                   i_11 = (t_11/5)^1.514
                    ) 
 
 cmip6_12 <- mutate(read.table("cmip6/cmip6_december.txt"),
                    t_12 = tas - 273.15,
                    pr_12 = pr*60*60*24, # mm/day
-                   i_12 = (t_12/5)^1.514,
-                   a_12 = (6.751e-7)*i_12^3 - (7.7e-5)*i_12^2 + 0.01729*i_12 + 0.49239,
-                   e_12 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_12/i_12)^a_12 
+                   i_12 = (t_12/5)^1.514
                    ) 
 
-cmip6.tho <- select(cmip6_01, c(id_vars, "t_01", "pr_01","i_01","a_01","e_01")) %>%
-  merge(select(cmip6_02, c(id_vars, "t_02", "pr_02","i_02","a_02","e_02")), by = id_vars) %>%
-  merge(select(cmip6_03, c(id_vars, "t_03", "pr_03","i_03","a_03","e_03")), by = id_vars) %>%
-  merge(select(cmip6_04, c(id_vars, "t_04", "pr_04","i_04","a_04","e_04")), by = id_vars) %>%
-  merge(select(cmip6_05, c(id_vars, "t_05", "pr_05","i_05","a_05","e_05")), by = id_vars) %>%
-  merge(select(cmip6_06, c(id_vars, "t_06", "pr_06","i_06","a_06","e_06")), by = id_vars) %>%
-  merge(select(cmip6_07, c(id_vars, "t_07", "pr_07","i_07","a_07","e_07")), by = id_vars) %>%
-  merge(select(cmip6_08, c(id_vars, "t_08", "pr_08","i_08","a_08","e_08")), by = id_vars) %>%
-  merge(select(cmip6_09, c(id_vars, "t_09", "pr_09","i_09","a_09","e_09")), by = id_vars) %>%
-  merge(select(cmip6_10, c(id_vars, "t_10", "pr_10","i_10","a_10","e_10")), by = id_vars) %>%   
-  merge(select(cmip6_11, c(id_vars, "t_11", "pr_11","i_11","a_11","e_11")), by = id_vars) %>%
-  merge(select(cmip6_12, c(id_vars, "t_12", "pr_12","i_12","a_12","e_12")), by = id_vars) %>%
+cmip6.tho <- select(cmip6_01, c(id_vars, "t_01", "pr_01","i_01")) %>%
+  merge(select(cmip6_02, c(id_vars, "t_02", "pr_02","i_02")), by = id_vars) %>%
+  merge(select(cmip6_03, c(id_vars, "t_03", "pr_03","i_03")), by = id_vars) %>%
+  merge(select(cmip6_04, c(id_vars, "t_04", "pr_04","i_04")), by = id_vars) %>%
+  merge(select(cmip6_05, c(id_vars, "t_05", "pr_05","i_05")), by = id_vars) %>%
+  merge(select(cmip6_06, c(id_vars, "t_06", "pr_06","i_06")), by = id_vars) %>%
+  merge(select(cmip6_07, c(id_vars, "t_07", "pr_07","i_07")), by = id_vars) %>%
+  merge(select(cmip6_08, c(id_vars, "t_08", "pr_08","i_08")), by = id_vars) %>%
+  merge(select(cmip6_09, c(id_vars, "t_09", "pr_09","i_09")), by = id_vars) %>%
+  merge(select(cmip6_10, c(id_vars, "t_10", "pr_10","i_10")), by = id_vars) %>%   
+  merge(select(cmip6_11, c(id_vars, "t_11", "pr_11","i_11")), by = id_vars) %>%
+  merge(select(cmip6_12, c(id_vars, "t_12", "pr_12","i_12")), by = id_vars) %>%
   mutate(I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
           a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
         ET0_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*t_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
@@ -663,7 +639,7 @@ cmip6.tho <- select(cmip6_01, c(id_vars, "t_01", "pr_01","i_01","a_01","e_01")) 
         ET0_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*t_11/I)^a,
         ET0_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*t_12/I)^a,
         ET0 = ET0_01+ET0_02+ET0_03+ET0_04+ET0_05+ET0_06+ET0_07+ET0_08+ET0_09+ET0_10+ET0_11,ET0_12, # en mm
-        pr = pr_01+pr_02+pr_03+pr_04+pr_05+pr_06+pr_07+pr_08+pr_09+pr_10+pr_11+pr_12,
+        pr = pr_01*31 + pr_02*28 + pr_03*31 + pr_04*30 + pr_05*31 + pr_06*30 + pr_07*31 + pr_08*31 + pr_09*30 + pr_10*31 + pr_11*30 + pr_12*31,
         AI = pr/ET0)
 
 breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
@@ -674,40 +650,14 @@ cmip6.tho$cat.AI <- cmip6.tho$AI %>% cut(breaks = breaks.unesco) %>% revalue(cat
 cmip6.tho$cat.AI[which(cmip6.tho$ET0 < 400)] <- "Cold"
 cmip6.tho$cat.AI %>% unique()
 
-write.table(cmip6.tho, "cmip6/cmip6.tho.txt")
-# cmip6.tho <- mutate(cmip6.tho, i_01 = (tmean_01/5)^1.514,
-#                     i_02 = (tmean_02/5)^1.514,
-#                     i_03 = (tmean_03/5)^1.514,
-#                     i_04 = (tmean_04/5)^1.514,
-#                     i_05 = (tmean_05/5)^1.514,
-#                     i_06 = (tmean_06/5)^1.514,
-#                     i_07 = (tmean_07/5)^1.514,
-#                     i_08 = (tmean_08/5)^1.514,
-#                     i_09 = (tmean_09/5)^1.514,
-#                     i_10 = (tmean_10/5)^1.514,
-#                     i_11 = (tmean_11/5)^1.514,
-#                     i_12 = (tmean_12/5)^1.514,
-#                     I = i_01+i_02+i_03+i_04+i_05+i_06+i_07+i_08+i_09+i_10+i_11+i_12,
-#                     a = (6.751e-7)*I^3 - (7.7e-5)*I^2 + 0.01729*I + 0.49239,
-#                     e_01 = 16* geosphere::daylength(lat,"2000-01-15")/12* 31 /30*(10*tmean_01/I)^a, #Ep = 16 * L/12 * N/30 * (10T/I) ^a, L is length of daylight, N number of days in month
-#                     e_02 = 16* geosphere::daylength(lat,"2000-02-15")/12* 28 /30*(10*tmean_02/I)^a,
-#                     e_03 = 16* geosphere::daylength(lat,"2000-03-15")/12* 31 /30*(10*tmean_03/I)^a,
-#                     e_04 = 16* geosphere::daylength(lat,"2000-04-15")/12* 30 /30*(10*tmean_04/I)^a,
-#                     e_05 = 16* geosphere::daylength(lat,"2000-05-15")/12* 31 /30*(10*tmean_05/I)^a,
-#                     e_06 = 16* geosphere::daylength(lat,"2000-06-15")/12* 30 /30*(10*tmean_06/I)^a,
-#                     e_07 = 16* geosphere::daylength(lat,"2000-07-15")/12* 31 /30*(10*tmean_07/I)^a,
-#                     e_08 = 16* geosphere::daylength(lat,"2000-08-15")/12* 31 /30*(10*tmean_08/I)^a,
-#                     e_09 = 16* geosphere::daylength(lat,"2000-09-15")/12* 30 /30*(10*tmean_09/I)^a,
-#                     e_10 = 16* geosphere::daylength(lat,"2000-10-15")/12* 31 /30*(10*tmean_10/I)^a,
-#                     e_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tmean_11/I)^a,
-#                     e_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tmean_12/I)^a,
-#                     ET = e_01+e_02+e_03+e_04+e_05+e_06+e_07+e_08+e_09+e_10+e_11,e_12, # en mm
-#                     AI = pre/ET)
+cmip6.tho$Tave <- rowMeans(cmip6.tho[,grep("t_",names(cmip6.tho))])
 
+write.table(cmip6.tho, "cmip6/cmip6.tho.txt")
 ```
 
 
-# Maps AI UNESCO by model, all % calculated without Antarctica
+
+# Maps AI FAO by model, all % calculated without Antarctica
 
 ```{r read-data, cache = T}
 cmip6 <- read.table("cmip6/cmip6_AI.txt")
@@ -1152,8 +1102,8 @@ cmip6.tho <- read.table("cmip6/cmip6.tho.txt")
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "1850_1880" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "1850_1880" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "1850-1880", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1195,8 +1145,8 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "1970_2000" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "1970_2000" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "1970-2000", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1223,7 +1173,7 @@ for(i in unique(pie$source)){
   p <- ggplot(subset(pie, source == i))+
     geom_bar(aes(x = "", y = count, fill = value), width = 1, stat = "identity")+
     coord_polar("y", start = 0)+
-    scale_fill_manual(values = col.cat)+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     geom_label_repel(aes(x = "", y = lab.y, label = perc), nudge_x = 0.5)+
     labs(fill = "", title = i)+
     theme_void()+theme(legend.position = "right")
@@ -1236,14 +1186,14 @@ ggpubr::ggarrange(plotlist = pie_list, nrow = 4, ncol = 4, common.legend = T, le
 ```{r pie-multimodel-cmip6-thornthwaite}
 pie <- cmip6.tho %>% subset(period == "1970_2000" & !Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55) %>%
   select(c("cat.AI")) %>%
-  table() %>% as.data.frame() %>%
+  table(useNA = "ifany") %>% as.data.frame() %>%
   mutate(perc = round(Freq/sum(Freq)*100, 1),
    lab.y = rev(cumsum(rev(Freq))) - Freq*0.5) 
 
 p <- ggplot(pie)+
     geom_bar(aes(x = "", y = Freq, fill = cat.AI), width = 1, stat = "identity")+
     coord_polar("y", start = 0)+
-    scale_fill_manual(values = col.cat)+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     geom_label_repel(aes(x = "", y = lab.y, label = perc), nudge_x = 0.5)+
     labs(fill = "", title = "Multimodel CMIP6")+
     theme_void()+theme(legend.position = "right")
@@ -1283,8 +1233,9 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "1985_2015" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "1985_2015" & source == i)) + 
+    geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "1985-2010", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1328,8 +1279,8 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "2030_2060" & model == "SSP245" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "2030_2060" & model == "SSP245" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "2030-2060", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1369,8 +1320,8 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "2070_2100" & model == "SSP245" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "2070_2100" & model == "SSP245" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, , na.value = "gray90")+
     labs(title = paste(i, "2070-2100", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1411,8 +1362,8 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "2030_2060" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "2030_2060" & model == "SSP370" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, , na.value = "gray90")+
     labs(title = paste(i, "2030-2060", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1421,7 +1372,8 @@ for(i in unique(cmip6.tho$source)){
 ggpubr::ggarrange(plotlist = map_list, ncol = 3, nrow = 5, common.legend = T, legend = "bottom")
 ```
 
-```{r table-of-percent-SSP370-2030-thornthwaite}
+```{r table-of-percent-SSP370-2030-thornthwaite, eval = F}
+# as of now, not all categories are represented
 sdmm <- cmip6.tho %>% subset(period == "2030_2060" & model == "SSP370" &!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC")) %>%
   group_by(source, cat.AI) %>%
   summarise(count = n()) %>%
@@ -1429,7 +1381,7 @@ sdmm <- cmip6.tho %>% subset(period == "2030_2060" & model == "SSP370" &!Contine
   ungroup() %>% group_by(cat.AI) %>% summarise(mean = round(mean(percent, na.rm = T),1), sd = round(sd(percent, na.rm = T),1)) %>%
   t() %>% as.data.frame() %>% setNames(c(.[1,1:6], "NA")) %>% .[-1, ] %>% sapply(as.numeric) %>% as.data.frame() %>%
   mutate("Sum drylands" = rowSums(.[c("Hyperarid","Arid","Semi-arid","Dry subhumid")]), "source" = c("mean","sd")) %>%
-  select(c("source","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
+  select(c("source","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","NA"))
 
 tab <- cmip6.tho %>% subset(period == "2030_2060" & model == "SSP370"  & !Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55) %>%
   group_by(source, cat.AI) %>%
@@ -1451,8 +1403,8 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "2070_2100" & model == "SSP370" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "2070_2100" & model == "SSP370" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "2070-2100", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1467,7 +1419,7 @@ sdmm <- cmip6.tho %>% subset(period == "2070_2100" & model == "SSP370" &!Contine
   summarise(count = n()) %>%
   ungroup() %>% group_by(source) %>% mutate(percent = round(count/sum(count)*100, 1), count = NULL) %>%
   ungroup() %>% group_by(cat.AI) %>% summarise(mean = round(mean(percent, na.rm = T),1), sd = round(sd(percent, na.rm = T),1)) %>%
-  t() %>% as.data.frame() %>% setNames(c(.[1,1:6], "NA")) %>% .[-1, ] %>% sapply(as.numeric) %>% as.data.frame() %>%
+  t() %>% as.data.frame() %>% setNames(c(.[1,1:5], "NA")) %>% .[-1, ] %>% sapply(as.numeric) %>% as.data.frame() %>%
   mutate("Sum drylands" = rowSums(.[c("Hyperarid","Arid","Semi-arid","Dry subhumid")]), "source" = c("mean","sd")) %>%
   select(c("source","Hyperarid","Arid","Semi-arid","Dry subhumid","Sum drylands","Humid","Cold","NA"))
 
@@ -1493,8 +1445,9 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "2030_2060" & model == "SSP585" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "2030_2060" & model == "SSP585" & source == i)) + 
+    geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "2030-2060", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1533,8 +1486,8 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
 map_list <- list()
 
 for(i in unique(cmip6.tho$source)){
-  g <- ggplot(data = subset(cmip6.tho, period == "2070_2100" & model == "SSP585" & source == i)) + geom_raster(aes(x=lon, y = lat,  fill = cat.AI))+
-    scale_fill_manual(values = col.cat, na.translate = F)+
+  g <- ggplot(data = subset(cmip6.tho, period == "2070_2100" & model == "SSP585" & source == i)) + geom_tile(aes(x=lon, y = lat,  fill = cat.AI))+
+    scale_fill_manual(values = col.cat, na.value = "gray90")+
     labs(title = paste(i, "2070-2100", sep = ", "), fill = "")+
     theme_void()
   map_list[[i]] <- g
@@ -1567,7 +1520,7 @@ knitr::kable(tab, digits = 2, escape = F)  %>%
   column_spec(c(6,9), italic = T, include_thead = T) %>% row_spec(c(13,14), bold = T) 
 ```
 
-# Multimodel average
+# Multimodel average AI FAO
 
 Here we compute the multimodel mean and median aridity index. We compare the category obtained by using the mean aridity index (cat.mean) to the category obtained in most models (cat.maj).
 
@@ -1952,7 +1905,7 @@ ggplot(subset(table, period == "1970_2000"), aes(x = cat.AI))+
 
 ```
 
-# Maps multimodel AI
+# Maps multimodel AI FAO 
 
 ```{r read-cmip6s-map-multimodel, eval = F}
 
@@ -2123,6 +2076,348 @@ for(i in c("SSP245","SSP370","SSP585")){
   }}
 
 ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+
+
+# Multimodel average AI Thornthwaite
+
+Here we compute the multimodel mean and median aridity index. We compare the category obtained by using the mean aridity index (cat.mean) to the category obtained in most models (cat.maj).
+
+## Summary dataframe
+
+### Difference with AI ref for all SSP 
+
+Compute the difference between future AI, precipitation and temperature for future scenarios, for all models. 
+
+```{r diff-AI-cmip6-tho, eval = F}
+cmip6.tho <- read.table("cmip6/cmip6.tho.txt")
+
+cmip6.tho.ref <- cmip6.tho %>% filter(period == "1970_2000") %>% select(c("lon","lat","model","period","source","AI","pr","Tave","ET0")) %>% setNames(c("lon","lat","model","period","source","AI.ref","pr.ref","Tave.ref","ET0.ref"))
+
+cmip6.tho.ext <- merge(cmip6.tho, select(cmip6.tho.ref, c("lon","lat","source","AI.ref","pr.ref","Tave.ref","ET0.ref")) , by = c("lon","lat","source"), all = T) %>%  mutate(diff.AI = AI - AI.ref, diff.pr = pr - pr.ref, diff.t = Tave - Tave.ref, diff.ET0 = ET0 - ET0.ref)
+
+write.table(cmip6.tho.ext, "cmip6/cmip6.tho.ext.txt")
+```
+
+Create a summary table with multimodel average. 
+
+```{r agreement-between-models-thornthwaite, eval = F}
+cmip6.tho.ext <- read.table("cmip6/cmip6ext.txt")
+cmip6s.tho <- cmip6.tho.ext %>% 
+  group_by(lon,lat,Continent, Type, Name, Acronym, lm, model, period) %>% 
+  dplyr::summarise(t.mean = mean(Tave, na.rm = T), t.sd = sd(Tave, na.rm = T), # t in °C
+                   pr.mean = mean(pr, na.rm = T) , pr.sd = sd(pr, na.rm = T),  # pr in mm/y
+                   ET0 = mean(ET0, na.rm = T), et0.sd = sd(ET0, na.rm = T), # in mm/y
+                   ET0.ref = mean(ET0.ref, na.rm = T), ET0.ref.sd = sd(ET0.ref, na.rm = T), # in mm/y
+                   diff.ET0.mean = mean(diff.ET0, na.rm = T), diff.ET0.sd = sd(diff.ET0, na.rm = T),
+                   AI.mean = mean(AI, na.rm = T), AI.sd = sd(AI, na.rm = T),
+                   AI.med = median(AI, na.rm = T),
+                   AI.ref.mean = mean(AI.ref, na.rm = T), AI.ref.sd = sd(AI.ref, na.rm = T),
+                   AI.ref.med = median(AI.ref, na.rm = T),
+                   diff.AI.mean = mean(diff.AI, na.rm = T), diff.AI.sd = sd(diff.AI, na.rm = T),
+                   diff.AI.med = median(diff.AI, na.rm = T), 
+                   pr.ref.mean = mean(pr.ref, na.rm = T), pr.ref.sd = sd(pr.ref, na.rm = T),
+                   diff.pr.mean = mean(diff.pr, na.rm = T), diff.pr.sd = sd(diff.pr, na.rm = T),
+                   t.ref.mean = mean(Tave.ref, na.rm = T), t.ref.sd = sd(Tave.ref, na.rm =T),
+                   diff.t.mean = mean(diff.t, na.rm = T), diff.t.sd = sd(diff.t, na.rm = T),
+                   Hyperarid = sum(cat.AI == "Hyperarid"),
+                   Arid = sum(cat.AI == "Arid"),
+                   'Semi-arid' = sum(cat.AI == "Semi-arid"),
+                   'Dry subhumid' = sum(cat.AI == "Dry subhumid") ,
+                   'Humid' = sum(cat.AI == "Humid"),
+                   'Cold' = sum(cat.AI == "Cold"),
+                   'NA' = sum(is.na(cat.AI)),
+                   nb.models = n(),
+                    plus.AI = table(diff.AI > 0)["TRUE"],
+                    minus.AI = table(diff.AI < 0)["TRUE"]) %>%
+ungroup() %>% as.data.frame()
+
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
+
+cmip6s.tho$cat.AI <- cmip6s.tho$AI.mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6s.tho$cat.AI[which(cmip6s.tho$ET0 < 400)] <- "Cold"
+
+cmip6s.tho$cat.maj <- colnames(select(cmip6s.tho, c("Hyperarid","Arid",'Semi-arid',"Dry subhumid",'Humid',"Cold","NA")))[max.col(select(cmip6s.tho, c("Hyperarid","Arid",'Semi-arid',"Dry subhumid",'Humid',"Cold","NA")),ties.method = "first")]
+cmip6s.tho$nb.maj <- cmip6s.tho %>% select(c("Hyperarid","Arid",'Semi-arid',"Dry subhumid",'Humid',"Cold","NA")) %>% apply(1, max)
+cmip6s.tho$prop.maj <- with(cmip6s.tho, nb.maj / nb.models)
+
+
+
+cmip6s.tho$cat.AI.ref <- cmip6s.tho$AI.ref.mean %>% cut(breaks = breaks.unesco) %>% revalue(cat.unesco)
+cmip6s.tho$cat.AI.ref[which(cmip6s.tho$ET0.ref < 400)] <- "Cold"
+
+cmip6s.tho$cat.dryer <- with(cmip6s.tho, 
+          ifelse(cat.AI.ref == "Arid" & cat.AI %in% c("Cold","Humid","Dry subhumid","Semi-arid"), "wetter", 
+          ifelse(cat.AI.ref == "Arid" & cat.AI == "Hyperarid", "dryer",
+          ifelse(cat.AI.ref == "Semi-arid" & cat.AI %in% c("Cold","Humid","Dry subhumid"), "wetter",
+          ifelse(cat.AI.ref == "Semi-arid" & cat.AI %in% c("Hyperarid","Arid"), "dryer",
+          ifelse(cat.AI.ref == "Dry subhumid" & cat.AI %in% c("Cold","Humid"), "wetter",
+          ifelse(cat.AI.ref == "Dry subhumid" & cat.AI %in% c("Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.ref == "Humid" & cat.AI == "Cold","wetter",
+          ifelse(cat.AI.ref == "Humid" & cat.AI %in% c("Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.ref == "Cold" & cat.AI %in% c("Humid","Dry subhumid","Semi-arid","Arid","Hyperarid"), "dryer",
+          ifelse(cat.AI.ref == "Hyperarid" & cat.AI %in% c("Cold","Humid","Dry subhumid","Semi-arid","Arid"), "wetter",
+          ifelse(cat.AI.ref == cat.AI, "same",
+          NA))))))))))))
+
+cmip6s.tho$Continent[which(cmip6s.tho$Continent == "EUROPE-AFRICA")] <- "MED-BASIN"
+
+write.table(cmip6s.tho, "cmip6/cmip6s.tho.txt")
+
+```
+
+```{r read-cmip6s-tho}
+cmip6s.tho <- read.table("cmip6/cmip6s.tho.txt")
+```
+
+## Multimodel maps of cat mean
+
+```{r map-historical-changes-AI-thornthwaite-catmean, fig.dim = c(3, 8)}
+
+cmip6s.tho$cat.AI <- factor(cmip6s.tho$cat.AI, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
+
+map_list <- list()
+
+for(i in c("1850_1880", "1970_2000","1985_2015")){
+  g <- ggplot() + 
+    geom_tile(data = subset(cmip6s.tho, period == i & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI))+
+    geom_point(data = subset(cmip6s.tho,nb.maj > 10), aes(x = lon, y = lat), shape = ".", col = "grey20", size = 0.1)+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.value = "gray90")+
+    labs(title = paste("Category AI",i , sep = " "), fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom")
+  map_list[[i]] <- g
+}
+
+ggarrange(plotlist = map_list, ncol = 1, nrow = 3, common.legend = T, legend = "bottom")
+
+```
+
+```{r map-future-categories-AI-tho, fig.dim = c(10,10)}
+
+map_list <- list()
+
+for(i in c("SSP245","SSP370","SSP585")){
+  for (j in c("2030_2060","2070_2100")){
+    index <- paste(i, j, sep = " , ")
+    g <- ggplot() + 
+      geom_tile(data = subset(cmip6s.tho, period == j & model == i), aes(x=lon, y = lat,  fill = cat.AI))+
+      geom_point(data = subset(cmip6s.tho,nb.maj > 10), aes(x = lon, y = lat), shape = ".", col = "grey20", size = 0.1)+
+      borders(colour = "grey60")+
+      scale_fill_manual(values =  col.cat, na.value = "gray90")+
+      labs(title = paste("Category AI",index, sep = " "), fill = "")+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom")
+    map_list[[index]] <- g
+  }}
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+```{r map-historical-changes-AI-catmean-just-borders-tho, fig.dim = c(10, 6)}
+
+cmip6s.tho$cat.AI <- factor(cmip6s.tho$cat.AI, levels = c("Hyperarid","Arid","Semi-arid","Dry subhumid","Humid","Cold"))
+
+ggplot() + 
+    geom_tile(data = subset(cmip6s.tho, period == "1970_2000" & model == "historical"), aes(x=lon, y = lat,  fill = cat.AI))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "Category AI 1970-2000", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom")
+
+ggplot() + 
+    geom_tile(data = subset(cmip6s.tho, period == "2070_2100" & model == "SSP585"), aes(x=lon, y = lat,  fill = cat.AI))+
+    borders(colour = "grey60")+
+    scale_fill_manual(values =  col.cat, na.translate = F)+
+    labs(title = "Category AI 2070-2100, SSP 585", fill = "")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "bottom")
+  map_list[[i]] <- g
+
+
+```
+
+
+## Table of multimodel average category in percent, thornthwaite
+
+```{r percent-categories-thornthwaite}
+table.percent <- cmip6s.tho %>%  subset(!Continent %in% c("SOUTHERN","PACIFIC","ATLANTIC","INDIAN","ARCTIC") & lat > -55) %>%
+  select(period, model, cat.AI) %>% group_by(period, model, cat.AI) %>% summarise(count = n()) %>% 
+  ungroup() %>% group_by(period, model) %>% mutate(percent = round(count/sum(count)*100,1))
+
+
+ggplot(subset(table.percent, period == "1970_2000"), aes(x = cat.AI))+
+  geom_col(aes(y = percent, fill = "mean"), position = position_nudge(x = - 0.2), width = 0.4)+
+  scale_fill_manual(values = c("#ABD9E9", "#FDAE61"))+
+  labs(x="Aridity category", fill = "Using mean or median")+
+  theme_minimal()
+
+
+```
+
+# Maps multimodel AI Thornthwaite
+
+```{r read-cmip6s-thornthwaite-map-multimodel, eval = F}
+
+cmip6s.tho <- read.table("cmip6/cmip6s.tho.txt")
+
+```
+
+## Map AI thornthwaite mean
+
+```{r aridity-index-thornthwaite}
+quantile(cmip6s.tho$AI.mean, probs = seq(0,1,0.1), na.rm = T) 
+
+ai.breaks <- c(0,0.03,0.2,0.5,0.65,1,10,20,30)
+colscale <- brewer.pal(n = 11, name ="RdYlBu")[-c(5,6)]
+```
+
+```{r map-historical-changes-quantiles-AI-thornthwaite, fig.dim = c(5,10)}
+map_list <- list()
+
+for(i in c("1850_1880", "1970_2000","1985_2015")){
+  g <- ggplot() + geom_raster(data = subset(cmip6s.tho, period == i & model == "historical"), aes(x=lon, y = lat,  fill = AI.mean))+
+    borders(colour = "grey60")+
+    binned_scale(aesthetics = "fill", breaks = ai.breaks, palette = function(x) colscale,
+                 guide = guide_legend(label.theme = element_text(angle = 0)))+
+    labs(title = i, fill = "Aridity index")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "right")
+  map_list[[i]] <- g
+}
+
+ggpubr::ggarrange(plotlist = map_list, ncol = 1, nrow = 3, common.legend = T, legend = "bottom")
+
+```
+
+```{r map-future-changes-quantiles-AI-thornthwaite, fig.dim = c(10,10)}
+
+map_list <- list()
+
+for(i in c("SSP245","SSP370","SSP585")){
+  for (j in c("2030_2060","2070_2100")){
+    index <- paste(i, j, sep = " , ")
+    g <- ggplot() + geom_raster(data = subset(cmip6s.tho, period == j & model == i), aes(x=lon, y = lat,  fill = AI.mean))+
+      borders(colour = "grey60")+
+      binned_scale(aesthetics = "fill", breaks = ai.breaks, palette = function(x) colscale,
+                   guide = guide_legend(label.theme = element_text(angle = 0)))+
+      labs(fill = "Aridity index", title = index)+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom")
+    map_list[[index]] <- g
+  }}
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+## Map AI CoV
+
+```{r map-historical-changes-quantiles-AI-thornthwaite-cov, fig.dim = c(5,10)}
+map_list <- list()
+
+for(i in c("1850_1880", "1970_2000","1985_2015")){
+  g <- ggplot() + geom_raster(data = subset(cmip6s.tho, period == i & model == "historical"), aes(x=lon, y = lat,  fill = AI.sd/AI.mean))+
+              geom_point(data = subset(cmip6s.tho, period == i & model == "historical" & plus.AI > 10), aes(x=lon, y = lat), shape = "+", col = "grey20", size = 0.5)+
+       geom_point(data = subset(cmip6s.tho,  period == i & model == "historical"  & minus.AI > 10), aes(x=lon, y = lat), shape = "-", col = "grey20", size = 0.5)+
+    borders(colour = "grey60")+
+    binned_scale(aesthetics = "fill", breaks = c(0.3,0.5,1), palette = function(x) c( "#6baed6","#c6dbef", "#fddbc7", "#d6604d"))+
+    labs(title = i, fill = "CoV Aridity index")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "right")
+  map_list[[i]] <- g
+}
+
+ggpubr::ggarrange(plotlist = map_list, ncol = 1, nrow = 3, common.legend = T, legend = "bottom")
+
+```
+
+```{r map-future-changes-quantiles-AI-thornthwaite-cov, fig.dim = c(10,10)}
+
+map_list <- list()
+
+for(i in c("SSP245","SSP370","SSP585")){
+  for (j in c("2030_2060","2070_2100")){
+    index <- paste(i, j, sep = " , ")
+    g <- ggplot() + geom_raster(data = subset(cmip6s.tho, period == j & model == i), aes(x=lon, y = lat,  fill = AI.sd/AI.mean))+
+        geom_point(data = subset(cmip6s.tho, period == i & model == i & plus.AI > 10), aes(x=lon, y = lat), shape = "+", col = "grey20", size = 0.5)+
+       geom_point(data = subset(cmip6s.tho,  period == i & model == i  & minus.AI > 10), aes(x=lon, y = lat), shape = "-", col = "grey20", size = 0.5)+
+      borders(colour = "grey60")+
+    binned_scale(aesthetics = "fill", breaks = c(0.3,0.5,1), palette = function(x) c( "#6baed6","#c6dbef", "#fddbc7", "#d6604d"))+
+      labs(fill = "CoV Aridity index", title = index)+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom")
+    map_list[[index]] <- g
+  }}
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+## Map ET0 CoV
+
+```{r map-historical-changes-quantiles-ET0-thornthwaite-cov, fig.dim = c(5,10)}
+map_list <- list()
+
+for(i in c("1850_1880", "1970_2000","1985_2015")){
+  g <- ggplot() + geom_raster(data = subset(cmip6s.tho, period == i & model == "historical"), aes(x=lon, y = lat,  fill = ET0.sd/ET0))+
+    borders(colour = "grey60")+
+    binned_scale(aesthetics = "fill", breaks = c(0.3,0.5,1), palette = function(x) c( "#6baed6","#c6dbef", "#fddbc7", "#d6604d"))+
+    labs(title = i, fill = "CoV ET0")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "right")
+  map_list[[i]] <- g
+}
+
+ggpubr::ggarrange(plotlist = map_list, ncol = 1, nrow = 3, common.legend = T, legend = "bottom")
+
+```
+
+```{r map-future-changes-quantiles-ET0-thornthwaite-cov, fig.dim = c(10,10)}
+
+map_list <- list()
+
+for(i in c("SSP245","SSP370","SSP585")){
+  for (j in c("2030_2060","2070_2100")){
+    index <- paste(i, j, sep = " , ")
+    g <- ggplot() + geom_raster(data = subset(cmip6s.tho, period == j & model == i), aes(x=lon, y = lat,  fill = ET0.sd/ET0))+
+      borders(colour = "grey60")+
+    binned_scale(aesthetics = "fill", breaks = c(0.3,0.5,1), palette = function(x) c( "#6baed6","#c6dbef", "#fddbc7", "#d6604d"))+
+      labs(fill = "CoV ET0", title = index)+
+      theme_void()+ylim(-55,90)+
+      theme(legend.position = "bottom")
+    map_list[[index]] <- g
+  }}
+
+ggpubr::ggarrange(plotlist = map_list,ncol = 2, nrow = 3, common.legend = T, legend = "bottom")
+```
+
+
+
+
+
+
+
+# Comparison multimodel PM and Thornthwaite
+
+```{r maps-comparison}
+pm.tho <- merge(
+  select(filter(cmip6s, period = "1970_2000"), c("lon","lat","ET0","AI")),
+  select(filter(cmip6s.tho, period = "1970_2000"), c("lon","lat","ET0","AI")),
+  by = c("lon","lat")
+)
+
+
+ggplot() + geom_raster(), aes(x=lon, y = lat,  fill = AI.mean))+
+    borders(colour = "grey60")+
+    binned_scale(aesthetics = "fill", breaks = ai.breaks, palette = function(x) colscale,
+                 guide = guide_legend(label.theme = element_text(angle = 0)))+
+    labs(title = i, fill = "Aridity index")+
+    theme_void()+ylim(-55,90)+
+    theme(legend.position = "right")
+
 ```
 
 
