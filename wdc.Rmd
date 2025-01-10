@@ -513,7 +513,7 @@ wdc.tho <- wdc.tho %>% mutate(
         ET0_11 = 16* geosphere::daylength(lat,"2000-11-15")/12* 30 /30*(10*tas_11/I)^a,
         ET0_12 = 16* geosphere::daylength(lat,"2000-12-15")/12* 31 /30*(10*tas_12/I)^a,
         ET0 = ET0_01+ET0_02+ET0_03+ET0_04+ET0_05+ET0_06+ET0_07+ET0_08+ET0_09+ET0_10+ET0_11,ET0_12, # en mm
-        pr = pr_01*31 + pr_02*28 + pr_03*31 + pr_04*30 + pr_05*31 + pr_06*30 + pr_07*31 + pr_08*31 + pr_09*30 + pr_10*31 + pr_11*30 + pr_12*31,
+        pr = pr_01 + pr_02 + pr_03 + pr_04 + pr_05 + pr_06 + pr_07 + pr_08 + pr_09 + pr_10 + pr_11 + pr_12, # in worldclim the monthly precipitation are already the sum of the mean daily precipitation  
         AI = pr/ET0)
   
                 
@@ -529,16 +529,16 @@ wdc.tho$cat.AI[which(wdc.tho$ET0 < 400)] <- "Cold"
 write.table(wdc.tho, "Worldclim/wdc.tho.txt")
 ```
 
-```{r plot-maps}
-wdc <- read.table("Worldclim/wdc_AI.txt")
+```{r plot-maps-tho}
+wdc.tho <- read.table("Worldclim/wdc.tho.txt")
 
-ggplot() + geom_tile(data = wdc, aes(x=lon, y = lat,  fill = ET0))+
-  scale_fill_binned(type = "viridis", breaks = c(0, 400, 800, 1200, 1600))+
+ggplot() + geom_tile(data = wdc.tho, aes(x=lon, y = lat,  fill = ET0))+
+  scale_fill_binned(type = "viridis", breaks = c(0, 400, 800, 1200, 1600), na.value = "gray90")+
   theme_void()+
   theme(legend.position = "bottom")
 
-ggplot() + geom_raster(data = subset(wdc, lm == 1), aes(x=lon, y = lat,  fill = cat.AI))+
-  geom_raster(data = subset(wdc, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
+ggplot() + geom_raster(data = subset(wdc.tho, lm == 1), aes(x=lon, y = lat,  fill = cat.AI))+
+  geom_raster(data = subset(wdc.tho, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
   scale_fill_manual(values = col.cat)+
   labs(fill = "")+
   ylim(-55,90)+
@@ -550,165 +550,173 @@ ggplot() + geom_raster(data = subset(wdc, lm == 1), aes(x=lon, y = lat,  fill = 
 
 
 
+## Aridity index with Hargreaves
 
-```{r knit-exit}
-knitr::knit_exit()
+[1] "lon"        "lat"        "tas"        "tas_01"    
+  [5] "tas_02"     "tas_03"     "tas_04"     "tas_05"    
+  [9] "tas_06"     "tas_07"     "tas_08"     "tas_09"    
+ [13] "tas_10"     "tas_11"     "tas_12"     "tmin_01"   
+ [17] "tmin_02"    "tmin_03"    "tmin_04"    "tmin_05"   
+ [21] "tmin_06"    "tmin_07"    "tmin_08"    "tmin_09"   
+ [25] "tmin_10"    "tmin_11"    "tmin_12"    "tmax_01"   
+ [29] "tmax_02"    "tmax_03"    "tmax_04"    "tmax_05"   
+ [33] "tmax_06"    "tmax_07"    "tmax_08"    "tmax_09"   
+ [37] "tmax_10"    "tmax_11"    "tmax_12"    "pr"        
+ [41] "pr_01"      "pr_02"      "pr_03"      "pr_04"     
+ [45] "pr_05"      "pr_06"      "pr_07"      "pr_08"     
+ [49] "pr_09"      "pr_10"      "pr_11"      "pr_12"     
+ [53] "srad_01"    "srad_02"    "srad_03"    "srad_04"   
+ [57] "srad_05"    "srad_06"    "srad_07"    "srad_08"   
+ [61] "srad_09"    "srad_10"    "srad_11"    "srad_12"   
+ [65] "sfcWind_01" "sfcWind_02" "sfcWind_03" "sfcWind_04"
+ [69] "sfcWind_05" "sfcWind_06" "sfcWind_07" "sfcWind_08"
+ [73] "sfcWind_09" "sfcWind_10" "sfcWind_11" "sfcWind_12"
+ [77] "vapr_01"    "vapr_02"    "vapr_03"    "vapr_04"   
+ [81] "vapr_05"    "vapr_06"    "vapr_07"    "vapr_08"   
+ [85] "vapr_09"    "vapr_10"    "vapr_11"    "vapr_12"   
+ [89] "model"      "period"     "source"     "lm"        
+ [93] "Continent"  "Type"       "Name"       "Acronym"   
+ [97] "z"          "tmin"       "tmax"       "vapr"      
+[101] "srad"       "sfcWind"   
+
+```{r aridity-index-har eval = F}
+wdc.har <- read.table("Worldclim/wdc.txt")
+
+
+  
+wdc.har$tmax <- apply(dplyr::select(wdc.har, c("tmax_01", "tmax_02", "tmax_03", "tmax_04", "tmax_05", "tmax_06", "tmax_07", "tmax_08", "tmax_09", "tmax_10", "tmax_11", "tmax_12")), 1, max, na.rm = T)
+wdc.har$tmin <- apply(dplyr::select(wdc.har, c("tmin_01", "tmin_02", "tmin_03", "tmin_04", "tmin_05", "tmin_06", "tmin_07", "tmin_08", "tmin_09", "tmin_10", "tmin_11", "tmin_12")), 1, min, na.rm = T)
+
+wdc.har <- wdc.har %>% 
+  mutate(psi = pi/180*lat, # latitude in radian
+  delta_01 = 0.409 * sin(2*pi/365*yday("1985-01-15")-1.39), #solar declination
+  delta_02 = 0.409 * sin(2*pi/365*yday("1985-02-15")-1.39), #solar declination
+  delta_03 = 0.409 * sin(2*pi/365*yday("1985-03-15")-1.39), #solar declination
+  delta_04 = 0.409 * sin(2*pi/365*yday("1985-04-15")-1.39), #solar declination
+  delta_05 = 0.409 * sin(2*pi/365*yday("1985-05-15")-1.39), #solar declination
+  delta_06 = 0.409 * sin(2*pi/365*yday("1985-06-15")-1.39), #solar declination
+  delta_07 = 0.409 * sin(2*pi/365*yday("1985-07-15")-1.39), #solar declination
+  delta_08 = 0.409 * sin(2*pi/365*yday("1985-08-15")-1.39), #solar declination
+  delta_09 = 0.409 * sin(2*pi/365*yday("1985-09-15")-1.39), #solar declination
+  delta_10 = 0.409 * sin(2*pi/365*yday("1985-10-15")-1.39), #solar declination
+  delta_11 = 0.409 * sin(2*pi/365*yday("1985-11-15")-1.39), #solar declination
+  delta_12 = 0.409 * sin(2*pi/365*yday("1985-12-15")-1.39), #solar declination
+  ws_01 = acos(-tan(psi)*tan(delta_01)), #sunset hour angle
+  ws_02 = acos(-tan(psi)*tan(delta_02)), #sunset hour angle
+  ws_03 = acos(-tan(psi)*tan(delta_03)), #sunset hour angle
+  ws_04 = acos(-tan(psi)*tan(delta_04)), #sunset hour angle
+  ws_05 = acos(-tan(psi)*tan(delta_05)), #sunset hour angle
+  ws_06 = acos(-tan(psi)*tan(delta_06)), #sunset hour angle
+  ws_07 = acos(-tan(psi)*tan(delta_07)), #sunset hour angle
+  ws_08 = acos(-tan(psi)*tan(delta_08)), #sunset hour angle
+  ws_09 = acos(-tan(psi)*tan(delta_09)), #sunset hour angle
+  ws_10 = acos(-tan(psi)*tan(delta_10)), #sunset hour angle
+  ws_11 = acos(-tan(psi)*tan(delta_11)), #sunset hour angle
+  ws_12 = acos(-tan(psi)*tan(delta_12)), #sunset hour angle
+  dr_01 = 1+0.033*cos(2*pi/365*yday("1985-01-15")), # inverse relative distance Earth-Sun
+  dr_02 = 1+0.033*cos(2*pi/365*yday("1985-02-15")), # inverse relative distance Earth-Sun
+  dr_03 = 1+0.033*cos(2*pi/365*yday("1985-03-15")), # inverse relative distance Earth-Sun
+  dr_04 = 1+0.033*cos(2*pi/365*yday("1985-04-15")), # inverse relative distance Earth-Sun
+  dr_05 = 1+0.033*cos(2*pi/365*yday("1985-05-15")), # inverse relative distance Earth-Sun
+  dr_06 = 1+0.033*cos(2*pi/365*yday("1985-06-15")), # inverse relative distance Earth-Sun
+  dr_07 = 1+0.033*cos(2*pi/365*yday("1985-07-15")), # inverse relative distance Earth-Sun
+  dr_08 = 1+0.033*cos(2*pi/365*yday("1985-08-15")), # inverse relative distance Earth-Sun
+  dr_09 = 1+0.033*cos(2*pi/365*yday("1985-09-15")), # inverse relative distance Earth-Sun
+  dr_10 = 1+0.033*cos(2*pi/365*yday("1985-10-15")), # inverse relative distance Earth-Sun
+  dr_11 = 1+0.033*cos(2*pi/365*yday("1985-11-15")), # inverse relative distance Earth-Sun
+  dr_12 = 1+0.033*cos(2*pi/365*yday("1985-12-15")), # inverse relative distance Earth-Sun
+  Ra_01 = 24*60/pi * 0.0820 * dr_01 * ((ws_01*sin(psi)*sin(delta_01))+cos(psi)*cos(delta_01)*sin(ws_01)), # external radiation MJ/m2/day
+  Ra_02 = 24*60/pi * 0.0820 * dr_02 * ((ws_01*sin(psi)*sin(delta_02))+cos(psi)*cos(delta_02)*sin(ws_02)), # external radiation MJ/m2/day
+  Ra_03 = 24*60/pi * 0.0820 * dr_03 * ((ws_01*sin(psi)*sin(delta_03))+cos(psi)*cos(delta_03)*sin(ws_03)), # external radiation MJ/m2/day
+  Ra_04 = 24*60/pi * 0.0820 * dr_04 * ((ws_01*sin(psi)*sin(delta_04))+cos(psi)*cos(delta_04)*sin(ws_04)), # external radiation MJ/m2/day
+  Ra_05 = 24*60/pi * 0.0820 * dr_05 * ((ws_01*sin(psi)*sin(delta_05))+cos(psi)*cos(delta_05)*sin(ws_05)), # external radiation MJ/m2/day
+  Ra_06 = 24*60/pi * 0.0820 * dr_06 * ((ws_01*sin(psi)*sin(delta_06))+cos(psi)*cos(delta_06)*sin(ws_06)), # external radiation MJ/m2/day
+  Ra_07 = 24*60/pi * 0.0820 * dr_07 * ((ws_01*sin(psi)*sin(delta_07))+cos(psi)*cos(delta_07)*sin(ws_07)), # external radiation MJ/m2/day
+  Ra_08 = 24*60/pi * 0.0820 * dr_08 * ((ws_01*sin(psi)*sin(delta_08))+cos(psi)*cos(delta_08)*sin(ws_08)), # external radiation MJ/m2/day
+  Ra_09 = 24*60/pi * 0.0820 * dr_09 * ((ws_01*sin(psi)*sin(delta_09))+cos(psi)*cos(delta_09)*sin(ws_09)), # external radiation MJ/m2/day
+  Ra_10 = 24*60/pi * 0.0820 * dr_10 * ((ws_01*sin(psi)*sin(delta_10))+cos(psi)*cos(delta_10)*sin(ws_10)), # external radiation MJ/m2/day
+  Ra_11 = 24*60/pi * 0.0820 * dr_11 * ((ws_01*sin(psi)*sin(delta_11))+cos(psi)*cos(delta_11)*sin(ws_11)), # external radiation MJ/m2/day
+  Ra_12 = 24*60/pi * 0.0820 * dr_12 * ((ws_01*sin(psi)*sin(delta_12))+cos(psi)*cos(delta_12)*sin(ws_12)), # external radiation MJ/m2/day
+  e_01 = 0.00023*0.408*Ra_01*sqrt(tmax_01-tmin_01)*(tas_01+17.8), #ET for January
+  e_02 = 0.00023*0.408*Ra_02*sqrt(tmax_02-tmin_02)*(tas_02+17.8),
+  e_03 = 0.00023*0.408*Ra_03*sqrt(tmax_03-tmin_03)*(tas_03+17.8),
+  e_04 = 0.00023*0.408*Ra_04*sqrt(tmax_04-tmin_04)*(tas_04+17.8),
+  e_05 = 0.00023*0.408*Ra_05*sqrt(tmax_05-tmin_05)*(tas_05+17.8), 
+  e_06 = 0.00023*0.408*Ra_06*sqrt(tmax_06-tmin_06)*(tas_06+17.8), 
+  e_07 = 0.00023*0.408*Ra_07*sqrt(tmax_07-tmin_07)*(tas_07+17.8), 
+  e_08 = 0.00023*0.408*Ra_08*sqrt(tmax_08-tmin_08)*(tas_08+17.8), 
+  e_09 = 0.00023*0.408*Ra_09*sqrt(tmax_09-tmin_09)*(tas_09+17.8), 
+  e_10 = 0.00023*0.408*Ra_10*sqrt(tmax_10-tmin_10)*(tas_10+17.8), 
+  e_11 = 0.00023*0.408*Ra_11*sqrt(tmax_11-tmin_11)*(tas_11+17.8), 
+  e_12 = 0.00023*0.408*Ra_12*sqrt(tmax_12-tmin_12)*(tas_12+17.8),
+  MAI_01 = pr_01/e_01, #monthly moisture availability index
+  MAI_02 = pr_02/e_02,
+  MAI_03 = pr_03/e_03,
+  MAI_04 = pr_04/e_04,
+  MAI_05 = pr_05/e_05,
+  MAI_06 = pr_06/e_06,
+  MAI_07 = pr_07/e_07,
+  MAI_08 = pr_08/e_08,
+  MAI_09 = pr_09/e_09,
+  MAI_10 = pr_10/e_10,
+  MAI_11 = pr_11/e_11,
+  MAI_12 = pr_12/e_12,
+  ET0 = rowSums(across(starts_with("e_")), na.rm = T)*365, # en mm/daye_01/p_01
+  AI = pr/ET0
+  )
+                    
+
+breaks.unesco <- c(-Inf,0,0.03,0.2,0.5,0.65,Inf)
+cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65, Inf]" = "Humid", "(-Inf,0]" = "Cold")
+
+wdc.har$cat.AI <- wdc.har$AI %>% cut(breaks = breaks.unesco) %>% 
+  revalue(cat.unesco)
+wdc.har$cat.AI[which(wdc.har$ET0 < 400)] <- "Cold"                    
+                    
+write.table(wdc.har, "Worldclim/wdc.har.txt")
+```
+
+```{r plot-maps-har}
+wdc.har <- read.table("Worldclim/wdc.har.txt")
+
+ggplot() + geom_tile(data = wdc.har, aes(x=lon, y = lat,  fill = ET0))+
+  scale_fill_binned(type = "viridis", breaks = c(0, 400, 800, 1200, 1600), na.value = "gray90")+
+  theme_void()+
+  theme(legend.position = "bottom")
+
+ggplot() + geom_raster(data = subset(wdc.har, lm == 1), aes(x=lon, y = lat,  fill = cat.AI))+
+  geom_raster(data = subset(wdc.tho, lm != 1), aes(x=lon, y = lat),  fill = "lightblue")+
+  scale_fill_manual(values = col.cat)+
+  labs(fill = "")+
+  ylim(-55,90)+
+  theme_void()+
+  theme(legend.position = "bottom")
+
 
 ```
 
-### ea calculated from srad
 
-```{r aridity-index}
-wdc$Rn <- with(wdc, srad * 1e-3)  # conversion from kJ/m2/day to MJ/m2/day
-wdc$P <- with(wdc, 101.3 * ((293-0.0065*z)/293)^(5.26))
+# Compare PM and Hargreaves
 
-wdc$ea <- with(wdc, vapr)
+```{r map-of-bias-pm-hargreaves}
 
-wdc$es <- with(wdc, 0.61078*exp(17.27*(tas)/((tas)+237.3)))
+wdc_harpm <- select(wdc, c("lon","lat","lm","tas","pr","ET0","AI","cat.AI")) %>%
+       merge(select(wdc.har,
+                    c("lon","lat","lm","ET0","AI","cat.AI")),
+             by = c("lon","lat","lm")) %>%
+      filter(lm == 1)
 
+wdc_harpm$rb.ET0 <- with(wdc_harpm, (ET0.x-ET0.y)/ET0.x*100)
 
-wdc$delta <- with(wdc, 4098*es/((tas)+237.3)^2) #slope vapor pressure
-
-wdc$gamma <- with(wdc, 0.00163*P/(2.501-52.6361e-3*(tas))) #psychrometric constant
-
-                      
-wdc$ET0 <-with(wdc,               
-                ((0.408*delta*Rn+gamma*900/((tas)+273)*0.748*sfcWind*(es-ea))/(delta+gamma*(1+0.34*0.748*sfcWind))))
-# Wind speed at 10 m is converted to wind speed at 2 m by multiplying by 0.748
-
-wdc$AI <- with(wdc, pr/(ET0*365))
-
-breaks.unesco <- c(-0,0.03,0.2,0.5,0.65,Inf)
-cat.unesco <- c("(0,0.03]"= "Hyperarid", "(0.03,0.2]" = "Arid", "(0.2,0.5]" = "Semi-arid", "(0.5,0.65]" = "Dry subhumid","(0.65,Inf]" = "Humid")
-
-wdc$cat.AI <- wdc$AI %>% cut(breaks = breaks.unesco) %>% 
-  revalue(cat.unesco)
-
-
-
-ggplot() + geom_raster(data = wdc, aes(x=lon, y = lat,  fill = cat.AI))+
-  scale_fill_manual(values = col.cat)+
+ggplot(filter(wdc_harpm, rb.ET0 < 100 & rb.ET0 > -100)) + geom_tile(aes(x=lon, y = lat,  fill = rb.ET0))+
+  scale_fill_binned_diverging(mid = 0)+
+  labs(fill = "Relative biais in ET0 for Hargreaes compared to Penman-Monteith")+
+  theme_void()+
+  theme(legend.position = "bottom")
+ 
+ggplot() + geom_raster(data = subset(wdc_harpm, ET0.x < ET0.y), aes(x=lon, y = lat,  fill = "PM < H"))+
+  geom_raster(data = subset(wdc_harpm, ET0.x > ET0.y), aes(x=lon, y = lat,  fill = "PM > H"))+
   theme_void()+
   theme(legend.position = "bottom")
 ```
 
-### ET0 calculated from real Rn
-
-
-```{r study-plots}
-na2 <- subset(wdc, is.na(cat.AI2))
-
-ggplot(na2)+geom_tile(aes(x = lon, y = lat, fill = ET0_02))+
-  scale_fill_continuous_divergingx(palette = "RdYlBu", mid = 0)+
-  theme_void()
-
-ggpubr::ggarrange(
-ggplot(wdc) + geom_point(aes(x = pr_12, y = ET0_12, col ="december"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[1])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-   geom_point(aes(x = pr_03, y = ET0_03, col ="march"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[2])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-  geom_point(aes(x = pr_06, y = ET0_06, col ="june"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[3])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + geom_point(aes(x = pr_09, y = ET0_09, col ="september"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[4])+
-  theme_minimal()+theme(legend.position = "none"),
-ncol = 2, nrow = 2)
-
-negET <- subset(wdc, Rn < 0 & is.na(cat.AI2) & !is.na(cat.AI))
-
-ggpubr::ggarrange(
-ggplot(wdc) + geom_point(aes(x = Rn_12, y = ET0_12, col ="december"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[1])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-   geom_point(aes(x = Rn_03, y = ET0_03, col ="march"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[2])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-  geom_point(aes(x = Rn_06, y = ET0_06, col ="june"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[3])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + geom_point(aes(x = Rn_09, y = ET0_09, col ="september"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[4])+
-  theme_minimal()+theme(legend.position = "none"),
-ncol = 2, nrow = 2)
-
-ggpubr::ggarrange(
-ggplot(wdc) + geom_point(aes(x = vapr_12, y = ET0_12, col ="december"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[1])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-   geom_point(aes(x = vapr_03, y = ET0_03, col ="march"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[2])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-  geom_point(aes(x = vapr_06, y = ET0_06, col ="june"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[3])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + geom_point(aes(x = vapr_09, y = ET0_09, col ="september"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[4])+
-  theme_minimal()+theme(legend.position = "none"),
-ncol = 2, nrow = 2)
-
-ggpubr::ggarrange(
-ggplot(wdc) + geom_point(aes(x = tas_12, y = ET0_12, col ="december"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[1])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-   geom_point(aes(x = tas_03, y = ET0_03, col ="march"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[2])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-  geom_point(aes(x = tas_06, y = ET0_06, col ="june"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[3])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + geom_point(aes(x = tas_09, y = ET0_09, col ="september"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[4])+
-  theme_minimal()+theme(legend.position = "none"),
-ncol = 2, nrow = 2)
-
-ggpubr::ggarrange(
-ggplot(wdc) + geom_point(aes(x = es_12, y = ET0_12, col ="december"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[1])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-   geom_point(aes(x = es_03, y = ET0_03, col ="march"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[2])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-  geom_point(aes(x = es_06, y = ET0_06, col ="june"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[3])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + geom_point(aes(x = es_09, y = ET0_09, col ="september"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[4])+
-  theme_minimal()+theme(legend.position = "none"),
-ncol = 2, nrow = 2)
-
-ggpubr::ggarrange(
-ggplot(wdc) + geom_point(aes(x = es_12-vapr_12, y = ET0_12, col ="december"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[1])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-   geom_point(aes(x = es_03-vapr_03, y = ET0_03, col ="march"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[2])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + 
-  geom_point(aes(x = es_06-vapr_06, y = ET0_06, col ="june"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[3])+
-  theme_minimal()+theme(legend.position = "none"),
-ggplot(wdc) + geom_point(aes(x = es_09-vapr_09, y = ET0_09, col ="september"), alpha = 0.5)+
-   scale_color_manual(values = colorvec[4])+
-  theme_minimal()+theme(legend.position = "none"),
-ncol = 2, nrow = 2)
-
-lm(scale(ET0)~scale(mean.Rn)+scale(tas)+scale(sfcWind)+scale(vapr), data = wdc) %>% summary()
-lm(scale(AI)~scale(pr)+scale(mean.Rn)+scale(tas)+scale(sfcWind)+scale(vapr), data = subset(wdc, AI > 0 & AI < 0.65)) %>% summary()
-
-lm(scale(ET0_03)~scale(Rn_03)+scale(tas_03)+scale(sfcWind_03)+scale(Rs_03), data = subset(wdc, ET0_03 < 0)) %>% summary()
-```
-```
